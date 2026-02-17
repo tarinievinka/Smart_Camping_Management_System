@@ -1,0 +1,25 @@
+# 1. Dependencies - Do NOT push node_modules as they can be re-installed
+node_modules/
+jspm_packages/
+
+# 2. Environment Variables - VERY IMPORTANT for security
+.env
+.env.test
+.env.local
+
+# 3. Logs - Keeps your repo clean from runtime output
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 4. Build Directories - If you use a build step (like TypeScript/Babel)
+dist/
+build/
+
+# 5. OS & IDE Files - System-specific clutter
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db
