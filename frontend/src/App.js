@@ -1,21 +1,36 @@
 import React from 'react';
-import './App.css';
-import Navbar from './common/navbar/Navbar';
-import Footer from './common/footer/Footer';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+// Importing payment management components
+import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
+import PaymentForm from './components/payment-management/payment-form/PaymentForm';
+import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
+import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';  
+import PaymentCard from './components/payment-management/payment-card/PaymentCard';
 import Landing from './components/landing/Landing';
+
+
 
 function App() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Landing />} />
+        <Route
+          path='/payment'
+          element={<PaymentForm />}>
+          <Route path="/payment-form" element={<PaymentForm />} />
+          <Route path="/payment-history" element={<PaymentHistory />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<PaymentFailure />} />    
+          <Route path="/payment-card" element={<PaymentCard />} />  
+          
+          {/* gvngvg */}
+          
+        </Route>
 
-      <main className="flex-grow">
-        <Landing />
-      </main>
-
-      <Footer />
-    </div>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
