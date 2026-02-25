@@ -11,7 +11,6 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 
-// Error handling for JSON parse errors
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return res.status(400).json({ error: 'Invalid JSON: ' + err.message });

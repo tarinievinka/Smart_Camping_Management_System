@@ -3,16 +3,16 @@ const router = express.Router();
 
 const guideController = require("../../controllers/guide-controller/guidecontroller");
 
-// Create new guide
+// Create guide
 router.post("/add", guideController.createGuide);
 
-// Get all guides
+// Get guides
 router.get("/display", guideController.getAllGuides);
 
-// Get guide by ID
+// Get  by ID
 router.get("/update/:id", guideController.getGuideById);
 
-// Update guide
+// Update 
 router.put("/update/:id", guideController.updateGuide);
 
 // Delete guide

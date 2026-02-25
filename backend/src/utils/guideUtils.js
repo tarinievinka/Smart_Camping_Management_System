@@ -1,4 +1,4 @@
-// Guide utilities: add helpers as needed
+// Guide utilities
 
 // Example: Generate a Guide ID
 function generateGuideId() {

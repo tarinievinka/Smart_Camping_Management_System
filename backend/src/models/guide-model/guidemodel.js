@@ -4,22 +4,22 @@ const guideSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Guide name is required"],
+      required: [true, "Guide name is Required"],
       trim: true,
     },
 
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: [true, "Email is Required"],
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, "Please use a valid email address"],
+      match: [/^\S+@\S+\.\S+$/, "Please use a valid Email address"],
     },
 
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
+      required: [true, "Phone number is Required"],
       trim: true,
     },
 
