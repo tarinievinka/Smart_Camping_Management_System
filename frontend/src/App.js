@@ -1,7 +1,5 @@
 import React from 'react';
-import './App.css';
-import Navbar from './common/navbar/Navbar';
-import Footer from './common/footer/Footer';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { Routes, Route } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
@@ -12,6 +10,8 @@ import SecureCheckout from './components/payment-management/payment-checkout/Sec
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
 import Landing from './components/landing/Landing';
 import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
+
+
 
 
 
