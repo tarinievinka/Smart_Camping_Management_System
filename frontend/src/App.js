@@ -10,6 +10,7 @@ import PaymentCard from './components/payment-management/payment-card/PaymentCar
 import Landing from './components/landing/Landing';
 
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -23,6 +24,7 @@ function App() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failure" element={<PaymentFailure />} />    
           <Route path="/payment-card" element={<PaymentCard />} />  
+          
           
         </Route>
 
