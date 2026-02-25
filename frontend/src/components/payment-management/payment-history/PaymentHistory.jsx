@@ -11,7 +11,7 @@ const PaymentHistory = () => {
     const fetchPayments = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/payments"
+          `${process.env.REACT_APP_API_URL}/api/payments`
         );
 
         setPayments(response.data);
