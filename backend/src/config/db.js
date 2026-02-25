@@ -13,15 +13,15 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
-    console.log('✅ MongoDB connected successfully');
+    console.log(' MongoDB connected successfully');
   } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message || err);
-    console.log('⚠️  Make sure your MongoDB is running (local or Atlas)');
-    console.log('📝 Current MONGO_URI:', uri);
+    console.error(' MongoDB connection error:', err.message || err);
+    console.log(' Make sure your MongoDB is running (local or Atlas)');
+    console.log(' Current MONGO_URI:', uri);
     
     // Retry once after 3 seconds
     setTimeout(() => {
-      console.log('🔄 Retrying MongoDB connection...');
+      console.log(' Retrying MongoDB connection...');
       connectDB();
     }, 3000);
   }
