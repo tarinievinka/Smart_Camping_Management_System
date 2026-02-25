@@ -36,7 +36,7 @@ const PaymentForm = () => {
       setMessage("");
 
       const response = await axios.post(
-        "http://localhost:5000/api/payments/create",
+        `${process.env.REACT_APP_API_URL}/api/payments/create`,
         {
           userId: "YOUR_USER_ID", // Replace with logged-in user ID later
           bookingType: formData.bookingType,
