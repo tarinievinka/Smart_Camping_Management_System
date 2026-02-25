@@ -5,7 +5,7 @@ const app = express();
 const connectDB = require('./src/config/db');
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
 const feedbackRoute = require('./src/routes/feedback-route/feedbackRoute');
-const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
+// const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
 
 // Use the port from .env, or fallback to 5000 if not found
 const port = process.env.PORT || 5000;
@@ -34,7 +34,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/payment', paymentRoute);
 app.use('/api/feedback', feedbackRoute);
-app.use('/api/equipment', equipmentRouter);
+// app.use('/api/equipment', equipmentRouter);
 
 const start = async () => {
   await connectDB();
