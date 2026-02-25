@@ -7,13 +7,14 @@ import PaymentForm from './components/payment-management/payment-form/PaymentFor
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
 import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';  
 import PaymentCard from './components/payment-management/payment-card/PaymentCard';
+import Landing from './components/landing/Landing';
 
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
+        <Route path='/' element={<Landing />} />
         <Route
           path='/payment'
           element={<PaymentForm />}>
@@ -22,6 +23,7 @@ function App() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failure" element={<PaymentFailure />} />    
           <Route path="/payment-card" element={<PaymentCard />} />  
+          
         </Route>
 
       </Routes>
