@@ -46,24 +46,22 @@ const Footer = () => {
 
                     {/* Column 2: Project Details */}
                     <div>
-                        <h3 className="text-gray-900 font-bold mb-6">Project Details</h3>
+                        <h3 className="text-gray-900 font-bold mb-6"> Contact us</h3>
                         <ul className="space-y-4 text-sm">
                             <li className="flex gap-2">
-                                <span className="text-green-700 font-medium">Stack:</span>
-                                <span className="text-gray-600">MERN Stack</span>
+                                
+                                <span className="text-gray-600">facebook</span>
+                            </li>
+                            
+                            <li className="flex gap-2">
+                                
+                                <span className="text-gray-600">instagram</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="text-green-700 font-medium">Type:</span>
-                                <span className="text-gray-600">University Final Year Project</span>
+                                
+                                <span className="text-gray-600">whatsapp</span>
                             </li>
-                            <li className="flex gap-2">
-                                <span className="text-green-700 font-medium">Database:</span>
-                                <span className="text-gray-600">MongoDB Atlas</span>
-                            </li>
-                            <li className="flex gap-2">
-                                <span className="text-green-700 font-medium">Auth:</span>
-                                <span className="text-gray-600">JWT & Google Auth</span>
-                            </li>
+                            
                         </ul>
                     </div>
 

@@ -38,7 +38,7 @@ const SimplePaymentForm = ({ amount = 303.80 }) => {
         amount: amount,
         paymentMethod: "card",
         transactionId: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        paymentStatus: "success"
+        paymentStatus: "pending"
       };
 
       await createPayment(paymentData);
