@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-// Importing payment management components
+// Payment management components
 import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
-import PaymentForm from './components/payment-management/payment-form/PaymentForm';
+import PaymentManagement from './components/payment-management/PaymentManagement';
+import SecureCheckout from './components/payment-management/payment-checkout/SecureCheckout';
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
-import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';  
-import PaymentCard from './components/payment-management/payment-card/PaymentCard';
 import Landing from './components/landing/Landing';
+import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
 
 
 
@@ -16,19 +16,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Landing />} />
-        <Route
-          path='/payment'
-          element={<PaymentForm />}>
-          <Route path="/payment-form" element={<PaymentForm />} />
-          <Route path="/payment-history" element={<PaymentHistory />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-failure" element={<PaymentFailure />} />    
-          <Route path="/payment-card" element={<PaymentCard />} />  
-          
-          {/* gvngvg */}
-          
-        </Route>
-
+        <Route path="/payment-history" element={<PaymentHistory />} />
+        <Route path="/payment-management" element={<PaymentManagement />} />
+        <Route path="/payment-checkout" element={<SecureCheckout />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );
