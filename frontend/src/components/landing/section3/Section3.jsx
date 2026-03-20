@@ -74,8 +74,8 @@ const Section3 = () => {
                                 />
                                 <div className="absolute top-4 left-4">
                                     <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider uppercase ${site.statusType === 'success'
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-orange-600 text-white'
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-green-900 text-white'
                                         }`}>
                                         {site.statusType === 'success' ? (
                                             <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
