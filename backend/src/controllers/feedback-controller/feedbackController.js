@@ -23,6 +23,7 @@ exports.createFeedback = async (req, res) => {
     const feedback = await feedbackService.createFeedback(req.body);
     res.status(201).json(feedback);
   } catch (err) {
+    console.error('Feedback creation error:', err); // Log full error for debugging
     res.status(400).json({ error: err.message });
   }
 };
