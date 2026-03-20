@@ -41,6 +41,11 @@ const feedbackSchema = new mongoose.Schema({
 
   editableUntil: {
     type: Date
+  },
+
+  sessionDate: {
+    type: Date,
+    required: true
   }
 
 }, { timestamps: true });

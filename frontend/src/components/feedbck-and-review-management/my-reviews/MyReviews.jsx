@@ -115,8 +115,6 @@ const MyReviews = () => {
             <li onClick={() => navigate("/")}>Campsites</li>
             <li onClick={() => navigate("/")}>Equipment</li>
             <li onClick={() => navigate("/")}>Guides</li>
-            <li className="active" onClick={() => navigate("/my-reviews")}>My Reviews</li>
-            <li onClick={() => navigate("/")}>Settings</li>
           </ul>
         </nav>
         <div className="pro-member">

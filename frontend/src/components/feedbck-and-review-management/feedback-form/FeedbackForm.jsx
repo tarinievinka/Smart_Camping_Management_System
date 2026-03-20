@@ -13,28 +13,8 @@ const FeedbackForm = () => {
     const [rating, setRating] = useState(4);
     const [hover, setHover] = useState(null);
     const [reviewText, setReviewText] = useState("");
-    const [photos, setPhotos] = useState([]);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
-
-    const handlePhotoChange = (e) => {
-        const files = Array.from(e.target.files);
-        setPhotos(prev => [...prev, ...files]);
-    };
-
-    const removePhoto = (indexToRemove) => {
-        setPhotos(photos.filter((_, index) => index !== indexToRemove));
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const files = Array.from(e.dataTransfer.files);
-        setPhotos(prev => [...prev, ...files]);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -89,7 +69,6 @@ const FeedbackForm = () => {
             setSessionDate("");
             setRating(4);
             setReviewText("");
-            setPhotos([]);
             setErrors({});
             navigate("/my-reviews");
         } catch (error) {
@@ -243,67 +222,6 @@ const FeedbackForm = () => {
                             </div>
                         )}
                     </div>
-
-                    {/* Add photos */}
-                    <div className="space-y-3">
-                        <label className="text-sm font-bold tracking-widest text-green-200 uppercase block mb-3">
-                            Add Photos (Optional)
-                        </label>
-                        <div
-                            onDrop={handleDrop}
-                            onDragOver={handleDragOver}
-                            className="group relative border-2 border-dashed border-green-400/60 hover:border-green-300 rounded-[24px] p-8 sm:p-10 text-center bg-green-950/20 hover:bg-green-900/40 transition-all duration-300 cursor-pointer overflow-hidden"
-                        >
-                            {/* Decorative background glow */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            
-                            <input
-                                type="file"
-                                accept="image/png, image/jpeg"
-                                multiple
-                                className="hidden"
-                                id="photo-upload"
-                                onChange={handlePhotoChange}
-                            />
-                            <label htmlFor="photo-upload" className="cursor-pointer flex flex-col items-center justify-center w-full h-full relative z-10">
-                                <div className="bg-green-600/50 p-5 rounded-full mb-5 group-hover:scale-110 group-hover:bg-green-500/80 transition-all duration-300 shadow-xl border border-green-400/30">
-                                    <UploadCloud className="text-white" size={36} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-white font-extrabold text-xl mb-2 drop-shadow-md">
-                                    Drag and drop your photos here
-                                </p>
-                                <p className="text-green-200 text-base mb-4 font-medium">
-                                    or <span className="text-white underline underline-offset-4 decoration-2 decoration-green-400 hover:text-green-300 transition-colors">Browse files</span>
-                                </p>
-                                <p className="text-green-100 text-xs font-bold tracking-widest bg-green-950/60 px-4 py-1.5 rounded-lg inline-block border border-green-700/50">
-                                    JPG, PNG UP TO 10MB
-                                </p>
-                            </label>
-                        </div>
-                        {photos.length > 0 && (
-                            <div className="flex flex-wrap gap-4 mt-6">
-                                {photos.map((file, idx) => (
-                                    <div key={idx} className="relative group">
-                                        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-green-400/80 shadow-xl">
-                                            <img
-                                                src={URL.createObjectURL(file)}
-                                                alt="preview"
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                            />
-                                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl hover:bg-red-600 hover:scale-110"
-                                            onClick={() => removePhoto(idx)}
-                                        >
-                                            <X size={16} strokeWidth={3} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
                 </div>
 
                 {/* Footer / Actions */}
@@ -323,7 +241,6 @@ const FeedbackForm = () => {
                                 setSessionDate("");
                                 setRating(4);
                                 setReviewText("");
-                                setPhotos([]);
                                 setErrors({});
                             }}
                             className="px-6 py-4 rounded-xl text-green-100 font-bold hover:bg-white/10 transition-colors w-full sm:w-auto"
