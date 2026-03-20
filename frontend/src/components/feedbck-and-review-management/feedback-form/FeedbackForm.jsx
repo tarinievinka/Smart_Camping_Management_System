@@ -9,6 +9,7 @@ const starLabels = ["Terrible", "Bad", "Okay", "Good", "Very Good"];
 
 const FeedbackForm = () => {
     const [selectedReview, setSelectedReview] = useState("");
+    const [sessionDate, setSessionDate] = useState("");
     const [rating, setRating] = useState(4);
     const [hover, setHover] = useState(null);
     const [reviewText, setReviewText] = useState("");
@@ -44,6 +45,16 @@ const FeedbackForm = () => {
             newErrors.selectedReview = "Please select what you are reviewing.";
         }
 
+        if (!sessionDate) {
+            newErrors.sessionDate = "Please select the date of your session.";
+        } else {
+            const selectedDate = new Date(sessionDate);
+            const today = new Date();
+            if (selectedDate > today) {
+                newErrors.sessionDate = "Session date cannot be in the future.";
+            }
+        }
+
         if (!reviewText.trim()) {
             newErrors.reviewText = "Review text is required.";
         } else if (reviewText.trim().length < 10) {
@@ -61,6 +72,7 @@ const FeedbackForm = () => {
             userId: "507f1f77bcf86cd799439011",
             targetType: selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1),
             targetId: "507f1f77bcf86cd799439012",
+            sessionDate: sessionDate,
             rating: rating,
             comment: reviewText
         };
@@ -74,6 +86,7 @@ const FeedbackForm = () => {
 
             // Reset form
             setSelectedReview("");
+            setSessionDate("");
             setRating(4);
             setReviewText("");
             setPhotos([]);
@@ -145,6 +158,31 @@ const FeedbackForm = () => {
                             <div className="text-red-300 text-sm mt-2 font-semibold flex items-center gap-1.5 animate-pulse">
                                 <AlertCircle size={16} />
                                 {errors.selectedReview}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* When was your session? */}
+                    <div className="space-y-3">
+                        <label className="text-sm font-bold tracking-widest text-green-200 uppercase flex items-center gap-2">
+                            When was your session?
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="date"
+                                value={sessionDate}
+                                onChange={(e) => {
+                                    setSessionDate(e.target.value);
+                                    if (errors.sessionDate) setErrors({ ...errors, sessionDate: "" });
+                                }}
+                                max={new Date().toISOString().split("T")[0]}
+                                className={`w-full appearance-none bg-green-950/40 border-2 ${errors.sessionDate ? 'border-red-400 focus:ring-red-400' : 'border-green-600/50 focus:ring-green-400 focus:border-green-400'} text-white rounded-2xl px-5 py-4 text-lg focus:outline-none focus:ring-4 focus:ring-opacity-20 transition-all font-medium cursor-pointer backdrop-blur-sm`}
+                            />
+                        </div>
+                        {errors.sessionDate && (
+                            <div className="text-red-300 text-sm mt-2 font-semibold flex items-center gap-1.5 animate-pulse">
+                                <AlertCircle size={16} />
+                                {errors.sessionDate}
                             </div>
                         )}
                     </div>
@@ -282,6 +320,7 @@ const FeedbackForm = () => {
                             type="button"
                             onClick={() => {
                                 setSelectedReview("");
+                                setSessionDate("");
                                 setRating(4);
                                 setReviewText("");
                                 setPhotos([]);

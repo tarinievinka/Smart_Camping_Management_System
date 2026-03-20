@@ -10,7 +10,7 @@ const MyReviews = () => {
 
   // Edit State
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ rating: 5, comment: '', targetType: '' });
+  const [editForm, setEditForm] = useState({ rating: 5, comment: '', targetType: '', sessionDate: '' });
   const [editError, setEditError] = useState('');
 
   const fetchReviews = async () => {
@@ -59,6 +59,7 @@ const MyReviews = () => {
       rating: review.rating || 5,
       comment: review.comment || review.description || '',
       targetType: review.targetType || 'Campsite',
+      sessionDate: review.sessionDate ? new Date(review.sessionDate).toISOString().split('T')[0] : '',
     });
     setEditError('');
   };
@@ -79,12 +80,17 @@ const MyReviews = () => {
       setEditError("Comment must be at least 10 characters.");
       return;
     }
+    if (!editForm.sessionDate) {
+      setEditError("Session date is required.");
+      return;
+    }
 
     try {
       const payload = {
         rating: Number(editForm.rating),
         comment: editForm.comment,
-        targetType: editForm.targetType
+        targetType: editForm.targetType,
+        sessionDate: editForm.sessionDate
       };
       
       await axios.put(`http://localhost:5000/api/feedback/update/${id}`, payload);
@@ -170,6 +176,17 @@ const MyReviews = () => {
                       </div>
 
                       <div style={{ marginBottom: '10px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Session Date</label>
+                        <input 
+                          type="date"
+                          value={editForm.sessionDate}
+                          onChange={(e) => setEditForm({...editForm, sessionDate: e.target.value})}
+                          max={new Date().toISOString().split("T")[0]}
+                          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', maxWidth: '200px' }}
+                        />
+                      </div>
+
+                      <div style={{ marginBottom: '10px' }}>
                         <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Rating</label>
                         <select 
                           value={editForm.rating} 
@@ -202,11 +219,16 @@ const MyReviews = () => {
                   ) : (
                     // VIEW MODE
                     <>
-                      <div className="review-meta">
+                      <div className="review-meta" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
                         <span className={`review-type ${review.targetType?.toLowerCase() || 'campsite'}`}>{review.targetType || 'Campsite'}</span>
                         <span className="review-verified">Verified</span>
-                        <span className="review-date">{new Date(review.createdAt || Date.now()).toLocaleDateString()}</span>
-                        <span className="review-rating">{'★'.repeat(review.rating || 5)}{'☆'.repeat(5 - (review.rating || 5))}</span>
+                        <span className="review-date">Reviewed: {new Date(review.createdAt || Date.now()).toLocaleDateString()}</span>
+                        {review.sessionDate && (
+                          <span className="review-date" style={{fontStyle: 'italic', background: '#e5e7eb', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', color: '#374151'}}>
+                            Event Date: {new Date(review.sessionDate).toLocaleDateString()}
+                          </span>
+                        )}
+                        <span className="review-rating" style={{marginLeft: 'auto'}}>{'★'.repeat(review.rating || 5)}{'☆'.repeat(5 - (review.rating || 5))}</span>
                       </div>
                       <h2>{review.title || `${review.targetType || 'Item'} Review`}</h2>
                       <p>{review.comment || review.description}</p>
