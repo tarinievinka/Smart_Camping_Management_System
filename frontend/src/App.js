@@ -8,8 +8,8 @@ import PaymentHistory from './components/payment-management/payment-history/Paym
 import PaymentManagement from './components/payment-management/PaymentManagement';
 import SecureCheckout from './components/payment-management/payment-checkout/SecureCheckout';
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
-import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';
-import PaymentCard from './components/payment-management/payment-card/PaymentCard';
+import Landing from './components/landing/Landing';
+import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
 
 import Feedback from './components/feedbck-and-review-management/Feedback';
 import MyReviews from './components/feedbck-and-review-management/my-reviews/MyReviews';
