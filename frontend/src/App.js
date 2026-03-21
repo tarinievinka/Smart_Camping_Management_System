@@ -14,8 +14,6 @@ import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDash
 import Feedback from './components/feedbck-and-review-management/Feedback';
 import MyReviews from './components/feedbck-and-review-management/my-reviews/MyReviews';
 import AdminFeedback from './components/feedbck-and-review-management/admin-feedback/AdminFeedback';
-import Landing from './components/landing/Landing';
-import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
 
 
 
