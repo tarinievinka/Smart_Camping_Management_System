@@ -115,6 +115,7 @@ const MyReviews = () => {
             <li onClick={() => navigate("/")}>Campsites</li>
             <li onClick={() => navigate("/")}>Equipment</li>
             <li onClick={() => navigate("/")}>Guides</li>
+            <li className="admin-link" onClick={() => navigate("/admin/feedback")} style={{ color: '#059669', fontWeight: 'bold' }}>Admin Dashboard</li>
           </ul>
         </nav>
         <div className="pro-member">

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { Star, TrendingUp, Calendar, User, Package, MapPin } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -10,6 +11,7 @@ const AdminFeedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Locations Ratings');
+  const navigate = useNavigate();
   
   const fetchData = async () => {
     setLoading(true);
@@ -37,68 +39,58 @@ const AdminFeedback = () => {
     String(f.targetType || '').toLowerCase().includes(targetFilter)
   );
 
-  const totalReviews = filteredFeedbacks.length || 189;
+  const totalReviews = filteredFeedbacks.length;
 
-  const avgRatingRaw = filteredFeedbacks.reduce((acc, curr) => acc + (curr.rating || 5), 0) / (filteredFeedbacks.length || 1);
-  const averageRating = filteredFeedbacks.length > 0 ? avgRatingRaw.toFixed(1) : "4.7";
+  const avgRatingRaw = totalReviews > 0 
+    ? filteredFeedbacks.reduce((acc, curr) => acc + (curr.rating || 5), 0) / totalReviews 
+    : 0;
+  const averageRating = totalReviews > 0 ? avgRatingRaw.toFixed(1) : "0.0";
 
-  const fiveStarReviews = filteredFeedbacks.filter(f => f.rating === 5).length || 112;
-  const fiveStarPercentage = filteredFeedbacks.length > 0 ? Math.round((fiveStarReviews / totalReviews) * 100) : 59;
+  const fiveStarReviews = filteredFeedbacks.filter(f => (f.rating || 5) >= 4.5).length;
+  const fiveStarPercentage = totalReviews > 0 ? Math.round((fiveStarReviews / totalReviews) * 100) : 0;
+  
+  const ratingTrend = totalReviews > 0 ? `+${totalReviews}` : "0";
 
-  // Fake chart data for the aesthetic match
-  const lineChartData = [
-    { name: 'Month 1', rating: 4.2 },
-    { name: 'Month 2', rating: 4.3 },
-    { name: 'Month 3', rating: 4.6 },
-    { name: 'Month 4', rating: 4.6 },
-    { name: 'Month 5', rating: 4.8 },
-    { name: 'Month 6', rating: 4.9 },
-  ];
+  const getChartData = () => {
+    const categories = activeTab === 'Guides Ratings' ? ['Hiking', 'Wildlife', 'Climbing', 'Survival', 'Photography'] :
+                       activeTab === 'Equipment Ratings' ? ['Tents', 'Sleep', 'Cooking', 'Lighting', 'Safety'] :
+                       ['Parks', 'Lakeside', 'Desert', 'Forest', 'Mountain'];
 
-  const barChartData = [
-    { subject: 'Tents', rating: 4.9 },
-    { subject: 'Sleeping Bags', rating: 4.6 },
-    { subject: 'Cooking Gear', rating: 4.8 },
-    { subject: 'Lighting', rating: 4.5 },
-    { subject: 'Safety Gear', rating: 4.9 },
-  ];
+    return categories.map(cat => {
+      // Average the ratings of all feedbacks loosely matched, or just use the overall average if none precisely match
+      const matches = filteredFeedbacks.filter(f => String(f.comment || '').toLowerCase().includes(cat.toLowerCase()));
+      const items = matches.length > 0 ? matches : filteredFeedbacks;
+      const catAvg = items.length > 0 ? items.reduce((sum, f) => sum + (f.rating || 5), 0) / items.length : 0;
+      return { subject: cat, rating: parseFloat(catAvg.toFixed(1)) };
+    });
+  };
 
-  // Dynamic Top Rated Data based on Active Tab
+  const barChartData = getChartData();
+
   const getTabEntityName = () => {
     if (activeTab === 'Guides Ratings') return 'Guides';
     if (activeTab === 'Equipment Ratings') return 'Equipment';
     return 'Locations';
   };
 
-  const getTopRatedData = () => {
-    if (activeTab === 'Guides Ratings') {
-      return [
-        { rank: 1, name: 'Sarah Johnson', subtitle: 'Hiking & Wildlife', rating: '5.0', reviews: 94 },
-        { rank: 2, name: 'Michael Chen', subtitle: 'Water Activities', rating: '4.9', reviews: 87 },
-        { rank: 3, name: 'Emma Rodriguez', subtitle: 'Rock Climbing', rating: '4.9', reviews: 76 },
-        { rank: 4, name: 'David Kim', subtitle: 'Nature Photography', rating: '4.8', reviews: 71 },
-        { rank: 5, name: 'Lisa Anderson', subtitle: 'Survival Skills', rating: '4.8', reviews: 68 },
-      ];
-    } else if (activeTab === 'Equipment Ratings') {
-      return [
-        { rank: 1, name: 'Premium 4-Person Tent', subtitle: 'Shelter', rating: '4.9', reviews: 142 },
-        { rank: 2, name: 'Zero-Degree Sleeping Bag', subtitle: 'Sleep Gear', rating: '4.8', reviews: 115 },
-        { rank: 3, name: 'Portable Camping Stove', subtitle: 'Cooking', rating: '4.7', reviews: 98 },
-        { rank: 4, name: 'Heavy Duty Cooler', subtitle: 'Storage', rating: '4.6', reviews: 84 },
-        { rank: 5, name: 'LED Headlamp Pro', subtitle: 'Lighting', rating: '4.6', reviews: 72 },
-      ];
-    } else {
-      return [
-        { rank: 1, name: 'Yosemite Valley Camp', subtitle: 'National Park', rating: '5.0', reviews: 256 },
-        { rank: 2, name: 'Lake Tahoe Retreat', subtitle: 'Lakeside', rating: '4.9', reviews: 210 },
-        { rank: 3, name: 'Zion Canyon Base', subtitle: 'Desert', rating: '4.8', reviews: 185 },
-        { rank: 4, name: 'Redwoods Outpost', subtitle: 'Forest', rating: '4.8', reviews: 164 },
-        { rank: 5, name: 'Glacier Peak Site', subtitle: 'Mountain', rating: '4.7', reviews: 142 },
-      ];
-    }
+  const getDynamicTopRated = () => {
+    // Sort all live feedbacks by rating descending, take top 5
+    const sorted = [...filteredFeedbacks].sort((a,b) => (b.rating || 5) - (a.rating || 5));
+    return sorted.slice(0, 5).map((item, index) => {
+      let dispName = "Anonymous User";
+      if (item.comment) dispName = item.comment.length > 25 ? item.comment.substring(0, 25) + "..." : item.comment;
+      
+      return {
+        rank: index + 1,
+        name: dispName,
+        subtitle: new Date(item.createdAt || Date.now()).toLocaleDateString(),
+        rating: parseFloat(item.rating || 5).toFixed(1),
+        reviews: 1
+      };
+    });
   };
 
-  const topRatedData = getTopRatedData();
+  const topRatedData = getDynamicTopRated();
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans p-6 md:p-10">
@@ -178,11 +170,11 @@ const AdminFeedback = () => {
 
           {/* Rating Trend Card */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col justify-between h-40">
-            <h3 className="text-slate-600 text-[15px] font-medium">Rating Trend</h3>
+            <h3 className="text-slate-600 text-[15px] font-medium">New Reviews</h3>
             <div>
-              <div className="text-[42px] font-semibold text-[#22c55e] leading-none mb-2">+0.6</div>
+              <div className="text-[42px] font-semibold text-[#22c55e] leading-none mb-2">{ratingTrend}</div>
               <div className="text-slate-400 text-sm flex items-center gap-1">
-                <TrendingUp size={14} /> Over 6 months
+                <TrendingUp size={14} /> Recently Submitted
               </div>
             </div>
           </div>
@@ -194,7 +186,7 @@ const AdminFeedback = () => {
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[400px] flex flex-col">
             <div className="mb-2">
               <h3 className="text-slate-800 text-[17px] font-bold mb-1">Ratings by Category</h3>
-              <p className="text-slate-400 text-sm font-medium">Average ratings across equipment types</p>
+              <p className="text-slate-400 text-sm font-medium">Average ratings across {getTabEntityName().toLowerCase()} types</p>
             </div>
             <div className="flex-1 w-full relative -ml-4 mt-4">
               <ResponsiveContainer width="100%" height="100%">
