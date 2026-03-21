@@ -13,6 +13,50 @@
     padding: 24px 16px;
 }
 
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 16px;
+}
+
+.sidebar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 9999px;
+    background: #059669;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.sidebar-user-info {
+    min-width: 0;
+}
+
+.sidebar-user-name {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #064e3b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+    margin: 0;
+    font-size: 11px;
+    color: #047857;
+}
+
 .logo {
     font-weight: bold;
     font-size: 18px;

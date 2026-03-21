@@ -1,25 +1,153 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { Star, TrendingUp, Calendar, User, Package, MapPin } from "lucide-react";
+import { Star, Calendar, User, Package, MapPin } from "lucide-react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Legend
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell
 } from 'recharts';
+import { useNavigate } from 'react-router-dom';
+import ReviewSidebar from '../ReviewSidebar';
+
+const TAB_CONFIG = {
+  "Guides Ratings": {
+    filter: "guide",
+    icon: User,
+    chartTitle: "Guides Rating Chart",
+    chartSubtitle: "Visual representation of guide ratings",
+    listTitle: "Top Rated Guides",
+    listSubtitle: "Highest rated guides based on customer reviews",
+    fallbackChart: [
+      { subject: "Sarah Johnson", rating: 5.0 },
+      { subject: "Michael Chen", rating: 4.9 },
+      { subject: "Emma Rodriguez", rating: 4.9 },
+      { subject: "David Kim", rating: 4.8 },
+      { subject: "Lisa Anderson", rating: 4.8 },
+      { subject: "Tom Wilson", rating: 4.7 },
+      { subject: "James Taylor", rating: 4.6 },
+      { subject: "Maria Garcia", rating: 4.5 },
+      { subject: "Robert Brown", rating: 4.4 },
+      { subject: "Emily Davis", rating: 4.3 },
+    ],
+    fallbackList: [
+      { name: "Sarah Johnson", subtitle: "Hiking & Wildlife", rating: 5.0, reviews: 94 },
+      { name: "Michael Chen", subtitle: "Water Activities", rating: 4.9, reviews: 87 },
+      { name: "Emma Rodriguez", subtitle: "Rock Climbing", rating: 4.9, reviews: 76 },
+      { name: "David Kim", subtitle: "Nature Photography", rating: 4.8, reviews: 71 },
+      { name: "Lisa Anderson", subtitle: "Survival Skills", rating: 4.8, reviews: 68 },
+      { name: "Tom Wilson", subtitle: "Mountain Trekking", rating: 4.7, reviews: 65 },
+      { name: "James Taylor", subtitle: "Camp Setup", rating: 4.6, reviews: 50 },
+      { name: "Maria Garcia", subtitle: "Wilderness First Aid", rating: 4.5, reviews: 45 },
+      { name: "Robert Brown", subtitle: "Canoeing", rating: 4.4, reviews: 30 },
+      { name: "Emily Davis", subtitle: "Bird Watching", rating: 4.3, reviews: 20 },
+    ],
+  },
+  "Equipment Ratings": {
+    filter: "equipment",
+    icon: Package,
+    chartTitle: "Equipment Rating Chart",
+    chartSubtitle: "Visual representation of equipment ratings",
+    listTitle: "Top Rated Equipment",
+    listSubtitle: "Highest rated equipment based on customer reviews",
+    fallbackChart: [
+      { subject: "Premium 4-Person Tent", rating: 4.8 },
+      { subject: "Deluxe Sleeping Bag", rating: 4.7 },
+      { subject: "Hiking Gear Set", rating: 4.7 },
+      { subject: "Camping Cookware Set", rating: 4.6 },
+      { subject: "LED Camping Lanterns", rating: 4.6 },
+      { subject: "Camping Stove", rating: 4.5 },
+      { subject: "Water Purifier", rating: 4.4 },
+      { subject: "Portable Generator", rating: 4.3 },
+      { subject: "GPS Navigator", rating: 4.2 },
+      { subject: "Multi-tool Knife", rating: 4.1 },
+    ],
+    fallbackList: [
+      { name: "Premium 4-Person Tent", subtitle: "Shelter & Camping", rating: 4.8, reviews: 152 },
+      { name: "Deluxe Sleeping Bag", subtitle: "Bedding", rating: 4.7, reviews: 134 },
+      { name: "Hiking Gear Set", subtitle: "Outdoor Gear", rating: 4.7, reviews: 128 },
+      { name: "Camping Cookware Set", subtitle: "Kitchen Equipment", rating: 4.6, reviews: 119 },
+      { name: "LED Camping Lanterns", subtitle: "Lighting", rating: 4.6, reviews: 112 },
+      { name: "Camping Stove", subtitle: "Cooking", rating: 4.5, reviews: 105 },
+      { name: "Water Purifier", subtitle: "Hydration", rating: 4.4, reviews: 90 },
+      { name: "Portable Generator", subtitle: "Power", rating: 4.3, reviews: 85 },
+      { name: "GPS Navigator", subtitle: "Navigation", rating: 4.2, reviews: 70 },
+      { name: "Multi-tool Knife", subtitle: "Tools", rating: 4.1, reviews: 60 },
+    ],
+  },
+  "Locations Ratings": {
+    filter: "campsite",
+    icon: MapPin,
+    chartTitle: "Locations Rating Chart",
+    chartSubtitle: "Visual representation of location ratings",
+    listTitle: "Top Rated Locations",
+    listSubtitle: "Highest rated camping locations based on customer reviews",
+    fallbackChart: [
+      { subject: "Lakeside Premium", rating: 4.9 },
+      { subject: "Mountain View", rating: 4.8 },
+      { subject: "Forest Retreat", rating: 4.8 },
+      { subject: "Riverside Ground", rating: 4.7 },
+      { subject: "Valley View", rating: 4.7 },
+      { subject: "Pine Woods Area", rating: 4.6 },
+      { subject: "Desert Oasis", rating: 4.5 },
+      { subject: "Canyon Overlook", rating: 4.4 },
+      { subject: "Ocean Breeze", rating: 4.3 },
+      { subject: "Meadow Campground", rating: 4.2 },
+    ],
+    fallbackList: [
+      { name: "Lakeside Premium", subtitle: "Northern Lakes District", rating: 4.9, reviews: 203 },
+      { name: "Mountain View", subtitle: "Highland Range", rating: 4.8, reviews: 187 },
+      { name: "Forest Retreat", subtitle: "Pine Valley", rating: 4.8, reviews: 165 },
+      { name: "Riverside Ground", subtitle: "River Basin", rating: 4.7, reviews: 154 },
+      { name: "Valley View", subtitle: "Central Valley", rating: 4.7, reviews: 142 },
+      { name: "Pine Woods Area", subtitle: "Forest Zone", rating: 4.6, reviews: 138 },
+      { name: "Desert Oasis", subtitle: "Sandy Dunes", rating: 4.5, reviews: 120 },
+      { name: "Canyon Overlook", subtitle: "Red Rock Region", rating: 4.4, reviews: 110 },
+      { name: "Ocean Breeze", subtitle: "Coastal Reserve", rating: 4.3, reviews: 95 },
+      { name: "Meadow Campground", subtitle: "Green Valleys", rating: 4.2, reviews: 80 },
+    ],
+  },
+};
 
 const AdminFeedback = () => {
-  const [feedbacks, setFeedbacks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('Locations Ratings');
   const navigate = useNavigate();
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [guides, setGuides] = useState([]);
+  const [equipment, setEquipment] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("Guides Ratings");
   
+  const extractArray = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.items)) return payload.items;
+    if (Array.isArray(payload?.results)) return payload.results;
+    return [];
+  };
+
+  const getNumber = (value, fallback = 0) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : fallback;
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/feedback/display");
-      setFeedbacks(response.data);
+      const feedbackUrl = process.env.REACT_APP_FEEDBACK_API_URL || "http://localhost:5000/api/feedback/display";
+      const guidesUrl = process.env.REACT_APP_GUIDES_API_URL || "http://localhost:5001/api/guides/display";
+      const equipmentUrl = process.env.REACT_APP_EQUIPMENT_API_URL || "http://localhost:5002/api/equipment/display";
+
+      const [feedbackRes, guidesRes, equipmentRes] = await Promise.allSettled([
+        axios.get(feedbackUrl),
+        axios.get(guidesUrl),
+        axios.get(equipmentUrl),
+      ]);
+
+      setFeedbacks(feedbackRes.status === "fulfilled" ? extractArray(feedbackRes.value?.data) : []);
+      setGuides(guidesRes.status === "fulfilled" ? extractArray(guidesRes.value?.data) : []);
+      setEquipment(equipmentRes.status === "fulfilled" ? extractArray(equipmentRes.value?.data) : []);
     } catch (error) {
       console.error("Error fetching admin data:", error);
+      setFeedbacks([]);
+      setGuides([]);
+      setEquipment([]);
     } finally {
       setLoading(false);
     }
@@ -29,181 +157,178 @@ const AdminFeedback = () => {
     fetchData();
   }, []);
 
-  // Compute metrics based on activeTab
-  let targetFilter = '';
-  if (activeTab === 'Guides Ratings') targetFilter = 'guide';
-  if (activeTab === 'Equipment Ratings') targetFilter = 'equipment';
-  if (activeTab === 'Locations Ratings') targetFilter = 'campsite';
+  const activeConfig = TAB_CONFIG[activeTab];
+  const targetFilter = activeConfig.filter;
+  const labelPrefix = activeTab === "Guides Ratings" ? "Guide" : activeTab === "Equipment Ratings" ? "Equipment" : "Location";
 
-  const filteredFeedbacks = feedbacks.filter(f => 
+  const filteredFeedbacks = feedbacks.filter((f) => 
     String(f.targetType || '').toLowerCase().includes(targetFilter)
   );
 
-  const totalReviews = filteredFeedbacks.length;
+  const guideEntities = guides.map((item, index) => ({
+    key: item._id || item.id || `guide-${index}`,
+    rating: Number(
+      getNumber(
+        item.averageRating ?? item.avgRating ?? item.rating ?? item.reviewRating ?? item.stars,
+        0
+      ).toFixed(1)
+    ),
+    reviews: getNumber(item.totalReviews ?? item.reviewCount ?? item.reviews ?? item.ratingsCount, 0),
+  }));
 
-  const avgRatingRaw = totalReviews > 0 
-    ? filteredFeedbacks.reduce((acc, curr) => acc + (curr.rating || 5), 0) / totalReviews 
-    : 0;
-  const averageRating = totalReviews > 0 ? avgRatingRaw.toFixed(1) : "0.0";
+  const equipmentEntities = equipment.map((item, index) => ({
+    key: item._id || item.id || `equipment-${index}`,
+    rating: Number(
+      getNumber(
+        item.averageRating ?? item.avgRating ?? item.rating ?? item.reviewRating ?? item.stars,
+        0
+      ).toFixed(1)
+    ),
+    reviews: getNumber(item.totalReviews ?? item.reviewCount ?? item.reviews ?? item.ratingsCount, 0),
+  }));
 
-  const fiveStarReviews = filteredFeedbacks.filter(f => (f.rating || 5) >= 4.5).length;
-  const fiveStarPercentage = totalReviews > 0 ? Math.round((fiveStarReviews / totalReviews) * 100) : 0;
-  
-  const ratingTrend = totalReviews > 0 ? `+${totalReviews}` : "0";
+  const feedbackEntities = Object.values(
+    filteredFeedbacks.reduce((acc, item, index) => {
+      const key = item.targetName || item.targetId || item._id || `location-${index}`;
+      if (!acc[key]) {
+        acc[key] = { ratings: [], reviews: 0, name: item.targetName || item.title || `Item ${index + 1}` };
+      }
+      acc[key].ratings.push(getNumber(item.rating, 0));
+      acc[key].reviews += 1;
+      return acc;
+    }, {})
+  ).map((entry) => {
+    const avg = entry.ratings.length
+      ? entry.ratings.reduce((sum, val) => sum + val, 0) / entry.ratings.length
+      : 0;
+    return {
+      subject: entry.name,
+      rating: Number(avg.toFixed(1)),
+      reviews: entry.reviews,
+    };
+  });
 
-  const getChartData = () => {
-    const categories = activeTab === 'Guides Ratings' ? ['Hiking', 'Wildlife', 'Climbing', 'Survival', 'Photography'] :
-                       activeTab === 'Equipment Ratings' ? ['Tents', 'Sleep', 'Cooking', 'Lighting', 'Safety'] :
-                       ['Parks', 'Lakeside', 'Desert', 'Forest', 'Mountain'];
+  const rawEntities = activeTab === "Guides Ratings"
+    ? (guideEntities.length ? guideEntities : feedbackEntities)
+    : activeTab === "Equipment Ratings"
+      ? (equipmentEntities.length ? equipmentEntities : feedbackEntities)
+      : feedbackEntities;
 
-    return categories.map(cat => {
-      // Average the ratings of all feedbacks loosely matched, or just use the overall average if none precisely match
-      const matches = filteredFeedbacks.filter(f => String(f.comment || '').toLowerCase().includes(cat.toLowerCase()));
-      const items = matches.length > 0 ? matches : filteredFeedbacks;
-      const catAvg = items.length > 0 ? items.reduce((sum, f) => sum + (f.rating || 5), 0) / items.length : 0;
-      return { subject: cat, rating: parseFloat(catAvg.toFixed(1)) };
-    });
-  };
+  const sortedEntities = rawEntities
+    .filter((item) => item.rating > 0)
+    .sort((a, b) => b.rating - a.rating);
 
-  const barChartData = getChartData();
+  const barChartData = sortedEntities.length
+    ? sortedEntities.slice(0, 10).map((item, index) => ({ subject: item.subject || `${labelPrefix} ${index + 1}`, rating: item.rating }))
+    : activeConfig.fallbackChart.slice(0, 10).map((item) => ({ ...item, subject: item.subject }));
 
-  const getTabEntityName = () => {
-    if (activeTab === 'Guides Ratings') return 'Guides';
-    if (activeTab === 'Equipment Ratings') return 'Equipment';
-    return 'Locations';
-  };
-
-  const getDynamicTopRated = () => {
-    // Sort all live feedbacks by rating descending, take top 5
-    const sorted = [...filteredFeedbacks].sort((a,b) => (b.rating || 5) - (a.rating || 5));
-    return sorted.slice(0, 5).map((item, index) => {
-      let dispName = "Anonymous User";
-      if (item.comment) dispName = item.comment.length > 25 ? item.comment.substring(0, 25) + "..." : item.comment;
-      
-      return {
+  const topRatedData = sortedEntities.length
+    ? sortedEntities.slice(0, 5).map((item, index) => ({
         rank: index + 1,
-        name: dispName,
-        subtitle: new Date(item.createdAt || Date.now()).toLocaleDateString(),
-        rating: parseFloat(item.rating || 5).toFixed(1),
-        reviews: 1
-      };
-    });
-  };
+        name: item.subject || `${labelPrefix} ${index + 1}`,
+        subtitle: "Community Review",
+        rating: item.rating,
+        reviews: getNumber(item.reviews, 0),
+      }))
+    : activeConfig.fallbackList.slice(0, 5).map((item, index) => ({
+        rank: index + 1,
+        ...item,
+        name: `${labelPrefix} ${index + 1}`,
+        subtitle: "Anonymous entry",
+      }));
 
-  const topRatedData = getDynamicTopRated();
+  const tabNames = Object.keys(TAB_CONFIG);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans p-6 md:p-10">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-slate-50 flex font-sans">
+      <ReviewSidebar />
+      <div className="flex-1 h-screen overflow-y-auto p-4 md:p-8">
+        <div className="max-w-[1280px] mx-auto bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-[32px] font-bold text-slate-900 mb-1 tracking-tight">Ratings Analysis Dashboard</h1>
-            <p className="text-slate-500 text-[15px]">Smart Camping Management System - Rating Analytics</p>
+            <h1 className="text-4xl font-extrabold text-slate-900 mb-1 leading-tight tracking-tight">Ratings Analysis Dashboard</h1>
+            <p className="text-slate-500 font-medium text-base">Smart Camping Management System Performance Overview</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
-            <Calendar size={16} /> Last 6 Months
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate("/admin/all-reviews")} 
+              className="flex items-center gap-2 px-6 py-2.5 bg-slate-900 border border-transparent rounded-xl text-sm font-bold text-white shadow-sm hover:bg-slate-800 transition-colors"
+            >
+              View All Reviews
+            </button>
+          </div>
         </div>
 
         {/* Tabs Section */}
-        <div className="bg-slate-100 p-1.5 rounded-xl flex flex-col md:flex-row mb-8 shadow-inner border border-slate-200/60">
-          <button 
-            onClick={() => setActiveTab('Guides Ratings')}
-            className={`flex-1 flex flex-col items-center justify-center py-4 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'Guides Ratings' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-200/50'}`}
-          >
-            <User size={20} className="mb-2 text-slate-700" strokeWidth={1.5} /> Guides Ratings
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('Equipment Ratings')}
-            className={`flex-1 flex flex-col items-center justify-center py-4 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'Equipment Ratings' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-200/50'}`}
-          >
-            <Package size={20} className="mb-2 text-slate-700" strokeWidth={1.5} /> Equipment Ratings
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('Locations Ratings')}
-            className={`flex-1 flex flex-col items-center justify-center py-4 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'Locations Ratings' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-200/50'}`}
-          >
-            <MapPin size={20} className="mb-2 text-slate-700" strokeWidth={1.5} /> Locations Ratings
-          </button>
-        </div>
-
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Average Rating Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col justify-between h-40">
-            <h3 className="text-slate-600 text-[15px] font-medium">Average Rating</h3>
-            <div>
-              <div className="text-[42px] font-semibold text-slate-800 leading-none mb-2">{averageRating}</div>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    size={16}
-                    className={`${star <= Math.round(Number(averageRating)) ? 'fill-[#facc15] text-[#facc15]' : 'fill-slate-100 text-slate-200'}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Total Reviews Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col justify-between h-40">
-            <h3 className="text-slate-600 text-[15px] font-medium">Total Reviews</h3>
-            <div>
-              <div className="text-[42px] font-semibold text-slate-800 leading-none mb-2">{totalReviews}</div>
-              <div className="text-slate-400 text-sm">Verified reviews</div>
-            </div>
-          </div>
-
-          {/* 5-Star Reviews Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col justify-between h-40">
-            <h3 className="text-slate-600 text-[15px] font-medium">5-Star Reviews</h3>
-            <div>
-              <div className="text-[42px] font-semibold text-slate-800 leading-none mb-2">{fiveStarReviews}</div>
-              <div className="text-[#22c55e] text-sm font-medium">{fiveStarPercentage}% of all reviews</div>
-            </div>
-          </div>
-
-          {/* Rating Trend Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col justify-between h-40">
-            <h3 className="text-slate-600 text-[15px] font-medium">New Reviews</h3>
-            <div>
-              <div className="text-[42px] font-semibold text-[#22c55e] leading-none mb-2">{ratingTrend}</div>
-              <div className="text-slate-400 text-sm flex items-center gap-1">
-                <TrendingUp size={14} /> Recently Submitted
-              </div>
-            </div>
-          </div>
+        <div className="bg-slate-100 p-1.5 rounded-2xl flex flex-col md:flex-row mb-8 border border-slate-200 shadow-inner">
+          {tabNames.map((tabName) => {
+            const Icon = TAB_CONFIG[tabName].icon;
+            const isActive = activeTab === tabName;
+            return (
+              <button
+                key={tabName}
+                onClick={() => setActiveTab(tabName)}
+                className={`flex-1 flex flex-col items-center justify-center py-4 rounded-xl text-sm font-bold transition-all duration-300 ${
+                  isActive ? "bg-white text-slate-900 shadow-sm border border-slate-200 scale-100" : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 scale-[0.98]"
+                }`}
+              >
+                <Icon size={20} className={`mb-2 ${isActive ? 'text-green-600' : 'text-slate-400'}`} />
+                {tabName}
+              </button>
+            );
+          })}
         </div>
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 gap-6 mb-8">
-          {/* Ratings by Category (Bar Chart) */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-[400px] flex flex-col">
-            <div className="mb-2">
-              <h3 className="text-slate-800 text-[17px] font-bold mb-1">Ratings by Category</h3>
-              <p className="text-slate-400 text-sm font-medium">Average ratings across {getTabEntityName().toLowerCase()} types</p>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 h-[400px] flex flex-col shadow-sm">
+            <div className="mb-4">
+              <h3 className="text-slate-900 text-xl font-bold tracking-tight">{activeConfig.chartTitle}</h3>
+              <p className="text-slate-500 text-sm font-medium">{activeConfig.chartSubtitle}</p>
             </div>
-            <div className="flex-1 w-full relative -ml-4 mt-4">
+            <div className="flex-1 w-full mt-2 relative">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barChartData} margin={{ top: 20, right: 30, left: -20, bottom: 5 }}>
+                <BarChart data={barChartData} margin={{ top: 20, right: 20, left: -20, bottom: 20 }}>
+                  <defs>
+                    <linearGradient id="colorRating" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="#34d399" stopOpacity={0.6}/>
+                    </linearGradient>
+                    <linearGradient id="colorRatingTop" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#059669" stopOpacity={1}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.8}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="subject" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 13 }} dy={10} />
-                  <YAxis domain={[0, 5]} ticks={[0, 2, 5]} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 13 }} />
+                  <XAxis
+                    dataKey="subject"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#64748b", fontSize: 13, fontWeight: 500 }}
+                    dy={12}
+                  />
+                  <YAxis
+                    domain={[0, 5]}
+                    ticks={[0, 1, 2, 3, 4, 5]}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#64748b", fontSize: 12, fontWeight: 500 }}
+                    dx={-10}
+                  />
                   <Tooltip 
-                    cursor={{ fill: '#f8fafc' }}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }} 
+                    cursor={{ fill: "#f8fafc" }}
+                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)", padding: "16px" }}
+                    itemStyle={{ color: "#0f172a", fontWeight: "bold", fontSize: "16px" }}
                   />
-                  <Legend 
-                    iconType="square" 
-                    wrapperStyle={{ paddingTop: '20px', fontSize: '14px', color: '#8b5cf6' }} 
-                    formatter={(value) => <span style={{ color: '#8b5cf6', fontWeight: 500 }}>Average Rating</span>} 
-                  />
-                  <Bar dataKey="rating" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={50} />
+                  <Bar dataKey="rating" radius={[8, 8, 0, 0]} barSize={55}>
+                    {
+                      barChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={index === 0 ? "url(#colorRatingTop)" : "url(#colorRating)"} />
+                      ))
+                    }
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -211,40 +336,40 @@ const AdminFeedback = () => {
         </div>
 
         {/* Top Rated List Section */}
-        <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-          <div className="mb-6">
-            <h3 className="text-slate-800 text-[19px] font-bold mb-1">Top Rated {getTabEntityName()}</h3>
-            <p className="text-slate-400 text-[15px] font-medium">Highest rated {getTabEntityName().toLowerCase()} based on customer reviews</p>
+        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+          <div className="mb-5">
+            <h3 className="text-slate-900 text-lg font-bold tracking-tight">{activeConfig.listTitle}</h3>
+            <p className="text-slate-500 text-sm font-medium">{activeConfig.listSubtitle}</p>
           </div>
-          
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {topRatedData.map((item) => (
               <div 
                 key={item.rank} 
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-slate-300 hover:shadow-md transition-all bg-white gap-4 sm:gap-0"
+                className="flex items-center justify-between px-5 py-4 rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="flex items-center gap-4 sm:gap-6">
-                  <div className="w-10 h-10 shrink-0 rounded-full bg-blue-100/60 flex items-center justify-center text-blue-600 font-bold text-sm">
+                <div className="flex items-center gap-5">
+                  <div className={`w-10 h-10 shrink-0 rounded-full font-bold flex items-center justify-center ${item.rank === 1 ? 'bg-[#fefce8] text-[#eab308] border border-[#fef08a]' : item.rank === 2 ? 'bg-slate-100 text-slate-600 border border-slate-200' : item.rank === 3 ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-blue-50 text-blue-700 border border-blue-100'}`}>
                     #{item.rank}
                   </div>
                   <div>
-                    <h4 className="text-slate-800 font-bold text-[16px] mb-0.5">{item.name}</h4>
-                    <p className="text-slate-400 text-sm font-medium">{item.subtitle}</p>
+                    <h4 className="text-slate-900 font-bold text-base leading-tight mb-0.5">{item.name}</h4>
+                    <p className="text-slate-500 text-sm font-medium">{item.subtitle}</p>
                   </div>
                 </div>
                 
-                <div className="flex flex-col items-start sm:items-end">
-                  <div className="flex items-center gap-1.5 mb-1">
+                <div className="text-right">
+                  <div className="flex items-center justify-end gap-1 mb-0.5">
                     <Star size={18} className="fill-[#facc15] text-[#facc15]" />
-                    <span className="text-slate-800 font-bold text-[17px]">{item.rating}</span>
+                    <span className="text-slate-900 font-bold text-lg leading-none">{Number(item.rating).toFixed(1)}</span>
                   </div>
-                  <div className="text-slate-400 text-[13px] font-medium">{item.reviews} reviews</div>
+                  <div className="text-slate-400 text-sm font-medium">{item.reviews} reviews</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
+        </div>
       </div>
     </div>
   );
