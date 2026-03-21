@@ -1,23 +1,30 @@
-import React, { useEffect, useState } from "react";
-import './MyReviews.css';
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Star, Pencil, Trash2, X, ChevronDown, MapPin, PenSquare, User } from "lucide-react";
+import ReviewSidebar from "../ReviewSidebar";
 
 const MyReviews = () => {
+  const CURRENT_USER_ID = "507f1f77bcf86cd799439011";
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
   const navigate = useNavigate();
 
-  // Edit State
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ rating: 5, comment: '', targetType: '', sessionDate: '' });
-  const [editError, setEditError] = useState('');
+  const [editingReview, setEditingReview] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [editForm, setEditForm] = useState({ rating: 5, title: "", comment: "" });
+  const [editError, setEditError] = useState("");
 
   const fetchReviews = async () => {
     setLoading(true);
     try {
       const response = await axios.get("http://localhost:5000/api/feedback/display");
-      setReviews(response.data);
+      const myOnly = (response.data || []).filter(
+        (item) => String(item.userId || "") === CURRENT_USER_ID
+      );
+      setReviews(myOnly);
     } catch (error) {
       console.error("Error fetching reviews:", error);
       alert("Failed to load reviews. Is the backend running?");
@@ -28,14 +35,14 @@ const MyReviews = () => {
 
   useEffect(() => {
     fetchReviews();
-  }, []);
+  }, [CURRENT_USER_ID]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this review?")) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await axios.delete(`http://localhost:5000/api/feedback/delete/${id}`);
-      setReviews(reviews.filter((r) => r._id !== id));
-      alert("Review deleted successfully!");
+      await axios.delete(`http://localhost:5000/api/feedback/delete/${deleteTarget._id}`);
+      setReviews(reviews.filter((r) => r._id !== deleteTarget._id));
+      setDeleteTarget(null);
     } catch (error) {
       console.error("Error deleting review:", error);
       alert(error.response?.data?.error || "Failed to delete review.");
@@ -43,35 +50,33 @@ const MyReviews = () => {
   };
 
   const isEditable = (createdAt) => {
-    if (!createdAt) return true; // If somehow missing, allow edit safely
-    const reviewDate = new Date(createdAt);
-    const daysDiff = (Date.now() - reviewDate.getTime()) / (1000 * 60 * 60 * 24);
-    return daysDiff <= 7;
+    return true; // Unrestricted edit/delete on requested user reviews
   };
 
-  const handleEditClick = (review) => {
+  const handleDeleteClick = (review) => {
+    if (!isEditable(review.createdAt)) {
+      alert("This review is older than 7 days and can no longer be deleted.");
+      return;
+    }
+    setDeleteTarget(review);
+  };
+
+  const openEditModal = (review) => {
     if (!isEditable(review.createdAt)) {
       alert("This review is older than 7 days and can no longer be edited.");
       return;
     }
-    setEditingId(review._id);
+    setEditingReview(review);
     setEditForm({
       rating: review.rating || 5,
-      comment: review.comment || review.description || '',
-      targetType: review.targetType || 'Campsite',
-      sessionDate: review.sessionDate ? new Date(review.sessionDate).toISOString().split('T')[0] : '',
+      title: review.title || `${review.targetType || "Review"} Review`,
+      comment: review.comment || review.description || "",
     });
-    setEditError('');
+    setEditError("");
   };
 
-  const handleEditSubmit = async (e, id) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validation
-    if (!editForm.targetType) {
-      setEditError("Review type is required.");
-      return;
-    }
     if (!editForm.comment.trim()) {
       setEditError("Comment cannot be empty.");
       return;
@@ -80,179 +85,273 @@ const MyReviews = () => {
       setEditError("Comment must be at least 10 characters.");
       return;
     }
-    if (!editForm.sessionDate) {
-      setEditError("Session date is required.");
+    if (!editingReview) {
+      setEditError("No review selected.");
       return;
     }
 
     try {
       const payload = {
         rating: Number(editForm.rating),
+        title: editForm.title,
         comment: editForm.comment,
-        targetType: editForm.targetType,
-        sessionDate: editForm.sessionDate
       };
       
-      await axios.put(`http://localhost:5000/api/feedback/update/${id}`, payload);
+      await axios.put(`http://localhost:5000/api/feedback/update/${editingReview._id}`, payload);
       
-      // Update state locally
-      setReviews(reviews.map((r) => r._id === id ? { ...r, ...payload } : r));
-      setEditingId(null);
-      alert("Review updated successfully!");
+      setReviews(reviews.map((r) => r._id === editingReview._id ? { ...r, ...payload } : r));
+      setEditingReview(null);
+      setEditError("");
     } catch (error) {
       console.error("Error updating review:", error);
       setEditError(error.response?.data?.error || "Failed to update review.");
     }
   };
 
+  const filteredReviews = useMemo(() => {
+    const typeFiltered = reviews.filter((review) => {
+      if (typeFilter === "all") return true;
+      return String(review.targetType || "").toLowerCase() === typeFilter;
+    });
+
+    return [...typeFiltered].sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0).getTime();
+      const dateB = new Date(b.createdAt || 0).getTime();
+      if (sortBy === "oldest") return dateA - dateB;
+      return dateB - dateA;
+    });
+  }, [reviews, typeFilter, sortBy]);
+
+  const renderStars = (value) => {
+    const ratingValue = Number(value || 0);
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={18}
+            className={star <= ratingValue ? "fill-amber-400 text-amber-400" : "text-slate-300"}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const getDefaultImage = (type) => {
+    switch (type?.toLowerCase()) {
+      case "guide":
+        return "https://4wdtalk-bucket.s3.amazonaws.com/wp-content/uploads/2022/12/08152957/Choose-Your-Camp-Site-Wisely.jpg"; // Guide/team setting up camp
+      case "equipment":
+        return "https://tse2.mm.bing.net/th/id/OIP.LCRUcFi1_XIFWGNas2MT_gHaFF?rs=1&pid=ImgDetMain&o=7&rm=3"; // Backpack and gear
+      case "campsite":
+      default:
+        return "https://th.bing.com/th/id/R.baf72e8e2a93d38451872149f5e6bcbe?rik=eNG83xsl%2bhxAOQ&riu=http%3a%2f%2fayamaya.com%2fcdn%2fshop%2farticles%2fayamaya-tent-and-gear-essential-camping-gear-mainblogimg.webp%3fv%3d1714687718&ehk=dXWZMI%2fE08jg5f0%2bnYNd6WQnHB0yfxMnDSGr5oY6iOQ%3d&risl=&pid=ImgRaw&r=0"; // Classic campsite
+    }
+  };
+
   return (
-    <div className="my-reviews-layout">
-      <aside className="sidebar">
-        <div className="logo">Smart Camp<br /><span>Management System</span></div>
-        <nav>
-          <ul>
-            <li onClick={() => navigate("/")}>Dashboard</li>
-            <li onClick={() => navigate("/")}>Campsites</li>
-            <li onClick={() => navigate("/")}>Equipment</li>
-            <li onClick={() => navigate("/")}>Guides</li>
-            <li className="admin-link" onClick={() => navigate("/admin/feedback")} style={{ color: '#059669', fontWeight: 'bold' }}>Admin Dashboard</li>
-          </ul>
-        </nav>
-        <div className="pro-member">
-          <div>Unlock unlimited reviews and HD photos.</div>
-          <button>Upgrade Now</button>
+    <div className="min-h-screen bg-slate-50 flex">
+      <ReviewSidebar />
+
+      <div className="flex-1 h-screen overflow-y-auto">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">My Reviews</h1>
+          </div>
+          
+          <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-sm self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => navigate("/feedback")}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white transition-all"
+            >
+              <PenSquare size={16} />
+              Submit Review
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm border border-slate-200 transition-all pointer-events-none"
+            >
+              <User size={16} />
+              My Reviews
+            </button>
+          </div>
         </div>
-      </aside>
-      <main className="main-content">
-        <header className="reviews-header">
-          <h1>My Reviews</h1>
-        </header>
-        <section className="stats">
-          <div className="stat">
-            <div>Total Reviews</div>
-            <div className="stat-value">{reviews.length} <span className="stat-change">+3 this month</span></div>
+
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="appearance-none bg-white border border-slate-200 rounded-lg px-4 py-2.5 pr-10 text-sm font-semibold min-w-[170px] focus:outline-none focus:ring-2 focus:ring-slate-300"
+            >
+              <option value="all">All Types</option>
+              <option value="campsite">Locations</option>
+              <option value="guide">Guides</option>
+              <option value="equipment">Equipment</option>
+            </select>
+            <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
-          <div className="stat">
-            <div>Average Rating</div>
-            <div className="stat-value">4.8 <span className="stars">★★★★★</span></div>
+        </div>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900 border-t-transparent mb-4"></div>
+            <p className="text-slate-500 font-medium">Loading your reviews...</p>
           </div>
-          <div className="stat">
-            <div>Helpful Votes</div>
-            <div className="stat-value">156 <span className="stat-badge">Top 5% contributor</span></div>
+        ) : filteredReviews.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm max-w-2xl mx-auto my-10">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-slate-100">
+              <PenSquare size={32} className="text-slate-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-3">No Reviews Found</h3>
+            <p className="text-slate-500 text-base max-w-sm mx-auto mb-8">
+              {typeFilter !== "all" ? "You don't have any reviews matching this filter." : "You haven't written any reviews yet. Share your experiences with the community!"}
+            </p>
+            <button 
+              onClick={() => navigate("/feedback")} 
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors shadow-sm"
+            >
+              <PenSquare size={18} />
+              Write Your First Review
+            </button>
           </div>
-        </section>
-        <section className="filters">
-          <button className="active">All</button>
-          <button>Campsites</button>
-          <button>Equipment</button>
-          <span className="sort">Sort by: <b>Newest First</b></span>
-        </section>
-        <section className="reviews-list">
-          {loading ? (
-            <p>Loading reviews...</p>
-          ) : reviews.length === 0 ? (
-            <p>No reviews found. Be the first to write one!</p>
-          ) : (
-            reviews.map(review => (
-              <div className="review-card" key={review._id}>
-                <img className="review-image" src={review.image || "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=2070&auto=format&fit=crop"} alt={review.title || review.targetType} />
-                <div className="review-details">
-                  
-                  {editingId === review._id ? (
-                    // EDIT MODE
-                    <form onSubmit={(e) => handleEditSubmit(e, review._id)} style={{ width: '100%' }}>
-                      <div style={{ marginBottom: '10px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Type</label>
-                        <select 
-                          value={editForm.targetType} 
-                          onChange={(e) => setEditForm({...editForm, targetType: e.target.value})}
-                          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', maxWidth: '200px' }}
-                        >
-                          <option value="Campsite">Campsite</option>
-                          <option value="Equipment">Equipment</option>
-                          <option value="Guide">Guide</option>
-                        </select>
-                      </div>
-
-                      <div style={{ marginBottom: '10px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Session Date</label>
-                        <input 
-                          type="date"
-                          value={editForm.sessionDate}
-                          onChange={(e) => setEditForm({...editForm, sessionDate: e.target.value})}
-                          max={new Date().toISOString().split("T")[0]}
-                          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', maxWidth: '200px' }}
-                        />
-                      </div>
-
-                      <div style={{ marginBottom: '10px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Rating</label>
-                        <select 
-                          value={editForm.rating} 
-                          onChange={(e) => setEditForm({...editForm, rating: e.target.value})}
-                          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', maxWidth: '100px' }}
-                        >
-                          {[1,2,3,4,5].map(num => (
-                            <option key={num} value={num}>{num} Star{num > 1 ? 's' : ''}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div style={{ marginBottom: '10px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Comment</label>
-                        <textarea 
-                          value={editForm.comment}
-                          onChange={(e) => setEditForm({...editForm, comment: e.target.value})}
-                          rows="4"
-                          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '100%', resize: 'vertical' }}
-                        />
-                      </div>
-
-                      {editError && <div style={{ color: 'red', marginBottom: '10px', fontSize: '14px' }}>{editError}</div>}
-                      
-                      <div className="review-actions" style={{ justifyContent: 'flex-start', marginTop: '10px' }}>
-                        <button type="submit" style={{ background: '#15803d', color: 'white', border: 'none' }}>Save Changes</button>
-                        <button type="button" onClick={() => setEditingId(null)} style={{ background: '#6b7280', color: 'white', border: 'none' }}>Cancel</button>
-                      </div>
-                    </form>
-                  ) : (
-                    // VIEW MODE
-                    <>
-                      <div className="review-meta" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-                        <span className={`review-type ${review.targetType?.toLowerCase() || 'campsite'}`}>{review.targetType || 'Campsite'}</span>
-                        <span className="review-verified">Verified</span>
-                        <span className="review-date">Reviewed: {new Date(review.createdAt || Date.now()).toLocaleDateString()}</span>
-                        {review.sessionDate && (
-                          <span className="review-date" style={{fontStyle: 'italic', background: '#e5e7eb', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', color: '#374151'}}>
-                            Event Date: {new Date(review.sessionDate).toLocaleDateString()}
+        ) : (
+          <div className="space-y-5">
+            {filteredReviews.map((review) => {
+              const editable = isEditable(review.createdAt);
+              return (
+                <div key={review._id} className="group border border-slate-200 rounded-2xl p-4 bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:border-slate-300">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <img
+                      className="w-full sm:w-48 sm:h-28 rounded-xl object-cover border border-slate-100 shrink-0"
+                      src={review.image || getDefaultImage(review.targetType)}
+                      alt={review.title || review.targetType}
+                    />
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs font-semibold">
+                            <MapPin size={12} />
+                            {review.targetType || "Type"}
                           </span>
-                        )}
-                        <span className="review-rating" style={{marginLeft: 'auto'}}>{'★'.repeat(review.rating || 5)}{'☆'.repeat(5 - (review.rating || 5))}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(review)}
+                            disabled={!editable}
+                            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-lg border text-sm font-semibold ${
+                              editable ? "border-slate-300 hover:bg-slate-50" : "border-slate-200 text-slate-400 cursor-not-allowed"
+                            }`}
+                          >
+                            <Pencil size={14} />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteClick(review)}
+                            disabled={!editable}
+                            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-lg border text-sm font-semibold ${
+                              editable ? "border-slate-300 hover:bg-slate-50" : "border-slate-200 text-slate-400 cursor-not-allowed"
+                            }`}
+                          >
+                            <Trash2 size={14} />
+                            Delete
+                          </button>
+                        </div>
                       </div>
-                      <h2>{review.title || `${review.targetType || 'Item'} Review`}</h2>
-                      <p>{review.comment || review.description}</p>
-                      <div className="review-actions">
-                        <span>{review.helpful || 0} Helpful</span>
-                        <span>{review.comments || 0} Comments</span>
-                        
-                        {isEditable(review.createdAt) ? (
-                          <button onClick={() => handleEditClick(review)}>Edit</button>
-                        ) : (
-                          <button style={{ opacity: 0.5, cursor: 'not-allowed' }} title="Edit time (7 days) has expired" disabled>Edit</button>
-                        )}
 
-                        <button className="delete" onClick={() => handleDelete(review._id)}>Delete</button>
+                      <h3 className="text-2xl font-bold text-slate-900 leading-tight mb-2 group-hover:text-green-600 transition-colors">
+                        {review.targetName || review.title || `${review.targetType || "Review"} Review`}
+                      </h3>
+                      <div className="flex items-center gap-3 mb-2">
+                        {renderStars(review.rating)}
+                        <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span className="text-slate-500 font-medium text-sm">
+                          By <span className="text-slate-700 font-bold">{review.userName || review.userId?.name || "Anonymous User"}</span>
+                        </span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span className="text-slate-500 font-medium text-sm">
+                          {new Date(review.createdAt || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </span>
                       </div>
-                    </>
-                  )}
-                  
+                      <h4 className="text-xl font-semibold text-slate-900 mb-1">
+                        {review.title || "Great experience"}
+                      </h4>
+                      <p className="text-slate-700 text-lg leading-relaxed mb-2">
+                        {review.comment || review.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      </div>
+
+      {editingReview && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-2xl font-bold">Edit Review</h3>
+              <button type="button" onClick={() => setEditingReview(null)} className="text-slate-500 hover:text-slate-800">
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-base font-semibold mb-1">Rating</label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button key={star} type="button" onClick={() => setEditForm({ ...editForm, rating: star })}>
+                      <Star size={34} className={star <= Number(editForm.rating) ? "fill-amber-400 text-amber-400" : "text-slate-300"} />
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))
-          )}
-        </section>
-        <button className="load-more">Load More Reviews</button>
-      </main>
+              <div>
+                <label className="block text-base font-semibold mb-1">Review</label>
+                <textarea
+                  value={editForm.comment}
+                  onChange={(e) => setEditForm({ ...editForm, comment: e.target.value })}
+                  rows={4}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-slate-300"
+                />
+              </div>
+              {editError && <p className="text-red-500 text-sm">{editError}</p>}
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setEditingReview(null)} className="px-4 py-2 rounded-lg border border-slate-300 font-semibold">
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 rounded-lg bg-slate-900 text-white font-semibold">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-xl rounded-2xl border border-slate-200 p-6 shadow-lg">
+            <h3 className="text-2xl font-bold mb-3">Delete Review</h3>
+            <p className="text-slate-700 text-base mb-6">Are you sure you want to delete this review? This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button type="button" onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-lg border border-slate-300 font-semibold">
+                Cancel
+              </button>
+              <button type="button" onClick={confirmDelete} className="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
