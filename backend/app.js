@@ -1,14 +1,22 @@
 require('dotenv').config(); // Load variables from .env
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const connectDB = require('./src/config/db');
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
 const feedbackRoute = require('./src/routes/feedback-route/feedbackRoute');
+// const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
 
 // Use the port from .env, or fallback to 5000 if not found
 const port = process.env.PORT || 5000;
 
 // Middleware
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Error handling for JSON parse errors
@@ -26,6 +34,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/payment', paymentRoute);
 app.use('/api/feedback', feedbackRoute);
+// app.use('/api/equipment', equipmentRouter);
 
 const start = async () => {
   await connectDB();
