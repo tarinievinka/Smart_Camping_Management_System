@@ -5,8 +5,13 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
 import PaymentForm from './components/payment-management/payment-form/PaymentForm';
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
-import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';  
+import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';
 import PaymentCard from './components/payment-management/payment-card/PaymentCard';
+
+import Feedback from './components/feedbck-and-review-management/Feedback';
+import MyReviews from './components/feedbck-and-review-management/my-reviews/MyReviews';
+import AdminFeedback from './components/feedbck-and-review-management/admin-feedback/AdminFeedback';
+
 import Landing from './components/landing/Landing';
 
 
@@ -15,20 +20,23 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<Landing />} />
+        <Route path='/' element={<Landing />} />       
         <Route
           path='/payment'
           element={<PaymentForm />}>
           <Route path="/payment-form" element={<PaymentForm />} />
           <Route path="/payment-history" element={<PaymentHistory />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-failure" element={<PaymentFailure />} />    
-          <Route path="/payment-card" element={<PaymentCard />} />  
-          
-          {/* gvngvg */}
-          
-        </Route>
+          <Route path="/payment-failure" element={<PaymentFailure />} />
+          <Route path="/payment-card" element={<PaymentCard />} />
 
+          {/* gvngvg */}
+
+                  </Route>
+
+        <Route path='/feedback' element={<Feedback />} />
+        <Route path='/my-reviews' element={<MyReviews />} />
+        <Route path='/admin/feedback' element={<AdminFeedback />} />
       </Routes>
     </BrowserRouter>
   );
