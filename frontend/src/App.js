@@ -14,6 +14,7 @@ import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDash
 import Feedback from './components/feedbck-and-review-management/Feedback';
 import MyReviews from './components/feedbck-and-review-management/my-reviews/MyReviews';
 import AdminFeedback from './components/feedbck-and-review-management/admin-feedback/AdminFeedback';
+import AdminAllReviews from './components/feedbck-and-review-management/admin-feedback/AdminAllReviews';
 
 
 
@@ -34,6 +35,7 @@ function App() {
         <Route path='/feedback' element={<Feedback />} />
         <Route path='/my-reviews' element={<MyReviews />} />
         <Route path='/admin/feedback' element={<AdminFeedback />} />
+        <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
       </Routes>
     </BrowserRouter>
   );
