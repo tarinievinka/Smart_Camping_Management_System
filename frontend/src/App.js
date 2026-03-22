@@ -1,24 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './components/user-and-identity-management/login/Login';
+import SignUP from './components/user-and-identity-management/sign-up/SignUP';
+
+const Landing = () => <div style={{ padding: '2rem', textAlign: 'center' }}><h1>Welcome to Smart Camping</h1></div>;
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUP />} />  
+          
+          {/* gvngvg */}
+          
+       
+
+      </Routes>
+    </BrowserRouter>
   );
 }
 
