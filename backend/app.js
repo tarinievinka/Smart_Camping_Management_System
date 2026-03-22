@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const connectDB = require('./src/config/db');
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
+const userRoute = require('./src/routes/user-routes/userRoutes');
 
 // Use the port from .env, or fallback to 5000 if not found
 const port = process.env.PORT || 5000;
@@ -24,11 +25,21 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/payment', paymentRoute);
+app.use('/api/users', userRoute);
 
 const start = async () => {
   await connectDB();
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
+  });
+
+  server.on('error', (err) => {
+    if (err && err.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Free the port or set a different PORT in .env`);
+      process.exit(1);
+    }
+    console.error('Server error:', err);
+    process.exit(1);
   });
 };
 
