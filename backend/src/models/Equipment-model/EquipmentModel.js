@@ -36,6 +36,10 @@ const equipmentSchema = new mongoose.Schema({
     enum: ["Available", "Rented", "Out of Stock", "Deactivated"],
     default: "Available",
   },
+  imageUrl: {
+    type: String,
+    default: "",          // ← ADD THIS FIELD
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Equipment", equipmentSchema);

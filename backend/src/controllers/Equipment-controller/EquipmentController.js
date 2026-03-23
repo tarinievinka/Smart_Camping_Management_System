@@ -1,4 +1,3 @@
-const Equipment = require('../../models/Equipment-model/EquipmentModel');
 const {
   createEquipment,
   getAllEquipment,
@@ -11,7 +10,11 @@ const {
 // Create a new equipment item
 exports.createEquipment = async (req, res) => {
   try {
-    const equipment = await createEquipment(req.body);
+    const data = { ...req.body };
+    if (req.file) {
+      data.imageUrl = `/uploads/${req.file.filename}`;  // save path
+    }
+    const equipment = await createEquipment(data);
     res.status(201).json(equipment);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -42,7 +45,11 @@ exports.getEquipmentById = async (req, res) => {
 // Update equipment by ID
 exports.updateEquipment = async (req, res) => {
   try {
-    const equipment = await updateEquipment(req.params.id, req.body);
+    const data = { ...req.body };
+    if (req.file) {
+      data.imageUrl = `/uploads/${req.file.filename}`;  // update image if new one uploaded
+    }
+    const equipment = await updateEquipment(req.params.id, data);
     if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
     res.json(equipment);
   } catch (err) {
@@ -61,7 +68,7 @@ exports.deleteEquipment = async (req, res) => {
   }
 };
 
-// Update availability status (Available, Rented, Out of Stock, Deactivated)
+// Update availability status
 exports.updateAvailabilityStatus = async (req, res) => {
   try {
     const { status } = req.body;

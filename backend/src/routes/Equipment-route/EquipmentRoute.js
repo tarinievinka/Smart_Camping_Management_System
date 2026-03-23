@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const equipmentController = require('../../controllers/Equipment-controller/EquipmentController');
+const upload = require('../../config/upload');   // ← ADD
 
-// Create a new equipment item
-router.post('/add', equipmentController.createEquipment);
+// Create — now accepts multipart/form-data with optional image
+router.post('/add', upload.single('image'), equipmentController.createEquipment);
 
 // Get all equipment
 router.get('/display', equipmentController.getAllEquipment);
@@ -11,8 +12,8 @@ router.get('/display', equipmentController.getAllEquipment);
 // Get equipment by ID
 router.get('/:id', equipmentController.getEquipmentById);
 
-// Update equipment by ID
-router.put('/update/:id', equipmentController.updateEquipment);
+// Update — also accepts optional new image
+router.put('/update/:id', upload.single('image'), equipmentController.updateEquipment);
 
 // Delete equipment by ID
 router.delete('/delete/:id', equipmentController.deleteEquipment);
