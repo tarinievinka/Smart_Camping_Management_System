@@ -458,7 +458,7 @@ const EquipmentStore = () => {
   const addToCart      = (item)     => setCart(prev => [...prev, item]);
   const removeFromCart = (id, mode) => setCart(prev => prev.filter(c => !(c._id === id && c.mode === mode)));
 
-  const filtered = equipment.filter(item => {
+  const filtered = equipment?.filter(item => {
     const matchCat    = selectedCategory === 'All Gear' || item.category === selectedCategory;
     const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;

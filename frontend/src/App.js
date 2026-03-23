@@ -36,16 +36,11 @@ function App() {
           <Route path='/equipment-store' element={<EquipmentStore />} />
           <Route path='/booking-summary' element={<BookingSummary />} />
 
-          <Route path='/payment' element={<PaymentForm />}>
-            <Route path="/payment-form" element={<PaymentForm />} />
-            <Route path="/payment-history" element={<PaymentHistory />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-failure" element={<PaymentFailure />} />    
-            <Route path="/payment-card" element={<PaymentCard />} />  
-            
-            {/* gvngvg */}
-            
-          </Route>
+          <Route path="/payment-history" element={<PaymentHistory />} />
+          <Route path="/payment-management" element={<PaymentManagement />} />
+          <Route path="/payment-checkout" element={<SecureCheckout />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
         </Routes>
       </div>
 
