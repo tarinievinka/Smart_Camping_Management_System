@@ -1,49 +1,28 @@
-require('dotenv').config(); // Load variables from .env
+require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
+const path = require('path');                         
 const app = express();
 const connectDB = require('./src/config/db');
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
 const feedbackRoute = require('./src/routes/feedback-route/feedbackRoute');
-const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute'); 
+const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
+const notifyRoute = require('./src/routes/Notify-route/NotifyRoute'); 
 
-// Use the port from .env, or fallback to 5000 if not found
 const port = process.env.PORT || 5000;
 
-// Middleware
 app.use(express.json());
+app.use(cors({ origin: 'http://localhost:3000' }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  
 
-// Error handling for JSON parse errors
-app.use((err, req, res, next) => {
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return res.status(400).json({ error: 'Invalid JSON: ' + err.message });
-  }
-  next();
-});
-
-// Routes
-app.get('/', (req, res) => {
-  res.send('Server running with .env port!');
-});
-
+app.get('/', (req, res) => res.send('Server running!'));
 app.use('/api/payment', paymentRoute);
 app.use('/api/feedback', feedbackRoute);
-app.use('/api/equipment',equipmentRouter);
-
+app.use('/api/equipment', equipmentRouter);
+app.use('/api/notify', notifyRoute); 
 
 const start = async () => {
   await connectDB();
-  const server = app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-  });
-
-  server.on('error', (err) => {
-    if (err && err.code === 'EADDRINUSE') {
-      console.error(`Port ${port} is already in use. Choose a different PORT or stop the process using it.`);
-      process.exit(1);
-    }
-    console.error('Server error:', err);
-    process.exit(1);
-  });
+  app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
 };
-
 start();

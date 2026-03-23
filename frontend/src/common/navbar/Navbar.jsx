@@ -18,6 +18,7 @@ const Navbar = () => {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <a href="/" className="flex items-center gap-2 shrink-0">
+                    <a href="/equipment-store">Gear Rental</a>
                         <svg
                             className="w-9 h-9"
                             viewBox="0 0 40 40"
