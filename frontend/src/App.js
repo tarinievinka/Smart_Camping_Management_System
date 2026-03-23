@@ -8,13 +8,15 @@ import Footer from './common/footer/Footer';
 // Importing payment management components
 import EquipmentDashboard from './components/equipment-management/EquipmentDashboard';
 import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
-import PaymentForm from './components/payment-management/payment-form/PaymentForm';
+import PaymentManagement from './components/payment-management/PaymentManagement';
+import SecureCheckout from './components/payment-management/payment-checkout/SecureCheckout';
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
-import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';  
-import PaymentCard from './components/payment-management/payment-card/PaymentCard';
 import Landing from './components/landing/Landing';
 import EquipmentStore from './components/equipment-management/EquipmentStore';
 import BookingSummary from './components/equipment-management/BookingSummary';
+import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
+
+
 
 
 
