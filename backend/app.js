@@ -17,7 +17,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+const path = require('path');
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Error handling for JSON parse errors
 app.use((err, req, res, next) => {
