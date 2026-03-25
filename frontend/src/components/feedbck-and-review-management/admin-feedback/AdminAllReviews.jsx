@@ -123,8 +123,8 @@ const AdminAllReviews = () => {
                     <div className="flex flex-col sm:flex-row gap-4">
                       {/* Image Gallery Collage */}
                       <div className="flex gap-2 w-full sm:w-80 shrink-0 h-48 sm:h-36">
-                        {(review.imageUrls && review.imageUrls.length > 0 
-                          ? review.imageUrls.map(url => `http://localhost:5000${url}`) 
+                        {(review.imageUrls && review.imageUrls.length > 0
+                          ? review.imageUrls.map(url => `http://localhost:5000${url}`)
                           : [review.imageUrl ? `http://localhost:5000${review.imageUrl}` : review.image || getDefaultImage(review.targetType)]
                         ).map((src, i) => (
                           <div key={i} className="flex-1 min-w-0 h-full">
