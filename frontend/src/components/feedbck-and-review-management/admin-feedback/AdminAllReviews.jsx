@@ -121,38 +121,55 @@ const AdminAllReviews = () => {
                 return (
                   <div key={review._id} className="group border border-slate-200 rounded-2xl p-4 bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:border-slate-300">
                     <div className="flex flex-col sm:flex-row gap-4">
-                      <img
-                        className="w-full sm:w-48 sm:h-28 rounded-xl object-cover border border-slate-100 shrink-0"
-                        src={review.image || getDefaultImage(review.targetType)}
-                        alt={review.title || review.targetType}
-                      />
+                      {/* Image Gallery */}
+                      <div className="flex gap-3 overflow-x-auto sm:w-64 shrink-0 pb-3 sleek-scrollbar snap-x">
+                        {(review.imageUrls && review.imageUrls.length > 0 
+                          ? review.imageUrls.map(url => `http://localhost:5000${url}`) 
+                          : [review.imageUrl ? `http://localhost:5000${review.imageUrl}` : review.image || getDefaultImage(review.targetType)]
+                        ).map((src, i) => (
+                          <img
+                            key={i}
+                            className="w-full sm:w-48 sm:h-32 rounded-xl object-cover border border-slate-200 shadow-sm hover:shadow-md transition-shadow shrink-0 snap-center"
+                            src={src}
+                            alt={`${review.title || review.targetType} ${i + 1}`}
+                          />
+                        ))}
+                      </div>
                       <div className="flex-1 min-w-0 flex flex-col justify-center">
                         <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs font-semibold">
-                              <MapPin size={12} />
-                              {review.targetType || "Type"}
-                            </span>
+                            {review.targetType && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs font-semibold">
+                                <MapPin size={12} />
+                                {review.targetType}
+                              </span>
+                            )}
                           </div>
                         </div>
 
                         <h3 className="text-2xl font-bold text-slate-900 leading-tight mb-2 group-hover:text-green-600 transition-colors">
-                          {review.targetName || review.title || `${review.targetType || "Review"} Review`}
+                          {review.targetName || review.title || "Feedback Review"}
                         </h3>
                         <div className="flex items-center gap-3 mb-2">
                           {renderStars(review.rating)}
                           <span className="w-1 h-1 rounded-full bg-slate-300"></span>
                           <span className="text-slate-500 font-medium text-sm">
-                            By <span className="text-slate-700 font-bold">{review.userName || review.userId?.name || "Anonymous User"}</span>
+                            By <span className="text-slate-700 font-bold">{review.userName || review.userId?.name || "Anonymous"}</span>
                           </span>
-                          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                          <span className="text-slate-500 font-medium text-sm">
-                            {new Date(review.createdAt || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-                          </span>
+                          {review.createdAt && (
+                            <>
+                              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                              <span className="text-slate-500 font-medium text-sm">
+                                {new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                              </span>
+                            </>
+                          )}
                         </div>
-                        <h4 className="text-xl font-semibold text-slate-900 mb-1">
-                          {review.title || "Great experience"}
-                        </h4>
+                        {review.title && review.title !== review.targetName && (
+                          <h4 className="text-xl font-semibold text-slate-900 mb-1">
+                            {review.title}
+                          </h4>
+                        )}
                         <p className="text-slate-700 text-lg leading-relaxed mb-2">
                           {review.comment || review.description}
                         </p>

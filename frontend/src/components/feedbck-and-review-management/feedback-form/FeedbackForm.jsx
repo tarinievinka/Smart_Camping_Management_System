@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Star, MapPin, User, Backpack, AlertCircle } from "lucide-react";
+import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon } from "lucide-react";
 
 const starLabels = ["Terrible", "Bad", "Okay", "Good", "Very Good"];
 
@@ -16,6 +16,8 @@ const FeedbackForm = () => {
     const [rating, setRating] = useState(4);
     const [hover, setHover] = useState(null);
     const [reviewText, setReviewText] = useState("");
+    const [imageFiles, setImageFiles] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
     const nameFieldConfig = {
@@ -73,23 +75,28 @@ const FeedbackForm = () => {
 
         setErrors({});
 
-        const feedbackData = {
-            userId: "507f1f77bcf86cd799439011",
-            userName: userName.trim(),
-            targetType: selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1),
-            targetId: "507f1f77bcf86cd799439012",
-            targetName: locationName.trim(),
-            title: `${selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1)} Review`,
-            sessionDate: sessionStartDate,
-            sessionEndDate: sessionEndDate,
-            rating: rating,
-            comment: reviewText
-        };
+        const formData = new FormData();
+        formData.append("userId", "507f1f77bcf86cd799439011");
+        formData.append("userName", userName.trim());
+        formData.append("targetType", selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1));
+        formData.append("targetId", "507f1f77bcf86cd799439012");
+        formData.append("targetName", locationName.trim());
+        formData.append("title", `${selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1)} Review`);
+        formData.append("sessionDate", sessionStartDate);
+        formData.append("sessionEndDate", sessionEndDate);
+        formData.append("rating", rating);
+        formData.append("comment", reviewText);
+
+        imageFiles.forEach(file => {
+            formData.append("images", file);
+        });
 
         const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
         try {
-            const response = await axios.post(`${apiUrl}/api/feedback/add`, feedbackData);
+            const response = await axios.post(`${apiUrl}/api/feedback/add`, formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
             console.log("Feedback submitted:", response.data);
             alert("Review submitted successfully!");
 
@@ -101,6 +108,8 @@ const FeedbackForm = () => {
             setSessionEndDate("");
             setRating(4);
             setReviewText("");
+            setImageFiles([]);
+            setImagePreviews([]);
             setErrors({});
             navigate("/my-reviews");
         } catch (error) {
@@ -247,11 +256,89 @@ const FeedbackForm = () => {
                                 rows={4}
                                 className={`w-full bg-slate-50 border ${errors.reviewText ? "border-red-400" : "border-slate-200"} text-slate-800 placeholder-slate-400 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 resize-y`}
                             />
-                            <p className="text-xs text-slate-400 mt-1">Minimum 50 characters ({reviewText.trim().length}/50)</p>
+                            <p className="text-xs text-slate-400 mt-1">Minimum 10 characters ({reviewText.trim().length}/50)</p>
                             {errors.reviewText && (
                                 <div className="text-red-500 text-sm mt-1 font-medium flex items-center gap-1.5">
                                     <AlertCircle size={14} />
                                     {errors.reviewText}
+                                </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-semibold text-slate-900 mb-1 block">
+                                Add Photos (Optional)
+                            </label>
+                            <p className="text-xs text-slate-500 mb-3">Include up to 5 photos to help others see your experience</p>
+                            
+                            {imagePreviews.length === 0 ? (
+                                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <Upload className="w-8 h-8 mb-2 text-slate-400" />
+                                        <p className="mb-1 text-sm text-slate-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                        <p className="text-xs text-slate-400">SVG, PNG, JPG or GIF (MAX. 5MB)</p>
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        className="hidden" 
+                                        accept="image/*"
+                                        multiple
+                                        onChange={(e) => {
+                                            const files = Array.from(e.target.files).slice(0, 5);
+                                            if (files.length) {
+                                                setImageFiles(files);
+                                                setImagePreviews(files.map(file => URL.createObjectURL(file)));
+                                            }
+                                        }}
+                                    />
+                                </label>
+                            ) : (
+                                <div className="space-y-3">
+                                    <div className="flex flex-wrap gap-3">
+                                        {imagePreviews.map((preview, idx) => (
+                                            <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-200">
+                                                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newFiles = [...imageFiles];
+                                                        newFiles.splice(idx, 1);
+                                                        setImageFiles(newFiles);
+                                                        
+                                                        const newPreviews = [...imagePreviews];
+                                                        newPreviews.splice(idx, 1);
+                                                        setImagePreviews(newPreviews);
+                                                    }}
+                                                    className="absolute top-1 right-1 p-1 bg-black/60 hover:bg-black/80 rounded-full text-white transition-colors"
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        
+                                        {imagePreviews.length < 5 && (
+                                            <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                                                <Upload className="w-6 h-6 mb-1 text-slate-400" />
+                                                <span className="text-xs text-slate-500 font-semibold text-center leading-tight">Add<br/>More</span>
+                                                <input 
+                                                    type="file" 
+                                                    className="hidden" 
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={(e) => {
+                                                        const files = Array.from(e.target.files);
+                                                        const remaining = 5 - imageFiles.length;
+                                                        const newFiles = files.slice(0, remaining);
+                                                        if (newFiles.length) {
+                                                            setImageFiles(prev => [...prev, ...newFiles]);
+                                                            setImagePreviews(prev => [...prev, ...newFiles.map(f => URL.createObjectURL(f))]);
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-slate-400">{imagePreviews.length} of 5 uploaded</p>
                                 </div>
                             )}
                         </div>
@@ -306,6 +393,8 @@ const FeedbackForm = () => {
                                 setSessionEndDate("");
                                 setRating(4);
                                 setReviewText("");
+                                setImageFiles([]);
+                                setImagePreviews([]);
                                 setErrors({});
                             }}
                             className="sm:w-44 px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold text-sm bg-white hover:bg-slate-50"

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Star, Pencil, Trash2, X, ChevronDown, MapPin, PenSquare, User } from "lucide-react";
+import { Star, Pencil, Trash2, X, ChevronDown, MapPin, PenSquare, User, Upload } from "lucide-react";
 import ReviewSidebar from "../ReviewSidebar";
 
 const MyReviews = () => {
@@ -14,7 +14,7 @@ const MyReviews = () => {
 
   const [editingReview, setEditingReview] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [editForm, setEditForm] = useState({ rating: 5, title: "", comment: "" });
+  const [editForm, setEditForm] = useState({ rating: 5, title: "", comment: "", imageFiles: [], existingImageUrls: [], imagePreviews: [] });
   const [editError, setEditError] = useState("");
 
   const fetchReviews = async () => {
@@ -67,10 +67,17 @@ const MyReviews = () => {
       return;
     }
     setEditingReview(review);
+    const urls = review.imageUrls && review.imageUrls.length > 0 
+      ? review.imageUrls 
+      : (review.imageUrl ? [review.imageUrl] : []);
+
     setEditForm({
       rating: review.rating || 5,
       title: review.title || `${review.targetType || "Review"} Review`,
       comment: review.comment || review.description || "",
+      imageFiles: [],
+      existingImageUrls: urls,
+      imagePreviews: urls.map(url => `http://localhost:5000${url}`)
     });
     setEditError("");
   };
@@ -91,15 +98,26 @@ const MyReviews = () => {
     }
 
     try {
-      const payload = {
-        rating: Number(editForm.rating),
-        title: editForm.title,
-        comment: editForm.comment,
-      };
+      const formData = new FormData();
+      formData.append("rating", Number(editForm.rating));
+      formData.append("title", editForm.title);
+      formData.append("comment", editForm.comment);
+      if (editForm.existingImageUrls && editForm.existingImageUrls.length > 0) {
+        // Can append multiple times for array
+        editForm.existingImageUrls.forEach(url => formData.append("existingImageUrls", url));
+      } else {
+        formData.append("clearImages", "true");
+      }
       
-      await axios.put(`http://localhost:5000/api/feedback/update/${editingReview._id}`, payload);
+      if (editForm.imageFiles && editForm.imageFiles.length > 0) {
+        editForm.imageFiles.forEach(file => formData.append("images", file));
+      }
       
-      setReviews(reviews.map((r) => r._id === editingReview._id ? { ...r, ...payload } : r));
+      const response = await axios.put(`http://localhost:5000/api/feedback/update/${editingReview._id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      
+      setReviews(reviews.map((r) => r._id === editingReview._id ? { ...r, ...response.data } : r));
       setEditingReview(null);
       setEditError("");
     } catch (error) {
@@ -223,11 +241,19 @@ const MyReviews = () => {
               return (
                 <div key={review._id} className="group border border-slate-200 rounded-2xl p-4 bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:border-slate-300">
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <img
-                      className="w-full sm:w-48 sm:h-28 rounded-xl object-cover border border-slate-100 shrink-0"
-                      src={review.image || getDefaultImage(review.targetType)}
-                      alt={review.title || review.targetType}
-                    />
+                    <div className="flex gap-3 overflow-x-auto sm:w-64 shrink-0 pb-3 sleek-scrollbar snap-x">
+                      {(review.imageUrls && review.imageUrls.length > 0 
+                        ? review.imageUrls.map(url => `http://localhost:5000${url}`) 
+                        : [review.imageUrl ? `http://localhost:5000${review.imageUrl}` : review.image || getDefaultImage(review.targetType)]
+                      ).map((src, i) => (
+                        <img
+                          key={i}
+                          className="w-full sm:w-48 sm:h-32 rounded-xl object-cover border border-slate-200 shadow-sm hover:shadow-md transition-shadow shrink-0 snap-center"
+                          src={src}
+                          alt={`${review.title || review.targetType} ${i + 1}`}
+                        />
+                      ))}
+                    </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
                       <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
                         <div className="flex items-center gap-2">
@@ -321,6 +347,84 @@ const MyReviews = () => {
                   rows={4}
                   className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-slate-300"
                 />
+              </div>
+              <div>
+                <label className="block text-base font-semibold mb-1">Update Photos (Optional)</label>
+                {editForm.imagePreviews.length === 0 ? (
+                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-6 h-6 mb-1 text-slate-400" />
+                      <p className="text-sm text-slate-500 font-semibold">Click to upload new photos</p>
+                    </div>
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files).slice(0, 5);
+                        if (files.length) {
+                          setEditForm({ ...editForm, imageFiles: files, imagePreviews: files.map(file => URL.createObjectURL(file)) });
+                        }
+                      }}
+                    />
+                  </label>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-3">
+                        {editForm.imagePreviews.map((preview, idx) => (
+                            <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-200">
+                                <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newExisting = [...editForm.existingImageUrls];
+                                        const newFiles = [...editForm.imageFiles];
+                                        const newPreviews = [...editForm.imagePreviews];
+                                        
+                                        if (idx < newExisting.length) {
+                                            newExisting.splice(idx, 1);
+                                        } else {
+                                            newFiles.splice(idx - newExisting.length, 1);
+                                        }
+                                        newPreviews.splice(idx, 1);
+                                        
+                                        setEditForm({ ...editForm, existingImageUrls: newExisting, imageFiles: newFiles, imagePreviews: newPreviews });
+                                    }}
+                                    className="absolute top-1 right-1 p-1 bg-black/60 hover:bg-black/80 rounded-full text-white transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        ))}
+                        
+                        {editForm.imagePreviews.length < 5 && (
+                            <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                                <Upload className="w-6 h-6 mb-1 text-slate-400" />
+                                <span className="text-xs text-slate-500 font-semibold text-center leading-tight">Add<br/>More</span>
+                                <input 
+                                    type="file" 
+                                    className="hidden" 
+                                    accept="image/*"
+                                    multiple
+                                    onChange={(e) => {
+                                        const files = Array.from(e.target.files);
+                                        const remaining = 5 - editForm.imagePreviews.length;
+                                        const newFiles = files.slice(0, remaining);
+                                        if (newFiles.length) {
+                                            setEditForm({ 
+                                              ...editForm, 
+                                              imageFiles: [...editForm.imageFiles, ...newFiles], 
+                                              imagePreviews: [...editForm.imagePreviews, ...newFiles.map(f => URL.createObjectURL(f))] 
+                                            });
+                                        }
+                                    }}
+                                />
+                            </label>
+                        )}
+                    </div>
+                  </div>
+                )}
               </div>
               {editError && <p className="text-red-500 text-sm">{editError}</p>}
               <div className="flex justify-end gap-3">

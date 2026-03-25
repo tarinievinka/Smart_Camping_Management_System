@@ -15,30 +15,6 @@ const TAB_CONFIG = {
     chartSubtitle: "Visual representation of guide ratings",
     listTitle: "Top Rated Guides",
     listSubtitle: "Highest rated guides based on customer reviews",
-    fallbackChart: [
-      { subject: "Sarah Johnson", rating: 5.0 },
-      { subject: "Michael Chen", rating: 4.9 },
-      { subject: "Emma Rodriguez", rating: 4.9 },
-      { subject: "David Kim", rating: 4.8 },
-      { subject: "Lisa Anderson", rating: 4.8 },
-      { subject: "Tom Wilson", rating: 4.7 },
-      { subject: "James Taylor", rating: 4.6 },
-      { subject: "Maria Garcia", rating: 4.5 },
-      { subject: "Robert Brown", rating: 4.4 },
-      { subject: "Emily Davis", rating: 4.3 },
-    ],
-    fallbackList: [
-      { name: "Sarah Johnson", subtitle: "Hiking & Wildlife", rating: 5.0, reviews: 94 },
-      { name: "Michael Chen", subtitle: "Water Activities", rating: 4.9, reviews: 87 },
-      { name: "Emma Rodriguez", subtitle: "Rock Climbing", rating: 4.9, reviews: 76 },
-      { name: "David Kim", subtitle: "Nature Photography", rating: 4.8, reviews: 71 },
-      { name: "Lisa Anderson", subtitle: "Survival Skills", rating: 4.8, reviews: 68 },
-      { name: "Tom Wilson", subtitle: "Mountain Trekking", rating: 4.7, reviews: 65 },
-      { name: "James Taylor", subtitle: "Camp Setup", rating: 4.6, reviews: 50 },
-      { name: "Maria Garcia", subtitle: "Wilderness First Aid", rating: 4.5, reviews: 45 },
-      { name: "Robert Brown", subtitle: "Canoeing", rating: 4.4, reviews: 30 },
-      { name: "Emily Davis", subtitle: "Bird Watching", rating: 4.3, reviews: 20 },
-    ],
   },
   "Equipment Ratings": {
     filter: "equipment",
@@ -47,30 +23,6 @@ const TAB_CONFIG = {
     chartSubtitle: "Visual representation of equipment ratings",
     listTitle: "Top Rated Equipment",
     listSubtitle: "Highest rated equipment based on customer reviews",
-    fallbackChart: [
-      { subject: "Premium 4-Person Tent", rating: 4.8 },
-      { subject: "Deluxe Sleeping Bag", rating: 4.7 },
-      { subject: "Hiking Gear Set", rating: 4.7 },
-      { subject: "Camping Cookware Set", rating: 4.6 },
-      { subject: "LED Camping Lanterns", rating: 4.6 },
-      { subject: "Camping Stove", rating: 4.5 },
-      { subject: "Water Purifier", rating: 4.4 },
-      { subject: "Portable Generator", rating: 4.3 },
-      { subject: "GPS Navigator", rating: 4.2 },
-      { subject: "Multi-tool Knife", rating: 4.1 },
-    ],
-    fallbackList: [
-      { name: "Premium 4-Person Tent", subtitle: "Shelter & Camping", rating: 4.8, reviews: 152 },
-      { name: "Deluxe Sleeping Bag", subtitle: "Bedding", rating: 4.7, reviews: 134 },
-      { name: "Hiking Gear Set", subtitle: "Outdoor Gear", rating: 4.7, reviews: 128 },
-      { name: "Camping Cookware Set", subtitle: "Kitchen Equipment", rating: 4.6, reviews: 119 },
-      { name: "LED Camping Lanterns", subtitle: "Lighting", rating: 4.6, reviews: 112 },
-      { name: "Camping Stove", subtitle: "Cooking", rating: 4.5, reviews: 105 },
-      { name: "Water Purifier", subtitle: "Hydration", rating: 4.4, reviews: 90 },
-      { name: "Portable Generator", subtitle: "Power", rating: 4.3, reviews: 85 },
-      { name: "GPS Navigator", subtitle: "Navigation", rating: 4.2, reviews: 70 },
-      { name: "Multi-tool Knife", subtitle: "Tools", rating: 4.1, reviews: 60 },
-    ],
   },
   "Locations Ratings": {
     filter: "campsite",
@@ -79,30 +31,6 @@ const TAB_CONFIG = {
     chartSubtitle: "Visual representation of location ratings",
     listTitle: "Top Rated Locations",
     listSubtitle: "Highest rated camping locations based on customer reviews",
-    fallbackChart: [
-      { subject: "Lakeside Premium", rating: 4.9 },
-      { subject: "Mountain View", rating: 4.8 },
-      { subject: "Forest Retreat", rating: 4.8 },
-      { subject: "Riverside Ground", rating: 4.7 },
-      { subject: "Valley View", rating: 4.7 },
-      { subject: "Pine Woods Area", rating: 4.6 },
-      { subject: "Desert Oasis", rating: 4.5 },
-      { subject: "Canyon Overlook", rating: 4.4 },
-      { subject: "Ocean Breeze", rating: 4.3 },
-      { subject: "Meadow Campground", rating: 4.2 },
-    ],
-    fallbackList: [
-      { name: "Lakeside Premium", subtitle: "Northern Lakes District", rating: 4.9, reviews: 203 },
-      { name: "Mountain View", subtitle: "Highland Range", rating: 4.8, reviews: 187 },
-      { name: "Forest Retreat", subtitle: "Pine Valley", rating: 4.8, reviews: 165 },
-      { name: "Riverside Ground", subtitle: "River Basin", rating: 4.7, reviews: 154 },
-      { name: "Valley View", subtitle: "Central Valley", rating: 4.7, reviews: 142 },
-      { name: "Pine Woods Area", subtitle: "Forest Zone", rating: 4.6, reviews: 138 },
-      { name: "Desert Oasis", subtitle: "Sandy Dunes", rating: 4.5, reviews: 120 },
-      { name: "Canyon Overlook", subtitle: "Red Rock Region", rating: 4.4, reviews: 110 },
-      { name: "Ocean Breeze", subtitle: "Coastal Reserve", rating: 4.3, reviews: 95 },
-      { name: "Meadow Campground", subtitle: "Green Valleys", rating: 4.2, reviews: 80 },
-    ],
   },
 };
 
@@ -127,30 +55,32 @@ const AdminFeedback = () => {
     return Number.isFinite(num) ? num : fallback;
   };
 
-  const fetchData = async () => {
+  const fetchData = () => {
     setLoading(true);
-    try {
-      const feedbackUrl = process.env.REACT_APP_FEEDBACK_API_URL || "http://localhost:5000/api/feedback/display";
-      const guidesUrl = process.env.REACT_APP_GUIDES_API_URL || "http://localhost:5001/api/guides/display";
-      const equipmentUrl = process.env.REACT_APP_EQUIPMENT_API_URL || "http://localhost:5002/api/equipment/display";
+    const feedbackUrl = process.env.REACT_APP_FEEDBACK_API_URL || "http://localhost:5000/api/feedback/display";
+    const guidesUrl = process.env.REACT_APP_GUIDES_API_URL || "http://localhost:5001/api/guides/display";
+    const equipmentUrl = process.env.REACT_APP_EQUIPMENT_API_URL || "http://localhost:5002/api/equipment/display";
 
-      const [feedbackRes, guidesRes, equipmentRes] = await Promise.allSettled([
-        axios.get(feedbackUrl),
-        axios.get(guidesUrl),
-        axios.get(equipmentUrl),
-      ]);
+    let fetchedCount = 0;
+    const checkDone = () => {
+      fetchedCount++;
+      if (fetchedCount === 3) setLoading(false);
+    };
 
-      setFeedbacks(feedbackRes.status === "fulfilled" ? extractArray(feedbackRes.value?.data) : []);
-      setGuides(guidesRes.status === "fulfilled" ? extractArray(guidesRes.value?.data) : []);
-      setEquipment(equipmentRes.status === "fulfilled" ? extractArray(equipmentRes.value?.data) : []);
-    } catch (error) {
-      console.error("Error fetching admin data:", error);
-      setFeedbacks([]);
-      setGuides([]);
-      setEquipment([]);
-    } finally {
-      setLoading(false);
-    }
+    axios.get(feedbackUrl)
+      .then(res => setFeedbacks(extractArray(res?.data)))
+      .catch(err => { console.error("Error fetching feedback:", err); setFeedbacks([]); })
+      .finally(checkDone);
+
+    axios.get(guidesUrl)
+      .then(res => setGuides(extractArray(res?.data)))
+      .catch(err => { console.error("Error fetching guides:", err); setGuides([]); })
+      .finally(checkDone);
+
+    axios.get(equipmentUrl)
+      .then(res => setEquipment(extractArray(res?.data)))
+      .catch(err => { console.error("Error fetching equipment:", err); setEquipment([]); })
+      .finally(checkDone);
   };
 
   useEffect(() => {
@@ -187,12 +117,12 @@ const AdminFeedback = () => {
     reviews: getNumber(item.totalReviews ?? item.reviewCount ?? item.reviews ?? item.ratingsCount, 0),
   }));
 
-  const feedbackEntities = Object.values(
-    filteredFeedbacks.reduce((acc, item, index) => {
-      const key = item.targetName || item.targetId || item._id || `location-${index}`;
-      if (!acc[key]) {
-        acc[key] = { ratings: [], reviews: 0, name: item.targetName || item.title || `Item ${index + 1}` };
-      }
+    const feedbackEntities = Object.values(
+      filteredFeedbacks.reduce((acc, item) => {
+        const key = item.targetName || item.targetId || item._id || 'unknown';
+        if (!acc[key]) {
+          acc[key] = { ratings: [], reviews: 0, name: item.targetName || item.title || 'Unknown' };
+        }
       acc[key].ratings.push(getNumber(item.rating, 0));
       acc[key].reviews += 1;
       return acc;
@@ -219,23 +149,18 @@ const AdminFeedback = () => {
     .sort((a, b) => b.rating - a.rating);
 
   const barChartData = sortedEntities.length
-    ? sortedEntities.slice(0, 10).map((item, index) => ({ subject: item.subject || `${labelPrefix} ${index + 1}`, rating: item.rating }))
-    : activeConfig.fallbackChart.slice(0, 10).map((item) => ({ ...item, subject: item.subject }));
+    ? sortedEntities.slice(0, 10).map((item) => ({ subject: item.subject || "Unknown", rating: item.rating }))
+    : [];
 
   const topRatedData = sortedEntities.length
     ? sortedEntities.slice(0, 5).map((item, index) => ({
         rank: index + 1,
-        name: item.subject || `${labelPrefix} ${index + 1}`,
-        subtitle: "Community Review",
+        name: item.subject || "Unknown",
+        subtitle: "Customer Average",
         rating: item.rating,
         reviews: getNumber(item.reviews, 0),
       }))
-    : activeConfig.fallbackList.slice(0, 5).map((item, index) => ({
-        rank: index + 1,
-        ...item,
-        name: `${labelPrefix} ${index + 1}`,
-        subtitle: "Anonymous entry",
-      }));
+    : [];
 
   const tabNames = Object.keys(TAB_CONFIG);
 
@@ -314,15 +239,21 @@ const AdminFeedback = () => {
                     ticks={[0, 1, 2, 3, 4, 5]}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: "#64748b", fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: "#64748b", fontSize: 13, fontWeight: 600 }}
                     dx={-10}
                   />
                   <Tooltip 
-                    cursor={{ fill: "#f8fafc" }}
-                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)", padding: "16px" }}
-                    itemStyle={{ color: "#0f172a", fontWeight: "bold", fontSize: "16px" }}
+                    cursor={{ fill: "rgba(241, 245, 249, 0.4)" }}
+                    contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)", padding: "16px", backgroundColor: "rgba(255,255,255,0.95)" }}
+                    itemStyle={{ color: "#0f172a", fontWeight: "900", fontSize: "16px" }}
                   />
-                  <Bar dataKey="rating" radius={[8, 8, 0, 0]} barSize={55}>
+                  <Bar 
+                    dataKey="rating" 
+                    radius={[8, 8, 8, 8]} 
+                    barSize={60}
+                    animationDuration={1500}
+                    label={{ position: 'top', fill: '#0f172a', fontSize: 14, fontWeight: 'bold', formatter: (val) => Number(val).toFixed(1), dy: -6 }}
+                  >
                     {
                       barChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={index === 0 ? "url(#colorRatingTop)" : "url(#colorRating)"} />
