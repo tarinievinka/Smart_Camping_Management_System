@@ -121,18 +121,19 @@ const AdminAllReviews = () => {
                 return (
                   <div key={review._id} className="group border border-slate-200 rounded-2xl p-4 bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:border-slate-300">
                     <div className="flex flex-col sm:flex-row gap-4">
-                      {/* Image Gallery */}
-                      <div className="flex gap-3 overflow-x-auto sm:w-64 shrink-0 pb-3 sleek-scrollbar snap-x">
+                      {/* Image Gallery Collage */}
+                      <div className="flex gap-2 w-full sm:w-80 shrink-0 h-48 sm:h-36">
                         {(review.imageUrls && review.imageUrls.length > 0 
                           ? review.imageUrls.map(url => `http://localhost:5000${url}`) 
                           : [review.imageUrl ? `http://localhost:5000${review.imageUrl}` : review.image || getDefaultImage(review.targetType)]
                         ).map((src, i) => (
-                          <img
-                            key={i}
-                            className="w-full sm:w-48 sm:h-32 rounded-xl object-cover border border-slate-200 shadow-sm hover:shadow-md transition-shadow shrink-0 snap-center"
-                            src={src}
-                            alt={`${review.title || review.targetType} ${i + 1}`}
-                          />
+                          <div key={i} className="flex-1 min-w-0 h-full">
+                            <img
+                              className="w-full h-full rounded-xl object-cover border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
+                              src={src}
+                              alt={`${review.title || review.targetType} ${i + 1}`}
+                            />
+                          </div>
                         ))}
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col justify-center">
