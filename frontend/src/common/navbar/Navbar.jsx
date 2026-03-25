@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const navLinks = [
     { label: "Home", href: "/" },
@@ -9,15 +10,20 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-    const [activeLink, setActiveLink] = useState("Home");
+    const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    const isActive = (href) => {
+        if (href === "/") return location.pathname === "/";
+        return location.pathname.startsWith(href);
+    };
 
     return (
         <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <a href="/" className="flex items-center gap-2 shrink-0">
+                    <Link to="/" className="flex items-center gap-2 shrink-0">
                         <svg
                             className="w-9 h-9"
                             viewBox="0 0 40 40"
@@ -49,25 +55,21 @@ const Navbar = () => {
                         <span className="text-xl font-bold text-gray-900 tracking-tight">
                             Smart Camping
                         </span>
-                    </a>
+                    </Link>
 
                     {/* Desktop nav links */}
                     <div className="hidden md:flex items-center gap-8 ml-10">
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.label}
-                                href={link.href}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setActiveLink(link.label);
-                                }}
-                                className={`text-sm font-medium transition-colors duration-200 pb-0.5 ${activeLink === link.label
-                                        ? "text-green-700 border-b-2 border-green-700"
-                                        : "text-gray-600 hover:text-green-700"
+                                to={link.href}
+                                className={`text-sm font-medium transition-colors duration-200 pb-0.5 ${isActive(link.href)
+                                    ? "text-green-700 border-b-2 border-green-700"
+                                    : "text-gray-600 hover:text-green-700"
                                     }`}
                             >
                                 {link.label}
-                            </a>
+                            </Link>
                         ))}
                     </div>
 
@@ -95,12 +97,12 @@ const Navbar = () => {
                         </button>
 
                         {/* CTA */}
-                        <a
-                            href="/plan"
+                        <Link
+                            to="/guides"
                             className="inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-green-700 rounded-full hover:bg-green-800 active:bg-green-900 shadow-md hover:shadow-lg transition-all duration-200"
                         >
                             Plan Your Adventure
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Mobile hamburger */}
@@ -147,29 +149,25 @@ const Navbar = () => {
                 <div className="md:hidden border-t border-gray-100 bg-white">
                     <div className="px-4 py-3 space-y-2">
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.label}
-                                href={link.href}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setActiveLink(link.label);
-                                    setMobileOpen(false);
-                                }}
-                                className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${activeLink === link.label
-                                        ? "text-green-700 bg-green-50"
-                                        : "text-gray-600 hover:text-green-700 hover:bg-green-50"
+                                to={link.href}
+                                onClick={() => setMobileOpen(false)}
+                                className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive(link.href)
+                                    ? "text-green-700 bg-green-50"
+                                    : "text-gray-600 hover:text-green-700 hover:bg-green-50"
                                     }`}
                             >
                                 {link.label}
-                            </a>
+                            </Link>
                         ))}
                         <div className="pt-2 border-t border-gray-100">
-                            <a
-                                href="/plan"
+                            <Link
+                                to="/guides"
                                 className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-green-700 rounded-full hover:bg-green-800 transition-all duration-200"
                             >
                                 Plan Your Adventure
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>
