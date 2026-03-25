@@ -21,4 +21,6 @@ router.delete('/delete/:id', equipmentController.deleteEquipment);
 // Update availability status
 router.patch('/:id/status', equipmentController.updateAvailabilityStatus);
 
+router.patch('/reduce-stock/:id', equipmentController.reduceStock);
+
 module.exports = router;

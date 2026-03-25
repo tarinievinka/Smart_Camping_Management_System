@@ -4,7 +4,8 @@ const {
   getEquipmentById,
   updateEquipment,
   deleteEquipment,
-  updateAvailabilityStatus
+  updateAvailabilityStatus,
+  reduceStock,           // ← NEW
 } = require('../../services/Equipment-service/EquipmentService');
 
 // Create a new equipment item
@@ -12,7 +13,7 @@ exports.createEquipment = async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) {
-      data.imageUrl = `/uploads/${req.file.filename}`;  // save path
+      data.imageUrl = `/uploads/${req.file.filename}`;
     }
     const equipment = await createEquipment(data);
     res.status(201).json(equipment);
@@ -47,7 +48,7 @@ exports.updateEquipment = async (req, res) => {
   try {
     const data = { ...req.body };
     if (req.file) {
-      data.imageUrl = `/uploads/${req.file.filename}`;  // update image if new one uploaded
+      data.imageUrl = `/uploads/${req.file.filename}`;
     }
     const equipment = await updateEquipment(req.params.id, data);
     if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
@@ -73,6 +74,18 @@ exports.updateAvailabilityStatus = async (req, res) => {
   try {
     const { status } = req.body;
     const equipment = await updateAvailabilityStatus(req.params.id, status);
+    if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
+    res.json(equipment);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// ── NEW: reduce stock when user confirms a booking ──────────
+exports.reduceStock = async (req, res) => {
+  try {
+    const { quantity, mode } = req.body;
+    const equipment = await reduceStock(req.params.id, quantity, mode);
     if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
     res.json(equipment);
   } catch (err) {
