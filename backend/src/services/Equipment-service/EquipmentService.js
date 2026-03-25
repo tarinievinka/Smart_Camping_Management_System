@@ -29,11 +29,34 @@ const updateAvailabilityStatus = async (id, status) => {
   return equipment;
 };
 
+// ── NEW: reduce stock when user confirms a booking ──────────
+const reduceStock = async (id, quantity, mode) => {
+  const equipment = await Equipment.findById(id);
+  if (!equipment) return null;
+
+  // Reduce stock by the booked quantity — never go below 0
+  const newStock = Math.max(0, equipment.stockQuantity - quantity);
+  equipment.stockQuantity = newStock;
+
+  // Auto-update status based on new stock + booking mode
+  if (newStock === 0) {
+    // Rented = all units are currently rented out (can come back)
+    // Out of Stock = units are sold permanently
+    equipment.availabilityStatus = mode === 'rent' ? 'Rented' : 'Out of Stock';
+  } else {
+    // Still has stock — keep as Available
+    equipment.availabilityStatus = 'Available';
+  }
+
+  return await equipment.save();
+};
+
 module.exports = {
   createEquipment,
   getAllEquipment,
   getEquipmentById,
   updateEquipment,
   deleteEquipment,
-  updateAvailabilityStatus
+  updateAvailabilityStatus,
+  reduceStock,           
 };

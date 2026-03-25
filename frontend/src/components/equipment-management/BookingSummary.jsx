@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const API_BASE = process.env.REACT_APP_API_URL;
+const API_BASE    = process.env.REACT_APP_API_URL;
+const EQUIP_API   = process.env.REACT_APP_API_URL + '/api/equipment';
 
 const CATEGORY_IMAGES = {
   'Tents':         'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&h=250&fit=crop',
@@ -27,6 +28,7 @@ const BookingSummary = () => {
   const [returnDate, setReturnDate] = useState(fmt(returnDefault));
   const [pickupTime, setPickupTime] = useState('09:00');
   const [returnTime, setReturnTime] = useState('17:00');
+  const [processing, setProcessing] = useState(false);  // ← NEW: loading while reducing stock
 
   // Per-item state: quantity + removed
   const [itemStates, setItemStates] = useState(
@@ -57,7 +59,7 @@ const BookingSummary = () => {
   const days   = Math.max(1, Math.ceil(ms / (1000 * 60 * 60 * 24)));
   const nights = Math.max(0, days - 1);
 
-  // Helper key per item (same item can appear as both rent and buy)
+  // Helper key per item
   const key = (item) => item._id + item.mode;
 
   const updateQty = (item, delta) => {
@@ -76,18 +78,63 @@ const BookingSummary = () => {
 
   const activeItems = items.filter(i => !itemStates[key(i)]?.removed);
 
-  // ── Payment calculations ──
+  // Payment calculations
   const itemsTotal = activeItems.reduce((sum, item) => {
     const state = itemStates[key(item)] || { quantity: 1 };
-    if (item.mode === 'buy') {
-      return sum + item.salePrice * state.quantity;         // flat sale price
-    }
-    return sum + item.rentalPrice * state.quantity * days;  // rental × days
+    if (item.mode === 'buy') return sum + item.salePrice * state.quantity;
+    return sum + item.rentalPrice * state.quantity * days;
   }, 0);
 
   const serviceFee  = parseFloat((itemsTotal * 0.05).toFixed(2));
-  const insurance   = 0.00;
-  const totalAmount = (itemsTotal + serviceFee + insurance).toFixed(2);
+  const totalAmount = (itemsTotal + serviceFee).toFixed(2);
+
+  // ── NEW: Proceed to Payment — reduces stock for every active item ──
+  const handleProceed = async () => {
+    if (activeItems.length === 0) return;
+    setProcessing(true);
+
+    try {
+      // Call reduce-stock for every active item
+      const results = await Promise.all(
+        activeItems.map(item => {
+          const state    = itemStates[key(item)] || { quantity: 1 };
+          return fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              quantity: state.quantity,
+              mode:     item.mode,   // 'rent' or 'buy'
+            }),
+          }).then(res => res.json());
+        })
+      );
+
+      // Check if any item failed
+      const failed = results.filter(r => r.error);
+      if (failed.length > 0) {
+        alert(`Some items could not be processed: ${failed.map(f => f.error).join(', ')}`);
+        setProcessing(false);
+        return;
+      }
+
+      // ✅ All good — navigate to payment page (connect your payment module here)
+      alert(
+        `✅ Booking confirmed!\n\n` +
+        `${activeItems.length} item(s) booked.\n` +
+        `Total: Rs ${parseFloat(totalAmount).toLocaleString()}\n\n` +
+        `Stock has been updated in the system.\n` +
+        `Connecting to payment...`
+      );
+
+      // TODO: Replace alert with your team's payment route, e.g.:
+      // navigate('/payment', { state: { items: activeItems, total: totalAmount } });
+
+    } catch (err) {
+      alert('Failed to process booking. Please try again.');
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   return (
     <div style={{ background: '#f9fafb', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
@@ -125,7 +172,7 @@ const BookingSummary = () => {
           {/* ── Left column ── */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-            {/* Rental Duration card — only show for rental items */}
+            {/* Rental Duration — only show when at least one rental item */}
             {activeItems.some(i => i.mode === 'rent') && (
               <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '24px' }}>
                 <h2 style={{ margin: '0 0 20px', fontSize: '15px', fontWeight: '700', color: '#111827' }}>
@@ -137,14 +184,10 @@ const BookingSummary = () => {
                     <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       Pick Up
                     </div>
-                    <input
-                      type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)}
-                      style={{ border: 'none', background: 'transparent', fontSize: '15px', fontWeight: '700', color: '#111827', cursor: 'pointer', width: '100%' }}
-                    />
-                    <input
-                      type="time" value={pickupTime} onChange={e => setPickupTime(e.target.value)}
-                      style={{ border: 'none', background: 'transparent', fontSize: '13px', color: '#6b7280', cursor: 'pointer', marginTop: '4px', width: '100%' }}
-                    />
+                    <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)}
+                      style={{ border: 'none', background: 'transparent', fontSize: '15px', fontWeight: '700', color: '#111827', cursor: 'pointer', width: '100%' }} />
+                    <input type="time" value={pickupTime} onChange={e => setPickupTime(e.target.value)}
+                      style={{ border: 'none', background: 'transparent', fontSize: '13px', color: '#6b7280', cursor: 'pointer', marginTop: '4px', width: '100%' }} />
                   </div>
                   <div style={{ fontSize: '20px', color: '#16a34a' }}>→</div>
                   {/* Return */}
@@ -152,14 +195,10 @@ const BookingSummary = () => {
                     <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       Return
                     </div>
-                    <input
-                      type="date" value={returnDate} onChange={e => setReturnDate(e.target.value)}
-                      style={{ border: 'none', background: 'transparent', fontSize: '15px', fontWeight: '700', color: '#111827', cursor: 'pointer', width: '100%' }}
-                    />
-                    <input
-                      type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)}
-                      style={{ border: 'none', background: 'transparent', fontSize: '13px', color: '#6b7280', cursor: 'pointer', marginTop: '4px', width: '100%' }}
-                    />
+                    <input type="date" value={returnDate} onChange={e => setReturnDate(e.target.value)}
+                      style={{ border: 'none', background: 'transparent', fontSize: '15px', fontWeight: '700', color: '#111827', cursor: 'pointer', width: '100%' }} />
+                    <input type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)}
+                      style={{ border: 'none', background: 'transparent', fontSize: '13px', color: '#6b7280', cursor: 'pointer', marginTop: '4px', width: '100%' }} />
                   </div>
                 </div>
                 <div style={{ textAlign: 'center', color: '#16a34a', fontWeight: '600', fontSize: '13px' }}>
@@ -168,12 +207,10 @@ const BookingSummary = () => {
               </div>
             )}
 
-            {/* Selected Gear card */}
+            {/* Selected Gear */}
             <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#111827' }}>
-                  🎒 Selected Gear
-                </h2>
+                <h2 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#111827' }}>🎒 Selected Gear</h2>
                 <span style={{ fontSize: '13px', color: '#16a34a', fontWeight: '600' }}>
                   {activeItems.length} Item{activeItems.length !== 1 ? 's' : ''}
                 </span>
@@ -189,7 +226,6 @@ const BookingSummary = () => {
                     ? item.salePrice * state.quantity
                     : item.rentalPrice * state.quantity * days;
 
-                  // Removed state
                   if (state.removed) {
                     return (
                       <div key={key(item)} style={{
@@ -197,10 +233,10 @@ const BookingSummary = () => {
                         border: '1px dashed #fca5a5', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       }}>
                         <span style={{ fontSize: '13px', color: '#9ca3af' }}>"{item.name}" ({item.mode}) removed</span>
-                        <button
-                          onClick={() => undoRemove(item)}
-                          style={{ background: 'none', border: 'none', color: '#16a34a', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
-                        >Undo</button>
+                        <button onClick={() => undoRemove(item)}
+                          style={{ background: 'none', border: 'none', color: '#16a34a', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                          Undo
+                        </button>
                       </div>
                     );
                   }
@@ -210,18 +246,13 @@ const BookingSummary = () => {
                       display: 'flex', alignItems: 'center', gap: '16px',
                       padding: '16px', background: '#f9fafb', borderRadius: '10px', border: '1px solid #e5e7eb',
                     }}>
-                      {/* Image */}
-                      <img
-                        src={imgSrc} alt={item.name}
+                      <img src={imgSrc} alt={item.name}
                         style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
                         onError={e => { e.target.src = CATEGORY_IMAGES['Other']; }}
                       />
-
-                      {/* Details */}
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                           <span style={{ fontWeight: '700', fontSize: '15px', color: '#111827' }}>{item.name}</span>
-                          {/* Mode badge */}
                           <span style={{
                             fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '4px',
                             background: item.mode === 'buy' ? '#dbeafe' : '#dcfce7',
@@ -233,31 +264,22 @@ const BookingSummary = () => {
                         <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
                           {item.category} · {item.condition} condition
                         </div>
-
-                        {/* Buy mode — no qty adjuster needed, show flat price info */}
                         {item.mode === 'buy' ? (
                           <div style={{ fontSize: '12px', color: '#6b7280' }}>
                             Sale price: <strong>Rs {item.salePrice.toLocaleString()}</strong> per unit
                           </div>
                         ) : (
-                          /* Rent mode — qty adjuster */
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ fontSize: '12px', color: '#374151' }}>Qty:</span>
-                            <button
-                              onClick={() => updateQty(item, -1)}
-                              style={{ width: '24px', height: '24px', borderRadius: '50%', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}
-                            >−</button>
+                            <button onClick={() => updateQty(item, -1)}
+                              style={{ width: '24px', height: '24px', borderRadius: '50%', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>−</button>
                             <span style={{ fontWeight: '700', fontSize: '14px', minWidth: '20px', textAlign: 'center' }}>{state.quantity}</span>
-                            <button
-                              onClick={() => updateQty(item, 1)}
-                              style={{ width: '24px', height: '24px', borderRadius: '50%', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}
-                            >+</button>
+                            <button onClick={() => updateQty(item, 1)}
+                              style={{ width: '24px', height: '24px', borderRadius: '50%', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>+</button>
                             <span style={{ fontSize: '12px', color: '#6b7280' }}>Rs {item.rentalPrice}/day</span>
                           </div>
                         )}
                       </div>
-
-                      {/* Price + remove */}
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{ fontWeight: '700', fontSize: '15px', color: '#111827', marginBottom: '6px' }}>
                           Rs {lineTotal.toLocaleString()}
@@ -267,10 +289,10 @@ const BookingSummary = () => {
                             {state.quantity} × Rs {item.rentalPrice} × {days}d
                           </div>
                         )}
-                        <button
-                          onClick={() => removeItem(item)}
-                          style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
-                        >Remove</button>
+                        <button onClick={() => removeItem(item)}
+                          style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                          Remove
+                        </button>
                       </div>
                     </div>
                   );
@@ -312,7 +334,6 @@ const BookingSummary = () => {
                   </div>
                 );
               })}
-
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#374151' }}>
                 <span>Service Fee (5%)</span>
                 <span style={{ fontWeight: '600' }}>Rs {serviceFee.toLocaleString()}</span>
@@ -338,22 +359,22 @@ const BookingSummary = () => {
               )}
             </div>
 
-            {/* Proceed button */}
+            {/* ── Proceed button — reduces stock on click ── */}
             <button
-              onClick={() => alert('Proceeding to payment!\n(Connect to your payment module here)')}
-              disabled={activeItems.length === 0}
+              onClick={handleProceed}
+              disabled={activeItems.length === 0 || processing}
               style={{
                 width: '100%', padding: '14px',
-                background: activeItems.length === 0 ? '#9ca3af' : '#16a34a',
+                background: activeItems.length === 0 || processing ? '#9ca3af' : '#16a34a',
                 color: '#fff', border: 'none', borderRadius: '10px',
                 fontSize: '14px', fontWeight: '700',
-                cursor: activeItems.length === 0 ? 'not-allowed' : 'pointer',
+                cursor: activeItems.length === 0 || processing ? 'not-allowed' : 'pointer',
                 marginBottom: '12px', transition: 'background 0.2s',
               }}
-              onMouseEnter={e => { if (activeItems.length > 0) e.target.style.background = '#15803d'; }}
-              onMouseLeave={e => { if (activeItems.length > 0) e.target.style.background = '#16a34a'; }}
+              onMouseEnter={e => { if (activeItems.length > 0 && !processing) e.target.style.background = '#15803d'; }}
+              onMouseLeave={e => { if (activeItems.length > 0 && !processing) e.target.style.background = '#16a34a'; }}
             >
-              🔒 Proceed to Secure Payment
+              {processing ? '⏳ Processing...' : '🔒 Proceed to Secure Payment'}
             </button>
 
             <p style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center', margin: 0 }}>
