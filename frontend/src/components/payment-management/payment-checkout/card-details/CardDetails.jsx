@@ -3,7 +3,8 @@ import { Lock, HelpCircle } from 'lucide-react';
 
 const CardDetails = ({ formData, onInputChange, cardType, setCardType }) => {
   const formatCardNumber = (value) => {
-    return value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+    const digitsOnly = value.replace(/\D/g, '').slice(0, 16);
+    return digitsOnly.replace(/(\d{4})/g, '$1 ').trim();
   };
 
   const handleCardNumberChange = (e) => {
@@ -24,6 +25,26 @@ const CardDetails = ({ formData, onInputChange, cardType, setCardType }) => {
     onInputChange({
       target: {
         name: 'expiryDate',
+        value: value
+      }
+    });
+  };
+
+  const handleCvvChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    onInputChange({
+      target: {
+        name: 'cvv',
+        value: value
+      }
+    });
+  };
+
+  const handleCardholderChange = (e) => {
+    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+    onInputChange({
+      target: {
+        name: 'cardholder',
         value: value
       }
     });
@@ -67,8 +88,9 @@ const CardDetails = ({ formData, onInputChange, cardType, setCardType }) => {
             type="text"
             name="cardholder"
             value={formData.cardholder}
-            onChange={onInputChange}
+            onChange={handleCardholderChange}
             placeholder="John Doe"
+            required
             className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
           />
         </div>
@@ -86,6 +108,8 @@ const CardDetails = ({ formData, onInputChange, cardType, setCardType }) => {
               onChange={handleCardNumberChange}
               placeholder="0000 0000 0000 0000"
               maxLength="19"
+              minLength="19"
+              required
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
             />
             <Lock className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -106,6 +130,8 @@ const CardDetails = ({ formData, onInputChange, cardType, setCardType }) => {
               onChange={handleExpiryChange}
               placeholder="MM/YY"
               maxLength="5"
+              minLength="5"
+              required
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
             />
           </div>
@@ -120,9 +146,11 @@ const CardDetails = ({ formData, onInputChange, cardType, setCardType }) => {
                 type="password"
                 name="cvv"
                 value={formData.cvv}
-                onChange={onInputChange}
+                onChange={handleCvvChange}
                 placeholder="123"
-                maxLength="4"
+                maxLength="3"
+                minLength="3"
+                required
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
               />
               <HelpCircle className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 cursor-help" />
