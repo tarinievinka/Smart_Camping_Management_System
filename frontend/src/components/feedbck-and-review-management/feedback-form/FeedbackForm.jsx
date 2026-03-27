@@ -22,7 +22,7 @@ const FeedbackForm = () => {
     const navigate = useNavigate();
     const nameFieldConfig = {
         campsite: { label: "Location Name", placeholder: "e.g., Pine Valley Campground" },
-        guide: { label: "Guide Name", placeholder: "e.g., Mountain Adventures - John Smith" },
+        guide: { label: "Guider Name", placeholder: "e.g., Mountain Adventures - John Smith" },
         equipment: { label: "Equipment Name", placeholder: "e.g., Alpine Pro Backpack 65L" },
     };
     const activeNameField = nameFieldConfig[selectedReview] || nameFieldConfig.campsite;
@@ -256,7 +256,7 @@ const FeedbackForm = () => {
                                 rows={4}
                                 className={`w-full bg-slate-50 border ${errors.reviewText ? "border-red-400" : "border-slate-200"} text-slate-800 placeholder-slate-400 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 resize-y`}
                             />
-                            <p className="text-xs text-slate-400 mt-1">Minimum 10 characters ({reviewText.trim().length}/50)</p>
+                            <p className="text-xs text-slate-400 mt-1">Minimum 10 characters ({reviewText.trim().length}/10)</p>
                             {errors.reviewText && (
                                 <div className="text-red-500 text-sm mt-1 font-medium flex items-center gap-1.5">
                                     <AlertCircle size={14} />
