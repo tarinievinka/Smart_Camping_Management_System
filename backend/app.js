@@ -1,5 +1,6 @@
 require('dotenv').config(); // Load variables from .env
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const connectDB = require('./src/config/db');
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
@@ -9,6 +10,10 @@ const userRoute = require('./src/routes/user-routes/userRoutes');
 const port = process.env.PORT || 5000;
 
 // Middleware
+app.use(cors({
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://127.0.0.1:3000'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Error handling for JSON parse errors
@@ -25,7 +30,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/payment', paymentRoute);
-app.use('/api/users', userRoute);
+app.use('/api', userRoute);
 
 const start = async () => {
   await connectDB();
