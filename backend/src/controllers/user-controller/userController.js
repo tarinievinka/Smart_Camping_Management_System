@@ -1,9 +1,29 @@
 const userService = require('../../services/user-service/userService');
 
+const jwt = require('jsonwebtoken'); // Added for token generation on register
+
 const register = async (req, res) => {
   try {
     const user = await userService.registerUser(req.body);
-    res.status(201).json({ message: 'User registered successfully', userId: user.userId });
+    
+    // Generate token for auto-login
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({ 
+      message: 'User registered successfully', 
+      token, 
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        userId: user.userId
+      }
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -65,6 +85,18 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const deleteMyProfile = async (req, res) => {
+  try {
+    const user = await userService.deleteUser(req.user.id);
+    res.status(200).json({
+      message: `Profile deleted successfully`,
+      user
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const getAllUsers = async (req, res) => {
   try {
     const users = await userService.getAllUsers();
@@ -74,4 +106,42 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getProfile, updateProfile, setUserStatus, deleteUser, getAllUsers };
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    const resetToken = await userService.forgotPassword(email);
+    
+    // Return token in development mode for testing
+    res.status(200).json({ 
+      message: 'Password reset email sent successfully',
+      resetToken: resetToken,
+      note: 'Development mode: Token returned for testing'
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password are required' });
+    }
+    
+    await userService.resetPassword(token, newPassword);
+    res.status(200).json({ 
+      message: 'Password reset successfully' 
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+module.exports = { register, login, getProfile, updateProfile, setUserStatus, deleteUser, deleteMyProfile, getAllUsers, forgotPassword, resetPassword };

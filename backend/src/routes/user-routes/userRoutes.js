@@ -6,10 +6,13 @@ const { protect, adminOnly } = require('../../middleware/authMiddleware');
 // Public
 router.post('/register', userController.register);
 router.post('/login', userController.login);
+router.post('/forgot-password', userController.forgotPassword);
+router.post('/reset-password', userController.resetPassword);
 
 // Authenticated user
 router.get('/profile', protect, userController.getProfile);
 router.put('/profile', protect, userController.updateProfile);
+router.delete('/profile', protect, userController.deleteMyProfile);
 
 // Admin only
 router.get('/', protect, adminOnly, userController.getAllUsers);
