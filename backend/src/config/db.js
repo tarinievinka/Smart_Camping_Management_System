@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
 
 const connectDB = async () => {
   const uri = process.env.MONGO_URI;
@@ -8,6 +9,18 @@ const connectDB = async () => {
   }
 
   try {
+    // In some Windows or corporate networks Node's DNS resolver may fail SRV lookups.
+    // Optionally override DNS servers for this process to public resolvers to
+    // ensure SRV records for MongoDB Atlas can be resolved. Set
+    // `MONGO_DNS_OVERRIDE=false` in the environment to skip this.
+    try {
+      if (process.env.MONGO_DNS_OVERRIDE !== 'false') {
+        dns.setServers(['8.8.8.8', '1.1.1.1']);
+        console.log('Overrode DNS servers to 8.8.8.8,1.1.1.1 for SRV resolution');
+      }
+    } catch (dnsErr) {
+      console.warn('Failed to override DNS servers:', dnsErr && dnsErr.message ? dnsErr.message : dnsErr);
+    }
     // Mongoose 7+ and 9+ use sensible defaults; do not pass deprecated connection options
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000,
