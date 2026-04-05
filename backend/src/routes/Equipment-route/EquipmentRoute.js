@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const equipmentController = require('../../controllers/Equipment-controller/EquipmentController');
-const upload = require('../../config/upload');   // ← ADD
+const upload     = require('../../config/upload'); 
 
 // Create — now accepts multipart/form-data with optional image
 router.post('/add', upload.single('image'), equipmentController.createEquipment);

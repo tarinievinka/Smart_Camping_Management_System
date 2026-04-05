@@ -1,24 +1,32 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const API_BASE    = process.env.REACT_APP_API_URL;
-const EQUIP_API   = process.env.REACT_APP_API_URL + '/api/equipment';
+const API_BASE  = process.env.REACT_APP_API_URL;
+const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
 
-const CATEGORY_IMAGES = {
-  'Tents':         'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&h=250&fit=crop',
-  'Sleeping Bags': 'https://images.unsplash.com/photo-1510672981848-a1c4f1cb5ccf?w=400&h=250&fit=crop',
-  'Backpacks':     'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=250&fit=crop',
-  'Cooking Gear':  'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400&h=250&fit=crop',
-  'Lighting':      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=250&fit=crop',
-  'Other':         'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?w=400&h=250&fit=crop',
-};
+// ── No CATEGORY_IMAGES — only admin-uploaded photos shown ──
+
+// Grey placeholder for items with no photo
+const NoPhoto = ({ size = '72px' }) => (
+  <div style={{
+    width: size, height: size, borderRadius: '8px', flexShrink: 0,
+    background: '#f3f4f6', display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center', gap: '4px',
+  }}>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+      stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <circle cx="8.5" cy="8.5" r="1.5"/>
+      <polyline points="21 15 16 10 5 21"/>
+    </svg>
+  </div>
+);
 
 const BookingSummary = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { items } = location.state || {};
 
-  // Default dates
   const today         = new Date();
   const returnDefault = new Date(today);
   returnDefault.setDate(today.getDate() + 4);
@@ -28,9 +36,8 @@ const BookingSummary = () => {
   const [returnDate, setReturnDate] = useState(fmt(returnDefault));
   const [pickupTime, setPickupTime] = useState('09:00');
   const [returnTime, setReturnTime] = useState('17:00');
-  const [processing, setProcessing] = useState(false);  // ← NEW: loading while reducing stock
+  const [processing, setProcessing] = useState(false);
 
-  // Per-item state: quantity + removed
   const [itemStates, setItemStates] = useState(
     (items || []).reduce((acc, item) => {
       acc[item._id + item.mode] = { quantity: 1, removed: false };
@@ -38,28 +45,22 @@ const BookingSummary = () => {
     }, {})
   );
 
-  // No items guard
   if (!items || items.length === 0) {
     return (
       <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'system-ui, sans-serif' }}>
         <p style={{ color: '#6b7280', marginBottom: '16px', fontSize: '16px' }}>No equipment selected.</p>
-        <button
-          onClick={() => navigate('/equipment-store')}
-          style={{
-            background: '#16a34a', color: '#fff', border: 'none',
-            padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600',
-          }}
-        >← Browse Equipment</button>
+        <button onClick={() => navigate('/equipment-store')} style={{
+          background: '#16a34a', color: '#fff', border: 'none',
+          padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600',
+        }}>← Browse Equipment</button>
       </div>
     );
   }
 
-  // Days calculation
   const ms     = new Date(returnDate) - new Date(pickupDate);
   const days   = Math.max(1, Math.ceil(ms / (1000 * 60 * 60 * 24)));
   const nights = Math.max(0, days - 1);
 
-  // Helper key per item
   const key = (item) => item._id + item.mode;
 
   const updateQty = (item, delta) => {
@@ -78,7 +79,6 @@ const BookingSummary = () => {
 
   const activeItems = items.filter(i => !itemStates[key(i)]?.removed);
 
-  // Payment calculations
   const itemsTotal = activeItems.reduce((sum, item) => {
     const state = itemStates[key(item)] || { quantity: 1 };
     if (item.mode === 'buy') return sum + item.salePrice * state.quantity;
@@ -88,48 +88,31 @@ const BookingSummary = () => {
   const serviceFee  = parseFloat((itemsTotal * 0.05).toFixed(2));
   const totalAmount = (itemsTotal + serviceFee).toFixed(2);
 
-  // ── NEW: Proceed to Payment — reduces stock for every active item ──
   const handleProceed = async () => {
     if (activeItems.length === 0) return;
     setProcessing(true);
-
     try {
-      // Call reduce-stock for every active item
       const results = await Promise.all(
         activeItems.map(item => {
-          const state    = itemStates[key(item)] || { quantity: 1 };
+          const state = itemStates[key(item)] || { quantity: 1 };
           return fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              quantity: state.quantity,
-              mode:     item.mode,   // 'rent' or 'buy'
-            }),
+            body: JSON.stringify({ quantity: state.quantity, mode: item.mode }),
           }).then(res => res.json());
         })
       );
-
-      // Check if any item failed
       const failed = results.filter(r => r.error);
       if (failed.length > 0) {
         alert(`Some items could not be processed: ${failed.map(f => f.error).join(', ')}`);
         setProcessing(false);
         return;
       }
-
-      // ✅ All good — navigate to payment page (connect your payment module here)
       alert(
-        `✅ Booking confirmed!\n\n` +
-        `${activeItems.length} item(s) booked.\n` +
-        `Total: Rs ${parseFloat(totalAmount).toLocaleString()}\n\n` +
-        `Stock has been updated in the system.\n` +
-        `Connecting to payment...`
+        `✅ Booking confirmed!\n\n${activeItems.length} item(s) booked.\nTotal: Rs ${parseFloat(totalAmount).toLocaleString()}\n\nStock has been updated in the system.\nConnecting to payment...`
       );
-
-      // TODO: Replace alert with your team's payment route, e.g.:
       // navigate('/payment', { state: { items: activeItems, total: totalAmount } });
-
-    } catch (err) {
+    } catch {
       alert('Failed to process booking. Please try again.');
     } finally {
       setProcessing(false);
@@ -139,62 +122,49 @@ const BookingSummary = () => {
   return (
     <div style={{ background: '#f9fafb', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
 
-      {/* ── Top header ── */}
+      {/* Header */}
       <div style={{
         background: '#fff', padding: '16px 32px', borderBottom: '1px solid #e5e7eb',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button
-            onClick={() => navigate(-1)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#374151' }}
-          >←</button>
+          <button onClick={() => navigate(-1)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#374151' }}>←</button>
           <span style={{ fontSize: '16px', fontWeight: '700', color: '#111827' }}>Review Your Booking</span>
         </div>
         <button style={{
           background: '#16a34a', color: '#fff', border: 'none',
-          padding: '8px 16px', borderRadius: '8px', cursor: 'pointer',
-          fontSize: '13px', fontWeight: '600',
+          padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600',
         }}>Need Help?</button>
       </div>
 
-      {/* ── Page body ── */}
+      {/* Body */}
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
-        <h1 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: '800', color: '#111827' }}>
-          Booking Summary
-        </h1>
+        <h1 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: '800', color: '#111827' }}>Booking Summary</h1>
         <p style={{ margin: '0 0 28px', color: '#6b7280', fontSize: '14px' }}>
           Please review your selected gear and rental duration before confirming your adventure.
         </p>
 
         <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
 
-          {/* ── Left column ── */}
+          {/* Left column */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-            {/* Rental Duration — only show when at least one rental item */}
+            {/* Rental Duration */}
             {activeItems.some(i => i.mode === 'rent') && (
               <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '24px' }}>
-                <h2 style={{ margin: '0 0 20px', fontSize: '15px', fontWeight: '700', color: '#111827' }}>
-                  📅 Rental Duration
-                </h2>
+                <h2 style={{ margin: '0 0 20px', fontSize: '15px', fontWeight: '700', color: '#111827' }}>📅 Rental Duration</h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
-                  {/* Pickup */}
                   <div style={{ flex: 1, background: '#f9fafb', borderRadius: '10px', padding: '16px', border: '1px solid #e5e7eb' }}>
-                    <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      Pick Up
-                    </div>
+                    <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pick Up</div>
                     <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)}
                       style={{ border: 'none', background: 'transparent', fontSize: '15px', fontWeight: '700', color: '#111827', cursor: 'pointer', width: '100%' }} />
                     <input type="time" value={pickupTime} onChange={e => setPickupTime(e.target.value)}
                       style={{ border: 'none', background: 'transparent', fontSize: '13px', color: '#6b7280', cursor: 'pointer', marginTop: '4px', width: '100%' }} />
                   </div>
                   <div style={{ fontSize: '20px', color: '#16a34a' }}>→</div>
-                  {/* Return */}
                   <div style={{ flex: 1, background: '#f9fafb', borderRadius: '10px', padding: '16px', border: '1px solid #e5e7eb' }}>
-                    <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      Return
-                    </div>
+                    <div style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Return</div>
                     <input type="date" value={returnDate} onChange={e => setReturnDate(e.target.value)}
                       style={{ border: 'none', background: 'transparent', fontSize: '15px', fontWeight: '700', color: '#111827', cursor: 'pointer', width: '100%' }} />
                     <input type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)}
@@ -218,10 +188,9 @@ const BookingSummary = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {items.map(item => {
-                  const state    = itemStates[key(item)] || { quantity: 1, removed: false };
-                  const imgSrc   = item.imageUrl
-                    ? `${API_BASE}${item.imageUrl}`
-                    : (CATEGORY_IMAGES[item.category] || CATEGORY_IMAGES['Other']);
+                  const state     = itemStates[key(item)] || { quantity: 1, removed: false };
+                  // ── Only show admin-uploaded photo ──
+                  const imgSrc    = item.imageUrl ? `${API_BASE}${item.imageUrl}` : null;
                   const lineTotal = item.mode === 'buy'
                     ? item.salePrice * state.quantity
                     : item.rentalPrice * state.quantity * days;
@@ -246,10 +215,14 @@ const BookingSummary = () => {
                       display: 'flex', alignItems: 'center', gap: '16px',
                       padding: '16px', background: '#f9fafb', borderRadius: '10px', border: '1px solid #e5e7eb',
                     }}>
-                      <img src={imgSrc} alt={item.name}
-                        style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }}
-                        onError={e => { e.target.src = CATEGORY_IMAGES['Other']; }}
-                      />
+                      {/* ── Photo or grey placeholder ── */}
+                      {imgSrc ? (
+                        <img src={imgSrc} alt={item.name}
+                          style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }} />
+                      ) : (
+                        <NoPhoto size="72px" />
+                      )}
+
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                           <span style={{ fontWeight: '700', fontSize: '15px', color: '#111827' }}>{item.name}</span>
@@ -280,6 +253,7 @@ const BookingSummary = () => {
                           </div>
                         )}
                       </div>
+
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
                         <div style={{ fontWeight: '700', fontSize: '15px', color: '#111827', marginBottom: '6px' }}>
                           Rs {lineTotal.toLocaleString()}
@@ -301,17 +275,14 @@ const BookingSummary = () => {
             </div>
           </div>
 
-          {/* ── Right column — Payment Details ── */}
+          {/* Payment sidebar */}
           <div style={{
             width: '300px', flexShrink: 0, background: '#fff',
             borderRadius: '12px', border: '1px solid #e5e7eb', padding: '24px',
             position: 'sticky', top: '24px',
           }}>
-            <h2 style={{ margin: '0 0 20px', fontSize: '15px', fontWeight: '700', color: '#111827' }}>
-              💳 Payment Details
-            </h2>
+            <h2 style={{ margin: '0 0 20px', fontSize: '15px', fontWeight: '700', color: '#111827' }}>💳 Payment Details</h2>
 
-            {/* Line items */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
               {activeItems.map(item => {
                 const state     = itemStates[key(item)] || { quantity: 1 };
@@ -344,11 +315,8 @@ const BookingSummary = () => {
               </div>
             </div>
 
-            {/* Total */}
             <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px', marginBottom: '20px' }}>
-              <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-                Total Amount
-              </div>
+              <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Total Amount</div>
               <div style={{ fontSize: '28px', fontWeight: '800', color: '#111827' }}>
                 Rs {parseFloat(totalAmount).toLocaleString()}
               </div>
@@ -359,7 +327,6 @@ const BookingSummary = () => {
               )}
             </div>
 
-            {/* ── Proceed button — reduces stock on click ── */}
             <button
               onClick={handleProceed}
               disabled={activeItems.length === 0 || processing}

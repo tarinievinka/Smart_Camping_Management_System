@@ -232,7 +232,11 @@ const EditEquipment = ({ item, onSave, onCancel }) => {
             Cancel
           </button>
           <button type="submit" disabled={uploading}
-            className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50">
+            className="px-4 py-2 text-white rounded disabled:opacity-50"
+            style={{ background: '#15803d' }}
+            onMouseEnter={e => e.target.style.background = '#166534'}
+            onMouseLeave={e => e.target.style.background = '#15803d'}
+>
             {uploading ? 'Saving...' : 'Update Equipment'}
           </button>
         </div>

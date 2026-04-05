@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const {
   createEquipment,
   getAllEquipment,
@@ -5,8 +6,11 @@ const {
   updateEquipment,
   deleteEquipment,
   updateAvailabilityStatus,
-  reduceStock,           // ← NEW
+  reduceStock,
 } = require('../../services/Equipment-service/EquipmentService');
+
+// ── Helper: validate MongoDB ObjectId ───────────────────────
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // Create a new equipment item
 exports.createEquipment = async (req, res) => {
@@ -34,6 +38,8 @@ exports.getAllEquipment = async (req, res) => {
 
 // Get equipment by ID
 exports.getEquipmentById = async (req, res) => {
+  if (!isValidId(req.params.id))
+    return res.status(400).json({ error: 'Invalid equipment ID' });
   try {
     const equipment = await getEquipmentById(req.params.id);
     if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
@@ -45,6 +51,8 @@ exports.getEquipmentById = async (req, res) => {
 
 // Update equipment by ID
 exports.updateEquipment = async (req, res) => {
+  if (!isValidId(req.params.id))
+    return res.status(400).json({ error: 'Invalid equipment ID' });
   try {
     const data = { ...req.body };
     if (req.file) {
@@ -60,6 +68,8 @@ exports.updateEquipment = async (req, res) => {
 
 // Delete equipment by ID
 exports.deleteEquipment = async (req, res) => {
+  if (!isValidId(req.params.id))
+    return res.status(400).json({ error: 'Invalid equipment ID' });
   try {
     const equipment = await deleteEquipment(req.params.id);
     if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
@@ -71,6 +81,8 @@ exports.deleteEquipment = async (req, res) => {
 
 // Update availability status
 exports.updateAvailabilityStatus = async (req, res) => {
+  if (!isValidId(req.params.id))
+    return res.status(400).json({ error: 'Invalid equipment ID' });
   try {
     const { status } = req.body;
     const equipment = await updateAvailabilityStatus(req.params.id, status);
@@ -81,8 +93,10 @@ exports.updateAvailabilityStatus = async (req, res) => {
   }
 };
 
-// ── NEW: reduce stock when user confirms a booking ──────────
+// Reduce stock when user confirms a booking
 exports.reduceStock = async (req, res) => {
+  if (!isValidId(req.params.id))
+    return res.status(400).json({ error: 'Invalid equipment ID' });
   try {
     const { quantity, mode } = req.body;
     const equipment = await reduceStock(req.params.id, quantity, mode);
