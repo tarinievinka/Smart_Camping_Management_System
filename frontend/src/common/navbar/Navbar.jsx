@@ -39,10 +39,13 @@ const Navbar = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2.5 shrink-0">
-                        <svg className="w-10 h-10" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 32 C4 23 11 16 20 16 C29 16 36 23 36 32 Z" fill="#4ade80" />
-                            <path d="M23 32 C 23 25, 15 26, 17 21 C 18 19, 21.5 17, 20 15" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                    <Link to="/" className="flex items-center gap-2 shrink-0">
+                    <a href="/equipment-store">Gear Rental</a>
+                        <svg className="w-9 h-9" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="40" height="40" rx="8" fill="#166534" />
+                            <path d="M20 8L30 28H10L20 8Z" fill="#22c55e" stroke="white" strokeWidth="1" />
+                            <path d="M14 16L22 28H6L14 16Z" fill="#15803d" stroke="white" strokeWidth="1" />
+                            <rect x="18" y="24" width="4" height="4" rx="0.5" fill="white" />
                         </svg>
                         <div className="flex flex-col justify-center">
                             <span className="text-[1.35rem] font-black text-[#166534] tracking-widest uppercase leading-none">CAMPTRAIL</span>
