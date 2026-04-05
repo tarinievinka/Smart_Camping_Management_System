@@ -61,7 +61,7 @@ const PaymentInvoice = ({ payment, onClose }) => {
             </button>
             <button
               onClick={generatePDF}
-              className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white py-1.5 px-3 rounded-lg transition text-sm"
+              className="flex items-center gap-1.5 bg-[#166534] hover:bg-[#14532d] text-white py-1.5 px-3 rounded-lg transition text-sm"
             >
               <Download className="w-4 h-4" />
               PDF
@@ -124,7 +124,7 @@ const PaymentInvoice = ({ payment, onClose }) => {
             </div>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-0.5">Status</p>
-              <p className="text-green-600 font-semibold text-sm">{payment.status?.toUpperCase()}</p>
+              <p className="text-[#166534] font-semibold text-sm">{payment.status?.toUpperCase()}</p>
             </div>
           </div>
 
@@ -164,7 +164,7 @@ const PaymentInvoice = ({ payment, onClose }) => {
               </div>
               <div className="flex justify-between pt-1 text-base font-bold">
                 <span className="text-gray-900">TOTAL:</span>
-                <span className="text-green-600">${total.toFixed(2)}</span>
+                <span className="text-[#166534]">${total.toFixed(2)}</span>
               </div>
             </div>
           </div>

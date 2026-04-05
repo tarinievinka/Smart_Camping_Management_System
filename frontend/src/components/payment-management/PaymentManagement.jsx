@@ -164,7 +164,7 @@ const PaymentManagement = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-[#166534]/20 text-[#14532d]';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       case 'failed':
@@ -190,7 +190,7 @@ const PaymentManagement = () => {
             </div>
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+              className="flex items-center gap-2 bg-[#166534] hover:bg-[#14532d] text-white font-semibold py-2 px-4 rounded-lg transition"
             >
               <Plus className="w-5 h-5" />
               Record Payment
@@ -205,7 +205,7 @@ const PaymentManagement = () => {
                 onClick={() => setFilter(status)}
                 className={`px-4 py-2 rounded-lg font-semibold transition ${
                   filter === status
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-[#166534] text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -234,7 +234,7 @@ const PaymentManagement = () => {
                       onChange={handleInputChange}
                       step="0.01"
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     />
                   </div>
 
@@ -248,7 +248,7 @@ const PaymentManagement = () => {
                       value={formData.description}
                       onChange={handleInputChange}
                       placeholder="e.g., Tent Rental"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     />
                   </div>
 
@@ -262,7 +262,7 @@ const PaymentManagement = () => {
                       value={formData.orderId}
                       onChange={handleInputChange}
                       placeholder="e.g., ORD-001"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     />
                   </div>
 
@@ -274,7 +274,7 @@ const PaymentManagement = () => {
                       name="paymentMethod"
                       value={formData.paymentMethod}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     >
                       <option value="credit-card">Credit Card</option>
                       <option value="paypal">PayPal</option>
@@ -291,7 +291,7 @@ const PaymentManagement = () => {
                       name="status"
                       value={formData.status}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     >
                       <option value="pending">Pending</option>
                       <option value="completed">Completed</option>
@@ -309,7 +309,7 @@ const PaymentManagement = () => {
                       name="date"
                       value={formData.date}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     />
                   </div>
 
@@ -317,7 +317,7 @@ const PaymentManagement = () => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
+                      className="flex-1 bg-[#166534] hover:bg-[#14532d] disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
                     >
                       {loading && <Loader className="w-4 h-4 animate-spin" />}
                       {editingId ? 'Update' : 'Create'}
@@ -383,14 +383,14 @@ const PaymentManagement = () => {
           {/* Payments Table */}
           {loading && payments.length === 0 ? (
             <div className="flex items-center justify-center py-12">
-              <Loader className="w-8 h-8 animate-spin text-green-600" />
+              <Loader className="w-8 h-8 animate-spin text-[#166534]" />
             </div>
           ) : payments.length === 0 ? (
             <div className="bg-white rounded-lg shadow p-8 text-center">
               <p className="text-gray-600 mb-4">No payments found</p>
               <button
                 onClick={() => setShowForm(true)}
-                className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+                className="bg-[#166534] hover:bg-[#14532d] text-white font-semibold py-2 px-4 rounded-lg transition"
               >
                 Record First Payment
               </button>
@@ -480,7 +480,7 @@ const PaymentManagement = () => {
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Completed</p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-3xl font-bold text-[#166534]">
                   ${payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>

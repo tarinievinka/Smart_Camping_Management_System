@@ -73,7 +73,7 @@ const PaymentSummary = () => {
         </div>
 
         {/* Complete Payment Button */}
-        <button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition mb-4">
+        <button className="w-full bg-[#166534]/90 hover:bg-[#166534] text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition mb-4">
           <Lock className="w-5 h-5" />
           Complete Payment
         </button>

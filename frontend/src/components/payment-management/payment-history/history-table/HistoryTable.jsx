@@ -18,7 +18,7 @@ const HistoryTable = ({ payments = [] }) => {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'completed':
-        return 'bg-green-100 text-green-700';
+        return 'bg-[#166534]/20 text-[#14532d]';
       case 'refunded':
         return 'bg-red-100 text-red-700';
       case 'pending':
@@ -49,7 +49,7 @@ const HistoryTable = ({ payments = [] }) => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">Transaction History</h2>
-          <button className="text-green-600 hover:text-green-700 font-semibold text-sm cursor-pointer">
+          <button className="text-[#166534] hover:text-[#14532d] font-semibold text-sm cursor-pointer">
             View all
           </button>
         </div>
@@ -107,7 +107,7 @@ const HistoryTable = ({ payments = [] }) => {
                     <td className="px-6 py-4 text-sm">
                       <button
                         onClick={() => handleDownloadInvoice(transaction)}
-                        className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded transition"
+                        className="flex items-center gap-1 bg-[#166534] hover:bg-[#14532d] text-white py-1 px-3 rounded transition"
                         title="Download Invoice PDF"
                       >
                         <Download className="w-4 h-4" />

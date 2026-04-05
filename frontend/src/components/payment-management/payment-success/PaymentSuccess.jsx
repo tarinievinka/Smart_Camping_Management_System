@@ -10,12 +10,12 @@ const PaymentSuccess = () => {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <CheckCircle className="w-20 h-20 text-green-600 mx-auto mb-4" />
+            <CheckCircle className="w-20 h-20 text-[#166534] mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
             <p className="text-gray-600 mb-2">Your booking has been confirmed.</p>
             <p className="text-sm text-gray-500 mb-6">A confirmation email will be sent to you shortly.</p>
             
-            <div className="bg-green-50 rounded-lg p-4 mb-6">
+            <div className="bg-[#166534]/10 rounded-lg p-4 mb-6">
               <p className="text-sm font-semibold text-gray-900 mb-2">Booking Details</p>
               <p className="text-sm text-gray-600">Wilderness Retreat - Site #42</p>
               <p className="text-sm text-gray-600">Oct 12 - Oct 15, 2023</p>
