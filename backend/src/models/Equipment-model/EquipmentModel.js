@@ -62,25 +62,4 @@ const equipmentSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-// ── Custom validator: salePrice must be >= rentalPrice ──────
-equipmentSchema.pre("save", function (next) {
-  if (this.salePrice < this.rentalPrice) {
-    return next(new Error("Sale price must not be less than rental price"));
-  }
-  next();
-});
-
-// Same check on findByIdAndUpdate
-equipmentSchema.pre("findOneAndUpdate", function (next) {
-  const update = this.getUpdate();
-  if (
-    update.salePrice !== undefined &&
-    update.rentalPrice !== undefined &&
-    Number(update.salePrice) < Number(update.rentalPrice)
-  ) {
-    return next(new Error("Sale price must not be less than rental price"));
-  }
-  next();
-});
-
 module.exports = mongoose.model("Equipment", equipmentSchema);
