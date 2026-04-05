@@ -89,7 +89,7 @@ const Navbar = () => {
                                 Sign In
                             </Link>
                             <Link
-                                to="/register"
+                                to="/signup"
                                 className="text-sm font-medium text-[#166534] bg-[#166534]/10 px-4 py-2 rounded-full hover:bg-[#166534]/20 transition-colors duration-200"
                             >
                                 Sign Up
@@ -199,7 +199,7 @@ const Navbar = () => {
                                 Sign In
                             </Link>
                             <Link
-                                to="/register"
+                                to="/signup"
                                 onClick={() => setMobileOpen(false)}
                                 className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-[#166534] bg-[#166534]/10 hover:bg-[#166534]/20 transition-colors"
                             >

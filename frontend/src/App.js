@@ -20,11 +20,15 @@ import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDash
 // Landing page
 import Landing from './components/landing/Landing';
 
+// Blogs page
+import Blogs from './components/blogs/Blogs';
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Landing />} />
+        <Route path='/blogs' element={<Blogs />} />
 
         {/* User & identity management routes */}
         <Route path="/login" element={<Login />} />
