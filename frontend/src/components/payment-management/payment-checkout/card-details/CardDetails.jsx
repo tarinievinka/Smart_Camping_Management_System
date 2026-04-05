@@ -19,9 +19,26 @@ const CardDetails = ({ formData, onInputChange, cardType, setCardType }) => {
 
   const handleExpiryChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
-    if (value.length >= 2) {
-      value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    
+    if (value.length === 1 && parseInt(value) > 1) {
+      value = '0' + value;
     }
+    
+    if (value.length >= 2) {
+      let month = parseInt(value.slice(0, 2));
+      let yearPart = value.slice(2, 4);
+      
+      if (month > 12) {
+        month = '12';
+      } else if (month === 0) {
+        month = '01';
+      } else {
+        month = value.slice(0, 2);
+      }
+      
+      value = month + '/' + yearPart;
+    }
+
     onInputChange({
       target: {
         name: 'expiryDate',

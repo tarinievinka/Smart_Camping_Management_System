@@ -15,10 +15,10 @@ const HistoryCards = ({ payments = [] }) => {
       {/* Total Spent Card */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
         <div className="flex items-start justify-between mb-4">
-          <div className="bg-green-100 p-3 rounded-lg">
-            <TrendingUp className="text-green-600 text-xl w-6 h-6" />
+          <div className="bg-[#166534]/20 p-3 rounded-lg">
+            <TrendingUp className="text-[#166534] text-xl w-6 h-6" />
           </div>
-          <span className="text-green-600 text-sm font-semibold">Total Usage</span>
+          <span className="text-[#166534] text-sm font-semibold">Total Usage</span>
         </div>
         <h3 className="text-gray-600 text-sm font-medium mb-2">Total Spent</h3>
         <p className="text-3xl font-bold text-gray-900">{formatCurrency(totalSpent)}</p>
@@ -31,7 +31,7 @@ const HistoryCards = ({ payments = [] }) => {
           <div className="bg-yellow-100 p-3 rounded-lg">
             <Gift className="text-yellow-600 text-xl w-6 h-6" />
           </div>
-          <button className="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded">
+          <button className="bg-[#166534]/90 hover:bg-[#166534] text-white text-xs font-semibold px-3 py-1 rounded">
             Pay Now
           </button>
         </div>
