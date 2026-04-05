@@ -8,12 +8,12 @@ import Footer from "../../common/footer/Footer";
 const Landing = () => {
     return (
         <div>
-            <Navbar />
+            
             <Section1 />
             <Section3 />
             <Section4 />
             <Section5 />
-            <Footer />
+            
         </div>
     );
 };
