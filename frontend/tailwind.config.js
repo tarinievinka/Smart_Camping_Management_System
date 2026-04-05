@@ -2,7 +2,7 @@
 const config = {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}", // includes all JS/TS/JSX/TSX files
   ],
   theme: {
     extend: {},
