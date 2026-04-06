@@ -1,12 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { Heart, Trash2 } from "lucide-react";
+import {
+  LayoutGrid, Calendar, Heart, LogOut,
+  Search, Bell, Settings, ArrowRight, Star, Map, ChevronDown
+} from "lucide-react";
+import { GuideCard, enrichGuide } from "./GuideBooking";
 
+const CATEGORIES = ["All Experts", "Mountaineering", "Photography", "Survivalists"];
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const Favourites = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState("All Experts");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [favouriteGuides, setFavouriteGuides] = useState([]);
@@ -55,57 +63,150 @@ const Favourites = () => {
     }
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem("auth_session");
+    localStorage.removeItem("role");
+    navigate("/guides");
+  };
+
+  const navItems = [
+    { icon: LayoutGrid, label: "Browse Guides", path: "/guides" },
+    { icon: Calendar, label: "My Bookings", path: "/guides/bookings" },
+    { icon: Heart, label: "Favorites", path: "/guides/favourites" },
+  ];
+
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold">My Favourites</h1>
+    <div className="flex min-h-screen bg-[#F8F9FB] font-sans text-gray-900">
 
-      {loading ? (
-        <p className="mt-4 text-gray-500">Loading...</p>
-      ) : error ? (
-        <p className="mt-4 text-red-600">{error}</p>
-      ) : favouriteGuides.length === 0 ? (
-        <p className="mt-4 text-gray-500">No favourites yet.</p>
-      ) : (
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {favouriteGuides.map((g) => (
-            <div
-              key={g._id}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-3"
+      {/* Shared Sidebar */}
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
+        <div className="flex items-center gap-3 mb-10">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold shrink-0" style={{ backgroundColor: '#166534' }}>
+            W
+          </div>
+          <div>
+            <h2 className="text-gray-900 font-bold text-lg">WildGuide</h2>
+            <p className="text-gray-500 text-xs">Adventure awaits</p>
+          </div>
+        </div>
+
+        <nav className="flex-1 space-y-1.5">
+          {navItems.map((item) => (
+            <button
+              key={item.label}
+              onClick={() => navigate(item.path)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
+                location.pathname === item.path
+                  ? "text-white"
+                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+              }`}
+              style={location.pathname === item.path ? { backgroundColor: '#166534' } : {}}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="font-bold text-gray-900">{g.name}</h2>
-                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{g.description}</p>
-                </div>
+              <item.icon size={20} /> {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-3 px-4 py-3 text-red-500 text-sm font-semibold hover:bg-red-50 rounded-xl transition-colors mt-auto"
+        >
+          <LogOut size={20} className="rotate-180" /> Sign Out
+        </button>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 p-8 overflow-y-auto relative">
+        <div className="max-w-5xl mx-auto">
+
+          {/* Top Bar */}
+          <div className="flex items-center justify-between mb-12">
+            <div className="relative w-full max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="text"
+                placeholder="Search your expeditions..."
+                className="w-full bg-gray-200/60 border-none rounded-full py-3.5 pl-12 pr-6 text-sm font-medium text-gray-700 placeholder-gray-500 outline-none transition-all"
+                onFocus={e => e.target.style.outline = `2px solid #166534`}
+                onBlur={e => e.target.style.outline = 'none'}
+              />
+            </div>
+          </div>
+
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-[40px] font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Saved Expeditions</h1>
+            <p className="text-gray-500 font-medium tracking-wide max-w-lg">Your curated collection of wilderness experts. Ready for your next journey into the heart of nature.</p>
+          </div>
+
+          {/* Filters & Sort */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map(cat => (
                 <button
-                  type="button"
-                  onClick={() => removeFavourite(g._id)}
-                  className="p-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50"
-                  aria-label="Remove favourite"
-                  title="Remove favourite"
+                  key={cat}
+                  onClick={() => setActiveTab(cat)}
+                  className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all ${
+                    activeTab === cat
+                      ? "text-white shadow-sm"
+                      : "bg-[#DFE5EE] text-[#6B7C93] hover:bg-[#d0d7e3]"
+                  }`}
+                  style={activeTab === cat ? { backgroundColor: '#166534' } : {}}
                 >
-                  <Trash2 size={18} />
+                  {cat}
                 </button>
-              </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 text-xs font-bold text-gray-400 tracking-wider">
+              SORT BY: <span className="flex items-center gap-1 cursor-pointer" style={{ color: '#166534' }}>Rating <ChevronDown size={14} /></span>
+            </div>
+          </div>
 
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <Heart size={16} className="text-red-500" fill="currentColor" />
-                <span>
-                  {g.language} • {g.experience} yrs
-                </span>
+          {/* Loading / Empty States */}
+          {loading && (
+            <div className="py-20 text-center text-gray-400 font-extrabold text-xl animate-pulse">
+              Loading Favorites...
+            </div>
+          )}
+          {error && (
+            <div className="py-20 text-center text-red-500 font-bold text-lg">
+              {error}
+            </div>
+          )}
+          {!loading && !error && favouriteGuides.length === 0 && (
+            <div className="py-20 text-center">
+              <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Heart size={32} className="text-gray-400" />
               </div>
-
-              <button
-                type="button"
-                onClick={() => navigate(`/guides/${g._id}`)}
-                className="mt-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl font-semibold transition-colors"
-              >
-                View Guide Profile
+              <p className="text-gray-500 font-bold text-lg">No saved experts yet.</p>
+              <button onClick={() => navigate('/guides')} className="font-bold mt-2 hover:underline" style={{ color: '#166534' }}>
+                Browse Guides
               </button>
             </div>
-          ))}
+          )}
+
+          {/* Guide Cards Grid */}
+          {!loading && !error && favouriteGuides.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+              {favouriteGuides.map((guide, idx) => (
+                <GuideCard
+                  key={guide._id}
+                  guide={enrichGuide(guide, idx)}
+                  isFavourite={true}
+                  onToggleFavourite={() => removeFavourite(guide._id)}
+                />
+              ))}
+            </div>
+          )}
+
         </div>
-      )}
+
+        {/* Floating Map Icon */}
+        <button className="fixed bottom-8 right-8 w-14 h-14 rounded-full flex items-center justify-center hover:-translate-y-1 transition-transform z-50" style={{ backgroundColor: '#166534', boxShadow: '0 8px 20px rgba(22,101,52,0.3)' }}>
+          <Map size={24} className="text-white" />
+        </button>
+
+      </main>
     </div>
   );
 };

@@ -1,213 +1,349 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Clock, CheckCircle2, Trash2, ArrowRight } from "lucide-react";
-import { getCurrentGuideId, isLoggedInAsGuide } from "./guideSession";
 import axios from "axios";
+import { getCurrentGuideId, isLoggedInAsGuide } from "./guideSession";
+import { useGuideBookingsForGuide, isPendingGuideBooking } from "./useGuideBookingsForGuide";
+import Sidebar from "./Sidebar";
+import { useToast } from "../../../context/ToastContext";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-const COMPLETED_AFTER_MS = 3 * 24 * 60 * 60 * 1000;
+
+const formatDateRange = (start, end, fallback) => {
+  const formatStr = (d) => new Date(d).toLocaleDateString();
+  if (start && end) {
+    if (new Date(start).getTime() === new Date(end).getTime()) return formatStr(start);
+    return `${formatStr(start)} - ${formatStr(end)}`;
+  }
+  if (start) return formatStr(start);
+  if (fallback) return formatStr(fallback);
+  return "-";
+};
+
+const completedOnLabel = (b) => {
+  const d = b.endDate || b.startDate || b.bookedAt;
+  return d ? new Date(d).toLocaleDateString() : "-";
+};
+
+const backBtnStyle = {
+  padding: "10px 20px",
+  background: "#fff",
+  border: "1px solid #e5e7eb",
+  borderRadius: 12,
+  fontWeight: 600,
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  cursor: "pointer",
+  color: "#374151",
+  fontSize: 14,
+};
 
 const GuideSelfBookings = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const toast = useToast();
   const currentGuideId = getCurrentGuideId();
   const loggedInAsGuide = isLoggedInAsGuide();
 
-  const [loading, setLoading] = useState(true);
-  const [guideName, setGuideName] = useState("");
-  const [entries, setEntries] = useState([]);
-  const [error, setError] = useState(null);
+  const { loading, error, upcoming, completed, setEntries, refresh } =
+    useGuideBookingsForGuide(loggedInAsGuide ? currentGuideId : null);
 
-  useEffect(() => {
-    const run = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        if (!currentGuideId) return;
-
-        const raw = localStorage.getItem("guide_bookings");
-        const parsed = raw ? JSON.parse(raw) : [];
-        const all = Array.isArray(parsed) ? parsed : [];
-        const mine = all.filter((b) => b?.guideId === currentGuideId);
-        setEntries(mine);
-
-        const res = await axios.get(`${API_URL}/api/guides/update/${currentGuideId}`);
-        setGuideName(res.data?.name || "");
-      } catch (err) {
-        setError("Failed to load bookings.");
-        setEntries([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    run();
-  }, [currentGuideId]);
-
-  const derived = useMemo(() => {
-    const now = Date.now();
-
-    const normalized = entries.map((b) => {
-      const bookedAtMs = b?.bookedAt ? new Date(b.bookedAt).getTime() : null;
-      const computedStatus =
-        b?.status || (bookedAtMs && now - bookedAtMs > COMPLETED_AFTER_MS ? "completed" : "pending");
-      return { ...b, bookedAtMs, computedStatus };
-    });
-
-    const upcoming = normalized
-      .filter((b) => b.computedStatus === "pending")
-      .sort((a, b) => (a.bookedAtMs || 0) - (b.bookedAtMs || 0));
-    const completed = normalized
-      .filter((b) => b.computedStatus === "completed")
-      .sort((a, b) => (b.bookedAtMs || 0) - (a.bookedAtMs || 0));
-
-    return { upcoming, completed };
-  }, [entries]);
-
-  const removeBooking = (bookingKey) => {
-    const raw = localStorage.getItem("guide_bookings");
-    const parsed = raw ? JSON.parse(raw) : [];
-    const all = Array.isArray(parsed) ? parsed : [];
-
-    const next = all.filter((b) => {
-      const key = `${b?.guideId}:${b?.customerName || "Guest"}:${b?.bookedAt}`;
-      return key !== bookingKey;
-    });
-
-    localStorage.setItem("guide_bookings", JSON.stringify(next));
-    setEntries(next.filter((b) => b?.guideId === currentGuideId));
+  const removeBooking = async (bookingId) => {
+    try {
+      await axios.delete(`${API_URL}/api/guide-bookings/cancel/${bookingId}`);
+      setEntries((prev) => prev.filter((b) => b._id !== bookingId));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const markCompleted = (bookingKey) => {
-    const raw = localStorage.getItem("guide_bookings");
-    const parsed = raw ? JSON.parse(raw) : [];
-    const all = Array.isArray(parsed) ? parsed : [];
+  const markCompleted = async (bookingId) => {
+    try {
+      const res = await axios.put(`${API_URL}/api/guide-bookings/update/${bookingId}`, { status: "completed" });
+      setEntries((prev) => prev.map((b) => (b._id === bookingId ? res.data : b)));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    const next = all.map((b) => {
-      const key = `${b?.guideId}:${b?.customerName || "Guest"}:${b?.bookedAt}`;
-      if (key === bookingKey) return { ...b, status: "completed" };
-      return b;
-    });
+  const confirmBooking = async (bookingId) => {
+    try {
+      const res = await axios.put(`${API_URL}/api/guide-bookings/update/${bookingId}`, { status: "Confirmed" });
+      setEntries((prev) => prev.map((b) => (b._id === bookingId ? res.data : b)));
+      toast.showToast("Booking confirmed.", { variant: "success" });
+    } catch (err) {
+      console.error(err);
+      toast.showToast("Could not confirm booking.", { variant: "error" });
+    }
+  };
 
-    localStorage.setItem("guide_bookings", JSON.stringify(next));
-    setEntries(next.filter((b) => b?.guideId === currentGuideId));
+  const shellStyle = {
+    display: "flex",
+    minHeight: "100vh",
+    background: "#f8f9fb",
+    fontFamily: "'DM Sans', sans-serif",
   };
 
   if (!loggedInAsGuide) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <h1 className="text-2xl font-bold mb-4">My Bookings</h1>
-        <p className="text-gray-600">Login as a guide to view your bookings.</p>
+      <div style={shellStyle}>
+        <Sidebar currentPath={location.pathname} onNavigate={navigate} />
+        <main style={{ flex: 1, overflowY: "auto", padding: 40 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", margin: 0 }}>My Bookings</h1>
+          <p style={{ color: "#6b7280", marginTop: 12 }}>Log in as a guide to view your bookings.</p>
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            style={{ ...backBtnStyle, marginTop: 20 }}
+          >
+            Back to home
+          </button>
+        </main>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Loading bookings...</p>
-        </div>
+      <div style={shellStyle}>
+        <Sidebar currentPath={location.pathname} onNavigate={navigate} />
+        <main
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#9ca3af",
+          }}
+        >
+          Loading bookings…
+        </main>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <p className="text-red-600">{error}</p>
+      <div style={shellStyle}>
+        <Sidebar currentPath={location.pathname} onNavigate={navigate} />
+        <main style={{ flex: 1, padding: 40 }}>
+          <p style={{ color: "#dc2626" }}>{error}</p>
+          <button type="button" onClick={() => refresh()} style={{ ...backBtnStyle, marginTop: 16 }}>
+            Retry
+          </button>
+        </main>
       </div>
     );
   }
 
+  const emptyBoxStyle = {
+    background: "#f9fafb",
+    padding: "80px 40px",
+    borderRadius: 16,
+    textAlign: "center",
+    color: "#9ca3af",
+    fontSize: 17,
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">My Bookings</h1>
-          <p className="text-gray-500 text-sm mt-1">{guideName ? `Bookings for ${guideName}` : ""}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate("/guides/me/dashboard")}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors"
-        >
-          Back to Dashboard <ArrowRight size={16} />
-        </button>
-      </div>
+    <div style={shellStyle}>
+      <Sidebar currentPath={location.pathname} onNavigate={navigate} />
 
-      {/* Upcoming */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold mb-3">Upcoming</h2>
-        {derived.upcoming.length === 0 ? (
-          <p className="text-gray-500 text-sm">No upcoming bookings.</p>
-        ) : (
-          <div className="space-y-3">
-            {derived.upcoming.map((b, idx) => {
-              const bookingKey = `${b?.guideId}:${b?.customerName || "Guest"}:${b?.bookedAt}`;
-              return (
-                <div key={idx} className="flex items-start justify-between gap-4 p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <p className="font-bold text-gray-900">{b.customerName || "Guest"}</p>
-                    <p className="text-sm text-gray-600 mt-1 inline-flex items-center gap-2">
-                      <Clock size={16} className="text-yellow-700" />
-                      {b.bookedAtMs ? new Date(b.bookedAtMs).toLocaleDateString() : "-"}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => markCompleted(bookingKey)}
-                      className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-semibold hover:bg-green-700 transition-colors"
-                    >
-                      Mark Completed
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => removeBooking(bookingKey)}
-                      className="p-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
-                      aria-label="Remove booking"
-                      title="Remove booking"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+      <main style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
+            <div>
+              <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", margin: 0 }}>My Bookings</h1>
+              <p style={{ color: "#9ca3af", marginTop: 4 }}>Upcoming and completed trips for your account</p>
+            </div>
+            <button type="button" onClick={() => navigate("/guides/owndashboard")} style={backBtnStyle}>
+              Back to Dashboard <ArrowRight size={18} />
+            </button>
           </div>
-        )}
-      </div>
 
-      {/* Completed */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
-        <h2 className="text-lg font-semibold mb-3">Completed</h2>
-        {derived.completed.length === 0 ? (
-          <p className="text-gray-500 text-sm">No completed bookings yet.</p>
-        ) : (
-          <div className="space-y-3">
-            {derived.completed.map((b, idx) => (
-              <div key={idx} className="p-4 bg-gray-50 rounded-xl">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-bold text-gray-900">{b.customerName || "Guest"}</p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Completed on {b.bookedAtMs ? new Date(b.bookedAtMs).toLocaleDateString() : "-"}
-                    </p>
-                  </div>
-                  <span className="inline-flex items-center gap-2 text-green-700 font-semibold">
-                    <CheckCircle2 size={16} /> Completed
-                  </span>
-                </div>
+          <div style={cardStyle}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, marginTop: 0, color: "#111827" }}>
+              Upcoming
+            </h2>
+            {upcoming.length === 0 ? (
+              <div style={emptyBoxStyle}>No upcoming bookings.</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {upcoming.map((b) => {
+                  const bookingId = b._id;
+                  return (
+                    <div
+                      key={bookingId || b.customerName}
+                      style={{
+                        background: "#fff",
+                        border: "1px solid #f3f4f6",
+                        borderRadius: 16,
+                        padding: 24,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                          gap: 16,
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>
+                            {b.customerName || "Guest"}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: 6,
+                              fontSize: 11,
+                              fontWeight: 700,
+                              letterSpacing: "0.05em",
+                              textTransform: "uppercase",
+                              color: isPendingGuideBooking(b) ? "#b45309" : "#15803d",
+                            }}
+                          >
+                            {isPendingGuideBooking(b) ? "Awaiting your confirmation" : "Confirmed"}
+                          </div>
+                          <div
+                            style={{
+                              color: "#6b7280",
+                              marginTop: 8,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              fontSize: 14,
+                            }}
+                          >
+                            <Clock size={16} style={{ color: "#ca8a04", flexShrink: 0 }} />
+                            {formatDateRange(b.startDate, b.endDate, b.bookedAt)}
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          {isPendingGuideBooking(b) ? (
+                            <button
+                              type="button"
+                              onClick={() => confirmBooking(bookingId)}
+                              style={{
+                                padding: "8px 16px",
+                                background: "#16a34a",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: 10,
+                                fontWeight: 600,
+                                fontSize: 13,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Confirm booking
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => markCompleted(bookingId)}
+                              style={{
+                                padding: "8px 16px",
+                                background: "#22c55e",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: 10,
+                                fontWeight: 600,
+                                fontSize: 13,
+                                cursor: "pointer",
+                              }}
+                            >
+                              Mark completed
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeBooking(bookingId)}
+                            aria-label="Remove booking"
+                            title="Remove booking"
+                            style={{
+                              padding: 10,
+                              borderRadius: 10,
+                              border: "1px solid #fecaca",
+                              background: "#fff",
+                              color: "#dc2626",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            )}
           </div>
-        )}
-      </div>
+
+          <div style={{ ...cardStyle, marginTop: 32 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, marginTop: 0, color: "#111827" }}>
+              Completed
+            </h2>
+            {completed.length === 0 ? (
+              <div style={emptyBoxStyle}>No completed bookings yet.</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {completed.map((b) => (
+                  <div
+                    key={b._id || `${b.customerName}-${b.bookedAtMs}`}
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #f3f4f6",
+                      borderRadius: 16,
+                      padding: 24,
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>
+                          {b.customerName || "Guest"}
+                        </div>
+                        <div style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
+                          Completed on {completedOnLabel(b)}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          color: "#16a34a",
+                          fontWeight: 600,
+                          fontSize: 14,
+                        }}
+                      >
+                        <CheckCircle2 size={18} />
+                        Completed
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
 
-export default GuideSelfBookings;
+const cardStyle = {
+  background: "#fff",
+  borderRadius: 20,
+  border: "1px solid #f3f4f6",
+  padding: 28,
+  boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+};
 
+export default GuideSelfBookings;

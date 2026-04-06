@@ -1,6 +1,6 @@
 const Guide = require("../../models/guide-model/guidemodel");
 
-// Create guide
+// Create a new guide
 exports.createGuide = async (req, res) => {
   try {
     const guide = new Guide(req.body);
@@ -11,7 +11,7 @@ exports.createGuide = async (req, res) => {
   }
 };
 
-// Get  guides
+// Get all guides
 exports.getAllGuides = async (req, res) => {
   try {
     const guides = await Guide.find();
@@ -21,7 +21,7 @@ exports.getAllGuides = async (req, res) => {
   }
 };
 
-// Get  by ID
+// Get a guide by ID
 exports.getGuideById = async (req, res) => {
   try {
     const guide = await Guide.findById(req.params.id);
@@ -36,7 +36,7 @@ exports.getGuideById = async (req, res) => {
   }
 };
 
-// Update guide
+// Update a guide
 exports.updateGuide = async (req, res) => {
   try {
     const guide = await Guide.findByIdAndUpdate(

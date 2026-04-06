@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, UserCheck, Plus } from "lucide-react";
 import axios from "axios";
+
 import StatCard from "./stat-card/StatCard";
 import BookingTable from "./booking-table/BookingTable";
 import PerformanceChart from "./performance-chart/PerformanceChart";
@@ -42,7 +43,10 @@ const GuideDashboard = () => {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
+                    <div
+                        className="w-8 h-8 border-4 rounded-full animate-spin"
+                        style={{ borderColor: 'rgba(22,101,52,0.2)', borderTopColor: '#166534' }}
+                    />
                     <p className="text-sm text-gray-400 font-medium">Loading dashboard...</p>
                 </div>
             </div>
@@ -62,13 +66,16 @@ const GuideDashboard = () => {
                     </div>
                     <button
                         onClick={() => navigate("/guides/add")}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-xl font-semibold text-sm hover:bg-green-700 shadow-sm hover:shadow-md transition-all"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 text-white rounded-xl font-semibold text-sm shadow-sm hover:shadow-md transition-all"
+                        style={{ backgroundColor: '#166534' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#14532d'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#166534'}
                     >
                         <Plus size={16} /> Add Guide
                     </button>
                 </div>
 
-                {/* Error */}
+                {/* Error Message */}
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
                         {error}
@@ -89,16 +96,16 @@ const GuideDashboard = () => {
                         value={availableCount}
                         trend={guides.length > 0 ? `${Math.round((availableCount / guides.length) * 100)}%` : null}
                         icon={<UserCheck size={24} />}
-                        color="bg-green-500"
+                        color="bg-[#166534]"
                     />
                 </div>
 
-                {/* Charts + Table */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <div className="lg:col-span-1">
+                {/* Layout */}
+                <div className="space-y-6">
+                    <div>
                         <PerformanceChart guides={guides} />
                     </div>
-                    <div className="lg:col-span-2">
+                    <div>
                         <BookingTable guides={guides} onDelete={handleDelete} />
                     </div>
                 </div>

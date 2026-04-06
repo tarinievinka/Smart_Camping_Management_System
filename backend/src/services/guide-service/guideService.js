@@ -1,4 +1,4 @@
-const Guide = require("../../models-guide-management/guide.model");
+const Guide = require("../../models/guide-model/guidemodel");
 
 // Create guide
 const createGuide = async (data) => {

@@ -11,11 +11,13 @@ import {
   XCircle,
 } from "lucide-react";
 import axios from "axios";
+import { useToast } from "../../../context/ToastContext";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const GuideCard = ({ guide, onDelete, role = "user" }) => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   // ✅ CARD CLICK → GO TO PROFILE
   const handleCardClick = () => {
@@ -33,7 +35,7 @@ const GuideCard = ({ guide, onDelete, role = "user" }) => {
       await axios.delete(`${API_URL}/api/guides/${guide._id}`);
       if (onDelete) onDelete(guide._id);
     } catch (err) {
-      alert("Delete failed");
+      showToast("Delete failed.", { variant: "error" });
     }
   };
 
