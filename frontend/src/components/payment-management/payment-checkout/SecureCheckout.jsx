@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { ChevronLeft, Shield } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PaymentSummary from './payment-summary/PaymentSummary';
 import SimplePaymentForm from './simple-payment/SimplePaymentForm';
 import { createPaymentWithReceipt } from '../../../services/paymentApi';
 
 const SecureCheckout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { bookingId, amount, bookingType, title, image, stay, dates, guests } = location.state || {};
   
   const currentBookingId = bookingId || '507f1f77bcf86cd799439012';
@@ -41,9 +42,7 @@ const SecureCheckout = () => {
       formData.append('receipt', receiptFile);
       
       await createPaymentWithReceipt(formData);
-      
-      alert("Bank deposit payment submitted successfully! Waiting for admin approval.");
-      window.location.href = '/payment-history';
+      navigate('/payment-history', { state: { message: 'Bank deposit payment submitted successfully! Waiting for admin approval.', variant: 'success' } });
     } catch (err) {
       console.error('Payment failed:', err);
       alert('Payment submission failed. Please try again.');

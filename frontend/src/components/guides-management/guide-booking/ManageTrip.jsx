@@ -246,7 +246,21 @@ const ManageTrip = () => {
                             </div>
 
                             {/* Pay Now Button */}
-                            {!isPaid && (
+                            {!isPaid && trip.status.toLowerCase() !== 'confirmed' && (
+                                <div>
+                                    <button 
+                                        disabled
+                                        className="mt-8 w-full bg-gray-300 text-gray-500 font-bold py-4 rounded-2xl flex items-center justify-center gap-3 text-[15px] cursor-not-allowed">
+                                        <CreditCard className="w-5 h-5" />
+                                        Pay Now
+                                    </button>
+                                    <p className="text-center text-xs text-amber-600 mt-3 font-semibold">
+                                        Payment will be unlocked once your guide confirms this trip.
+                                    </p>
+                                </div>
+                            )}
+
+                            {!isPaid && trip.status.toLowerCase() === 'confirmed' && (
                                 <button 
                                     onClick={() => navigate('/payment-checkout', { state: { 
                                         bookingId: trip.id, 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit, Trash2, Loader, Eye, FileText } from 'lucide-react';
 
-import Footer from '../../common/footer/Footer';
 import PaymentInvoice from './payment-invoice/PaymentInvoice';
 import {
   getAllPayments,
@@ -22,10 +21,10 @@ const PaymentManagement = () => {
   const [invoicePayment, setInvoicePayment] = useState(null);
   const [formData, setFormData] = useState({
     amount: '',
-    description: '',
+    bookingType: 'CampsiteBooking',
     paymentStatus: 'pending',
     paymentMethod: 'credit-card',
-    orderId: '',
+    bookingId: '',
     date: new Date().toISOString().split('T')[0],
   });
   const [filter, setFilter] = useState('all');
@@ -84,10 +83,10 @@ const PaymentManagement = () => {
       // Reset form and refresh list
       setFormData({
         amount: '',
-        description: '',
+        bookingType: 'CampsiteBooking',
         paymentStatus: 'pending',
         paymentMethod: 'credit-card',
-        orderId: '',
+        bookingId: '',
         date: new Date().toISOString().split('T')[0],
       });
       setShowForm(false);
@@ -103,10 +102,10 @@ const PaymentManagement = () => {
   const handleEdit = (item) => {
     setFormData({
       amount: item.amount,
-      description: item.description,
+      bookingType: item.bookingType || 'CampsiteBooking',
       paymentStatus: item.paymentStatus,
       paymentMethod: item.paymentMethod,
-      orderId: item.orderId,
+      bookingId: item.bookingId || '',
       date: item.date?.split('T')[0] || new Date().toISOString().split('T')[0],
     });
     setEditingId(item._id);
@@ -148,10 +147,10 @@ const PaymentManagement = () => {
     setEditingId(null);
     setFormData({
       amount: '',
-      description: '',
+      bookingType: 'CampsiteBooking',
       paymentStatus: 'pending',
       paymentMethod: 'credit-card',
-      orderId: '',
+      bookingId: '',
       date: new Date().toISOString().split('T')[0],
     });
   };
@@ -240,28 +239,30 @@ const PaymentManagement = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Description
+                      Booking Type
                     </label>
-                    <input
-                      type="text"
-                      name="description"
-                      value={formData.description}
+                    <select
+                      name="bookingType"
+                      value={formData.bookingType}
                       onChange={handleInputChange}
-                      placeholder="e.g., Tent Rental"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
-                    />
+                    >
+                      <option value="CampsiteBooking">Campsite Booking</option>
+                      <option value="EquipmentBooking">Equipment Booking</option>
+                      <option value="GuideBooking">Guide Booking</option>
+                    </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Order ID
+                      Booking ID
                     </label>
                     <input
                       type="text"
-                      name="orderId"
-                      value={formData.orderId}
+                      name="bookingId"
+                      value={formData.bookingId}
                       onChange={handleInputChange}
-                      placeholder="e.g., ORD-001"
+                      placeholder="e.g., 507f1f77bcf86cd799439012"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     />
                   </div>
@@ -343,16 +344,18 @@ const PaymentManagement = () => {
                 
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm text-gray-600">Order ID</label>
-                    <p className="font-semibold text-gray-900">{selectedPayment.orderId || 'N/A'}</p>
+                    <label className="text-sm text-gray-600">Booking ID</label>
+                    <p className="font-semibold text-gray-900 truncate" title={selectedPayment.bookingId || selectedPayment._id}>
+                      {selectedPayment.bookingId || selectedPayment._id || 'N/A'}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Amount</label>
                     <p className="font-semibold text-gray-900">LKR {selectedPayment.amount?.toFixed(2)}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Description</label>
-                    <p className="text-gray-700">{selectedPayment.description || 'N/A'}</p>
+                    <label className="text-sm text-gray-600">Booking Type</label>
+                    <p className="text-gray-700">{selectedPayment.bookingType || 'N/A'}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Payment Method</label>
@@ -412,9 +415,9 @@ const PaymentManagement = () => {
               <table className="w-full">
                 <thead className="bg-gray-100 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Order ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Booking ID</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Amount</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Description</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Type</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Method</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
@@ -424,9 +427,11 @@ const PaymentManagement = () => {
                 <tbody>
                   {payments.map((payment) => (
                     <tr key={payment._id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-900 font-semibold">{payment.orderId || 'N/A'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900 font-semibold truncate max-w-[120px]" title={payment.bookingId || payment._id}>
+                        {payment.bookingId || payment._id || 'N/A'}
+                      </td>
                       <td className="px-6 py-4 text-sm font-semibold text-gray-900">LKR {payment.amount?.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{payment.description}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{payment.bookingType}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 capitalize">{payment.paymentMethod.replace('-', ' ')}</td>
                       <td className="px-6 py-4 text-sm">
                         <select
@@ -524,7 +529,6 @@ const PaymentManagement = () => {
         />
       )}
 
-      <Footer />
     </div>
   );
 };
