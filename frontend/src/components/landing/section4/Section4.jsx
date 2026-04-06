@@ -69,7 +69,7 @@ const Section4 = () => {
                                     {item.name}
                                 </h3>
                                 <p className="text-green-600 font-black text-lg">
-                                    ${item.price}<span className="text-xs uppercase tracking-wider">/day</span>
+                                    LKR {item.price}<span className="text-xs uppercase tracking-wider">/day</span>
                                 </p>
                             </div>
 

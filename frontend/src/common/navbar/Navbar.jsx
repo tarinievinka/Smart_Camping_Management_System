@@ -34,6 +34,7 @@ const Navbar = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+
     return (
         <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -81,6 +82,14 @@ const Navbar = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
                             </svg>
                         </button>
+
+                        {/* CTA */}
+                        <Link
+                            to="/guides"
+                            className="hidden lg:inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#155e2e] active:bg-[#14532d] shadow-md hover:shadow-lg transition-all duration-200 mr-2"
+                        >
+                            Plan Your Adventure
+                        </Link>
 
                         {/* Auth Buttons */}
                         <div className="flex items-center gap-3 mr-2">
@@ -190,7 +199,17 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
-
+                        {/* Mobile CTA */}
+                        <div className="pt-2 border-t border-gray-100">
+                            <Link
+                                to="/guides"
+                                onClick={() => setMobileOpen(false)}
+                                className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#14532d] transition-all duration-200"
+                            >
+                                Plan Your Adventure
+                            </Link>
+                        </div>
+                        
                         {/* Mobile auth links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">
                             <Link
@@ -208,6 +227,7 @@ const Navbar = () => {
                                 Sign Up
                             </Link>
                         </div>
+
 
                         {/* Mobile profile links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">
