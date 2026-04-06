@@ -44,10 +44,31 @@ const guideSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+
+    coverPhoto: { type: String, default: "" },
+    profilePhoto: { type: String, default: "" },
+    specialties: { type: [String], default: [] },
+    gear: {
+      type: [{ name: String, checked: Boolean }],
+      default: []
+    },
+    gallery: { type: [String], default: [] },
+    /** Highlights for public profile (e.g. "Yala safari 2024") */
+    pastTours: {
+      type: [{ title: { type: String, trim: true }, summary: { type: String, trim: true } }],
+      default: [],
+    },
+    /** Extra skills beyond specialty tags (first aid, navigation, etc.) */
+    skills: { type: [String], default: [] },
+    dailyRate: { type: Number },
+    isPaused: { type: Boolean, default: false },
+    /** Optional: when guide expects to accept bookings again (shown when paused + admin unavailable) */
+    availableAgainAt: { type: Date, default: null },
   },
   {
     timestamps: true, // creates createdAt & updatedAt automatically
   }
 );
+
 
 module.exports = mongoose.model("Guide", guideSchema);

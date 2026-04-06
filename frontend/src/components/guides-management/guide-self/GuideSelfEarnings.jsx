@@ -1,10 +1,26 @@
 import React, { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { DollarSign } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { getCurrentGuideId, isLoggedInAsGuide } from "./guideSession";
+import Sidebar from "./Sidebar";
+
+const backBtnStyle = {
+  padding: "10px 20px",
+  background: "#fff",
+  border: "1px solid #e5e7eb",
+  borderRadius: 12,
+  fontWeight: 600,
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  cursor: "pointer",
+  color: "#374151",
+  fontSize: 14,
+};
 
 const GuideSelfEarnings = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const currentGuideId = getCurrentGuideId();
   const loggedInAsGuide = isLoggedInAsGuide();
 
@@ -12,75 +28,101 @@ const GuideSelfEarnings = () => {
     const raw = localStorage.getItem("guide_bookings");
     const parsed = raw ? JSON.parse(raw) : [];
     const entries = Array.isArray(parsed) ? parsed : [];
-    const mine = currentGuideId ? entries.filter((b) => b?.guideId === currentGuideId) : [];
+    const mine = currentGuideId
+      ? entries.filter((b) => String(b?.guideId) === String(currentGuideId))
+      : [];
 
     const pending = mine.filter((b) => b?.status !== "completed").length;
     const completed = mine.filter((b) => b?.status === "completed").length;
 
     const earnings = mine.reduce((sum, b) => {
       const amount = typeof b?.amount === "number" ? b.amount : 0;
-      // service fee (10%)
       return sum + amount * 0.9;
     }, 0);
 
     return { pending, completed, earnings, count: mine.length };
   }, [currentGuideId]);
 
+  const shellStyle = {
+    display: "flex",
+    minHeight: "100vh",
+    background: "#f8f9fb",
+    fontFamily: "'DM Sans', sans-serif",
+  };
+
   if (!loggedInAsGuide) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <h1 className="text-2xl font-bold mb-4">Earnings</h1>
-        <p className="text-gray-600">Login as a guide to view your earnings.</p>
+      <div style={shellStyle}>
+        <Sidebar currentPath={location.pathname} onNavigate={navigate} />
+        <main style={{ flex: 1, overflowY: "auto", padding: 40 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", margin: 0 }}>Earnings</h1>
+          <p style={{ color: "#6b7280", marginTop: 12 }}>Log in as a guide to view your earnings.</p>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Earnings</h1>
-          <p className="text-gray-500 text-sm mt-1">Estimated from bookings (local demo)</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate("/guides/me/dashboard")}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors"
-        >
-          Back to Dashboard
-        </button>
-      </div>
+    <div style={shellStyle}>
+      <Sidebar currentPath={location.pathname} onNavigate={navigate} />
 
-      <div className="grid md:grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between">
-            <h2 className="text-gray-500 text-sm">Total Bookings</h2>
-            <DollarSign size={18} className="text-green-600" />
+      <main style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
+            <div>
+              <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", margin: 0 }}>Earnings</h1>
+              <p style={{ color: "#9ca3af", marginTop: 4 }}>Estimated from bookings (local demo)</p>
+            </div>
+            <button type="button" onClick={() => navigate("/guides/owndashboard")} style={backBtnStyle}>
+              Back to Dashboard <ArrowRight size={18} />
+            </button>
           </div>
-          <p className="text-2xl font-bold mt-2">{computed.count}</p>
-        </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h2 className="text-gray-500 text-sm">Pending</h2>
-          <p className="text-2xl font-bold mt-2 text-yellow-600">{computed.pending}</p>
-        </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24, marginBottom: 32 }}>
+            <div style={statCard}>
+              <div style={{ color: "#6b7280", fontSize: 14 }}>Total Bookings</div>
+              <div style={{ fontSize: 36, fontWeight: 800, marginTop: 8, color: "#111827" }}>{computed.count}</div>
+            </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h2 className="text-gray-500 text-sm">Completed</h2>
-          <p className="text-2xl font-bold mt-2 text-green-600">{computed.completed}</p>
-        </div>
-      </div>
+            <div style={statCard}>
+              <div style={{ color: "#6b7280", fontSize: 14 }}>Pending</div>
+              <div style={{ fontSize: 36, fontWeight: 800, color: "#eab308", marginTop: 8 }}>{computed.pending}</div>
+            </div>
 
-      <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold mb-2">Your Earnings (est.)</h2>
-        <p className="text-3xl font-bold text-green-700">${computed.earnings.toFixed(2)}</p>
-        <p className="text-gray-500 text-sm mt-2">
-          This is calculated using your booking estimate stored in `guide_bookings` in `localStorage`.
-        </p>
-      </div>
+            <div style={statCard}>
+              <div style={{ color: "#6b7280", fontSize: 14 }}>Completed</div>
+              <div style={{ fontSize: 36, fontWeight: 800, marginTop: 8, color: "#111827" }}>{computed.completed}</div>
+            </div>
+          </div>
+
+          <div style={earningsCard}>
+            <div style={{ fontSize: 16, color: "#6b7280", marginBottom: 8 }}>Your Earnings (est.)</div>
+            <div style={{ fontSize: 48, fontWeight: 800, color: "#16a34a" }}>LKR {computed.earnings.toFixed(2)}</div>
+            <p style={{ marginTop: 16, color: "#9ca3af", fontSize: 14, lineHeight: 1.6 }}>
+              This is calculated using your booking estimate stored in <code>guide_bookings</code> in{" "}
+              <code>localStorage</code>.
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
 
-export default GuideSelfEarnings;
+const statCard = {
+  background: "#fff",
+  borderRadius: 20,
+  border: "1px solid #f3f4f6",
+  padding: "28px 32px",
+  boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+};
 
+const earningsCard = {
+  background: "#fff",
+  borderRadius: 20,
+  border: "1px solid #f3f4f6",
+  padding: 40,
+  boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+};
+
+export default GuideSelfEarnings;
