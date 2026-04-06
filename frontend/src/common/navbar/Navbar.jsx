@@ -5,7 +5,7 @@ import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
 const navLinks = [
     { label: "Home", href: "/" },
     { label: "Campsites", href: "/campsites" },
-    { label: "Equipment", href: "/equipment" },
+    { label: "Equipment", href: "/equipment-store" },
     { label: "Guides", href: "/guides" },
     { label: "Blogs", href: "/blogs" },
 ];
@@ -39,9 +39,8 @@ const Navbar = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2 shrink-0">
-                    <a href="/equipment-store">Gear Rental</a>
-                        <svg className="w-9 h-9" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <Link to="/" className="flex items-center gap-2.5 shrink-0">
+                        <svg className="w-10 h-10" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect width="40" height="40" rx="8" fill="#166534" />
                             <path d="M20 8L30 28H10L20 8Z" fill="#22c55e" stroke="white" strokeWidth="1" />
                             <path d="M14 16L22 28H6L14 16Z" fill="#15803d" stroke="white" strokeWidth="1" />

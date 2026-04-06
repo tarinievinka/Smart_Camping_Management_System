@@ -27,7 +27,7 @@ const Footer = () => {
                                     <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
                                 </svg>
                             </div>
-                            <span className="text-xl font-bold text-gray-900">Smart Camping</span>
+                            <span className="text-xl font-bold text-gray-900">CAMPTRAIL 360</span>
                         </div>
                         <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
                             A modern solution for outdoor management. Built with passion for the Great Outdoors.

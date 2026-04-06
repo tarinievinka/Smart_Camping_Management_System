@@ -1,12 +1,12 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
-import Navbar from '../../../common/navbar/Navbar';
+
 import Footer from '../../../common/footer/Footer';
 
 const PaymentSuccess = () => {
   return (
     <div>
-      <Navbar />
+
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">

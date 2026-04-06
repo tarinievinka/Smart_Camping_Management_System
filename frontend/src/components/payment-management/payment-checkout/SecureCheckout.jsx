@@ -92,6 +92,22 @@ const SecureCheckout = () => {
                 APPLE PAY
               </span>
             </button>
+
+            <button
+              onClick={() => setPaymentMethod('google-pay')}
+              className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition ${
+                paymentMethod === 'google-pay'
+                  ? 'border-b-2 border-[#166534]'
+                  : 'border-b-2 border-transparent'
+              }`}
+            >
+              <div className={`text-2xl ${paymentMethod === 'google-pay' ? 'text-[#166534]' : 'text-gray-400'}`}>
+                🅖
+              </div>
+              <span className={`text-sm font-semibold ${paymentMethod === 'google-pay' ? 'text-[#166534]' : 'text-gray-600'}`}>
+                GOOGLE PAY
+              </span>
+            </button>
           </div>
         </div>
 
@@ -115,6 +131,15 @@ const SecureCheckout = () => {
                 <p className="text-gray-600 mb-4">You will be redirected to Apple Pay to complete your payment securely.</p>
                 <button className="w-full bg-black hover:bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg transition">
                   Continue with Apple Pay
+                </button>
+              </div>
+            )}
+            {paymentMethod === 'google-pay' && (
+              <div className="bg-white rounded-lg p-6 border border-gray-100">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Google Pay</h2>
+                <p className="text-gray-600 mb-4">You will be redirected to Google Pay to complete your payment securely.</p>
+                <button className="w-full bg-black hover:bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg transition">
+                  Continue with Google Pay
                 </button>
               </div>
             )}

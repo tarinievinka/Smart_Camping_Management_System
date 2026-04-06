@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Play, MapPin, User, Clock, Search, Filter, PlayCircle, Eye, Share2 } from 'lucide-react';
-import Navbar from '../../common/navbar/Navbar';
+
 
 const dummyBlogs = [
     {
@@ -76,7 +76,7 @@ const Blogs = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
-            <Navbar />
+
 
             {/* Hero Section */}
             <div className="relative py-24 px-6 sm:px-12 lg:px-24">
