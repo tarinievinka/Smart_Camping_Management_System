@@ -22,9 +22,9 @@ const SecureCheckout = () => {
               <span>/</span>
               <span>Review</span>
               <span>/</span>
-              <span className="text-green-600 font-semibold">Payment</span>
+              <span className="text-[#166534] font-semibold">Payment</span>
             </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-green-600">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#166534]">
               <Shield className="w-4 h-4" />
               SECURE SSL ENCRYPTED
             </div>
@@ -49,14 +49,14 @@ const SecureCheckout = () => {
               onClick={() => setPaymentMethod('credit-card')}
               className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition ${
                 paymentMethod === 'credit-card'
-                  ? 'border-b-2 border-green-600'
+                  ? 'border-b-2 border-[#166534]'
                   : 'border-b-2 border-transparent'
               }`}
             >
-              <div className={`text-2xl ${paymentMethod === 'credit-card' ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className={`text-2xl ${paymentMethod === 'credit-card' ? 'text-[#166534]' : 'text-gray-400'}`}>
                 💳
               </div>
-              <span className={`text-sm font-semibold ${paymentMethod === 'credit-card' ? 'text-green-600' : 'text-gray-600'}`}>
+              <span className={`text-sm font-semibold ${paymentMethod === 'credit-card' ? 'text-[#166534]' : 'text-gray-600'}`}>
                 CREDIT CARD
               </span>
             </button>
@@ -65,14 +65,14 @@ const SecureCheckout = () => {
               onClick={() => setPaymentMethod('paypal')}
               className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition ${
                 paymentMethod === 'paypal'
-                  ? 'border-b-2 border-green-600'
+                  ? 'border-b-2 border-[#166534]'
                   : 'border-b-2 border-transparent'
               }`}
             >
-              <div className={`text-2xl ${paymentMethod === 'paypal' ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className={`text-2xl ${paymentMethod === 'paypal' ? 'text-[#166534]' : 'text-gray-400'}`}>
                 💰
               </div>
-              <span className={`text-sm font-semibold ${paymentMethod === 'paypal' ? 'text-green-600' : 'text-gray-600'}`}>
+              <span className={`text-sm font-semibold ${paymentMethod === 'paypal' ? 'text-[#166534]' : 'text-gray-600'}`}>
                 PAYPAL
               </span>
             </button>
@@ -81,15 +81,31 @@ const SecureCheckout = () => {
               onClick={() => setPaymentMethod('apple-pay')}
               className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition ${
                 paymentMethod === 'apple-pay'
-                  ? 'border-b-2 border-green-600'
+                  ? 'border-b-2 border-[#166534]'
                   : 'border-b-2 border-transparent'
               }`}
             >
-              <div className={`text-2xl ${paymentMethod === 'apple-pay' ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className={`text-2xl ${paymentMethod === 'apple-pay' ? 'text-[#166534]' : 'text-gray-400'}`}>
                 🅝
               </div>
-              <span className={`text-sm font-semibold ${paymentMethod === 'apple-pay' ? 'text-green-600' : 'text-gray-600'}`}>
+              <span className={`text-sm font-semibold ${paymentMethod === 'apple-pay' ? 'text-[#166534]' : 'text-gray-600'}`}>
                 APPLE PAY
+              </span>
+            </button>
+
+            <button
+              onClick={() => setPaymentMethod('google-pay')}
+              className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition ${
+                paymentMethod === 'google-pay'
+                  ? 'border-b-2 border-[#166534]'
+                  : 'border-b-2 border-transparent'
+              }`}
+            >
+              <div className={`text-2xl ${paymentMethod === 'google-pay' ? 'text-[#166534]' : 'text-gray-400'}`}>
+                🅖
+              </div>
+              <span className={`text-sm font-semibold ${paymentMethod === 'google-pay' ? 'text-[#166534]' : 'text-gray-600'}`}>
+                GOOGLE PAY
               </span>
             </button>
           </div>
@@ -99,7 +115,7 @@ const SecureCheckout = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Card Details */}
           <div className="lg:col-span-2">
-            {paymentMethod === 'credit-card' && <SimplePaymentForm amount={303.80} />}
+            {paymentMethod === 'credit-card' && <SimplePaymentForm amount={91140.00} />}
             {paymentMethod === 'paypal' && (
               <div className="bg-white rounded-lg p-6 border border-gray-100">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">PayPal Payment</h2>
@@ -118,6 +134,15 @@ const SecureCheckout = () => {
                 </button>
               </div>
             )}
+            {paymentMethod === 'google-pay' && (
+              <div className="bg-white rounded-lg p-6 border border-gray-100">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Google Pay</h2>
+                <p className="text-gray-600 mb-4">You will be redirected to Google Pay to complete your payment securely.</p>
+                <button className="w-full bg-black hover:bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg transition">
+                  Continue with Google Pay
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Payment Summary */}
@@ -130,15 +155,15 @@ const SecureCheckout = () => {
         <div className="mt-12 pt-8 border-t border-gray-200">
           <div className="flex flex-wrap items-center justify-center gap-8">
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-              <Shield className="w-5 h-5 text-green-600" />
+              <Shield className="w-5 h-5 text-[#166534]" />
               PCI-DSS COMPLIANT
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-              <Shield className="w-5 h-5 text-green-600" />
+              <Shield className="w-5 h-5 text-[#166534]" />
               256-BIT SSL SECURE
             </div>
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-              <Shield className="w-5 h-5 text-green-600" />
+              <Shield className="w-5 h-5 text-[#166534]" />
               MCAFEE SECURE
             </div>
           </div>

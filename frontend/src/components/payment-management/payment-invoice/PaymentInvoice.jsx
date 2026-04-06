@@ -61,7 +61,7 @@ const PaymentInvoice = ({ payment, onClose }) => {
             </button>
             <button
               onClick={generatePDF}
-              className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white py-1.5 px-3 rounded-lg transition text-sm"
+              className="flex items-center gap-1.5 bg-[#166534] hover:bg-[#14532d] text-white py-1.5 px-3 rounded-lg transition text-sm"
             >
               <Download className="w-4 h-4" />
               PDF
@@ -124,7 +124,7 @@ const PaymentInvoice = ({ payment, onClose }) => {
             </div>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-0.5">Status</p>
-              <p className="text-green-600 font-semibold text-sm">{payment.status?.toUpperCase()}</p>
+              <p className="text-[#166534] font-semibold text-sm">{payment.status?.toUpperCase()}</p>
             </div>
           </div>
 
@@ -143,9 +143,9 @@ const PaymentInvoice = ({ payment, onClose }) => {
               <tbody>
                 <tr className="border-b border-gray-100">
                   <td className="px-4 py-3 text-gray-800">{payment.description || 'Camping Service'}</td>
-                  <td className="text-right px-4 py-3 text-gray-800">${payment.amount?.toFixed(2)}</td>
+                  <td className="text-right px-4 py-3 text-gray-800">LKR {payment.amount?.toFixed(2)}</td>
                   <td className="text-center px-4 py-3 text-gray-800">1</td>
-                  <td className="text-right px-4 py-3 font-semibold text-gray-900">${payment.amount?.toFixed(2)}</td>
+                  <td className="text-right px-4 py-3 font-semibold text-gray-900">LKR {payment.amount?.toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
@@ -156,15 +156,15 @@ const PaymentInvoice = ({ payment, onClose }) => {
             <div className="w-60 text-sm space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-500">Subtotal:</span>
-                <span className="font-medium text-gray-900">${subtotal.toFixed(2)}</span>
+                <span className="font-medium text-gray-900">LKR {subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between pb-2 border-b border-gray-200">
                 <span className="text-gray-500">Tax (10%):</span>
-                <span className="font-medium text-gray-900">${tax.toFixed(2)}</span>
+                <span className="font-medium text-gray-900">LKR {tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between pt-1 text-base font-bold">
                 <span className="text-gray-900">TOTAL:</span>
-                <span className="text-green-600">${total.toFixed(2)}</span>
+                <span className="text-[#166534]">LKR {total.toFixed(2)}</span>
               </div>
             </div>
           </div>

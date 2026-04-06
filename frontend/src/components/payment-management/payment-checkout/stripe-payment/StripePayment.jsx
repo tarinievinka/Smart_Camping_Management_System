@@ -48,7 +48,7 @@ const StripePayment = ({ amount = 303.80 }) => {
     return (
       <div className="bg-white rounded-lg p-6 border border-gray-100">
         <div className="text-center">
-          <div className="text-green-600 text-4xl mb-4">✓</div>
+          <div className="text-[#166534] text-4xl mb-4">✓</div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">Payment Successful!</h3>
           <p className="text-gray-600">Redirecting...</p>
         </div>
@@ -94,10 +94,10 @@ const StripePayment = ({ amount = 303.80 }) => {
         <button
           type="submit"
           disabled={!stripe || loading}
-          className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition"
+          className="w-full bg-[#166534]/90 hover:bg-[#166534] disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition"
         >
           <Lock className="w-5 h-5" />
-          {loading ? 'Processing...' : `Pay $${amount.toFixed(2)}`}
+          {loading ? 'Processing...' : `Pay LKR ${amount.toFixed(2)}`}
         </button>
 
         <p className="text-xs text-center text-gray-500">

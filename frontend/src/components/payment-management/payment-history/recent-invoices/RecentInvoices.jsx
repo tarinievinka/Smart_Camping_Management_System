@@ -20,7 +20,7 @@ const RecentInvoices = ({ payments = [] }) => {
         month: 'short',
         day: 'numeric'
       }),
-      amount: `$${payment.amount?.toFixed(2) || '0.00'}`,
+      amount: `LKR ${payment.amount?.toFixed(2) || '0.00'}`,
       description: payment.description,
       orderId: payment.orderId,
       paymentMethod: payment.paymentMethod,
@@ -30,7 +30,7 @@ const RecentInvoices = ({ payments = [] }) => {
   const handleDownloadInvoice = (invoice) => {
     setSelectedInvoice({
       ...invoice,
-      amount: parseFloat(invoice.amount.replace('$', ''))
+      amount: parseFloat(invoice.amount.replace('LKR ', ''))
     });
     setShowInvoice(true);
   };
@@ -67,10 +67,10 @@ const RecentInvoices = ({ payments = [] }) => {
               </div>
               <button 
                 onClick={() => handleDownloadInvoice(invoice)}
-                className="p-2 hover:bg-green-100 rounded-lg transition"
+                className="p-2 hover:bg-[#166534]/20 rounded-lg transition"
                 title="Download Invoice PDF"
               >
-                <Download className="w-6 h-6 text-green-600" />
+                <Download className="w-6 h-6 text-[#166534]" />
               </button>
             </div>
           ))

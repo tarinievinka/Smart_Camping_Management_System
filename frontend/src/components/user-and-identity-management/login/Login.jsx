@@ -78,7 +78,7 @@ const Login = () => {
                         </svg>
                     </div>
                     <span className="text-white font-extrabold text-2xl tracking-tight drop-shadow-2xl group-hover:tracking-wider transition-all duration-500">
-                        Smart Camping
+                        CampTrail 360
                     </span>
                 </div>
             </header>
