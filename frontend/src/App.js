@@ -19,19 +19,10 @@ import EquipmentStore from './components/equipment-management/EquipmentStore';
 import BookingSummary from './components/equipment-management/BookingSummary';
 import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
 
-<<<<<<< HEAD
 import Feedback from './components/feedbck-and-review-management/Feedback';
 import MyReviews from './components/feedbck-and-review-management/my-reviews/MyReviews';
 import AdminFeedback from './components/feedbck-and-review-management/admin-feedback/AdminFeedback';
 import AdminAllReviews from './components/feedbck-and-review-management/admin-feedback/AdminAllReviews';
-
-
-
-
-// Landing page
-import Landing from './components/landing/Landing';
-=======
->>>>>>> d78ebaf981973317b45200566a314b217ca38787
 
 function App() {
   return (
@@ -39,21 +30,6 @@ function App() {
 
       <Navbar />
 
-<<<<<<< HEAD
-        {/* Payment management routes */}
-        <Route path="/payment-history" element={<PaymentHistory />} />
-        <Route path="/payment-management" element={<PaymentManagement />} />
-        <Route path="/payment-checkout" element={<SecureCheckout />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
-
-        {/* Feedback Routes */}
-        <Route path='/feedback' element={<Feedback />} />
-        <Route path='/my-reviews' element={<MyReviews />} />
-        <Route path='/admin/feedback' element={<AdminFeedback />} />
-        <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
-      </Routes>
-=======
       <div className="min-h-screen">
         <Routes>
           <Route path='/' element={<Landing />} />
@@ -72,10 +48,15 @@ function App() {
           <Route path="/payment-checkout" element={<SecureCheckout />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
+          
+          {/* Feedback Routes */}
+          <Route path='/feedback' element={<Feedback />} />
+          <Route path='/my-reviews' element={<MyReviews />} />
+          <Route path='/admin/feedback' element={<AdminFeedback />} />
+          <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
         </Routes>
       </div>
       <Footer />
->>>>>>> d78ebaf981973317b45200566a314b217ca38787
     </BrowserRouter>
   );
 }
