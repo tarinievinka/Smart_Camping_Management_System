@@ -20,7 +20,7 @@ const RecentInvoices = ({ payments = [] }) => {
         month: 'short',
         day: 'numeric'
       }),
-      amount: `$${payment.amount?.toFixed(2) || '0.00'}`,
+      amount: `LKR ${payment.amount?.toFixed(2) || '0.00'}`,
       description: payment.description,
       orderId: payment.orderId,
       paymentMethod: payment.paymentMethod,
@@ -30,7 +30,7 @@ const RecentInvoices = ({ payments = [] }) => {
   const handleDownloadInvoice = (invoice) => {
     setSelectedInvoice({
       ...invoice,
-      amount: parseFloat(invoice.amount.replace('$', ''))
+      amount: parseFloat(invoice.amount.replace('LKR ', ''))
     });
     setShowInvoice(true);
   };

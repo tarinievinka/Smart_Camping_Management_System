@@ -8,7 +8,7 @@ const HistoryCards = ({ payments = [] }) => {
   const activeRentals = payments.filter(p => p.status === 'completed').length;
 
   // Format currency
-  const formatCurrency = (amount) => `$${amount?.toFixed(2) || '0.00'}`;
+  const formatCurrency = (amount) => `LKR ${amount?.toFixed(2) || '0.00'}`;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

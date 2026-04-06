@@ -11,22 +11,22 @@ const PaymentSummary = () => {
     costs: [
       {
         label: 'Campsite (Site #42)',
-        amount: 225.00
+        amount: 67500.00
       },
       {
         label: 'Equipment Rental (Grill, Tent)',
-        amount: 45.00
+        amount: 13500.00
       },
       {
         label: 'Service Fee',
-        amount: 12.50
+        amount: 3750.00
       },
       {
         label: 'Taxes',
-        amount: 21.30
+        amount: 6390.00
       }
     ],
-    total: 303.80
+    total: 91140.00
   };
 
   return (
@@ -58,7 +58,7 @@ const PaymentSummary = () => {
           {orderData.costs.map((cost, index) => (
             <div key={index} className="flex justify-between items-center">
               <span className="text-gray-700">{cost.label}</span>
-              <span className="font-semibold text-gray-900">${cost.amount.toFixed(2)}</span>
+              <span className="font-semibold text-gray-900">LKR {cost.amount.toFixed(2)}</span>
             </div>
           ))}
         </div>
@@ -67,9 +67,9 @@ const PaymentSummary = () => {
         <div className="mb-6">
           <div className="flex justify-between items-baseline mb-1">
             <span className="font-bold text-gray-900">Total Amount</span>
-            <span className="text-3xl font-bold text-gray-900">${orderData.total.toFixed(2)}</span>
+            <span className="text-3xl font-bold text-gray-900">LKR {orderData.total.toFixed(2)}</span>
           </div>
-          <p className="text-xs text-gray-500 uppercase tracking-wide">All prices in usd</p>
+          <p className="text-xs text-gray-500 uppercase tracking-wide">All prices in lkr</p>
         </div>
 
         {/* Complete Payment Button */}

@@ -97,7 +97,7 @@ const StripePayment = ({ amount = 303.80 }) => {
           className="w-full bg-[#166534]/90 hover:bg-[#166534] disabled:bg-gray-400 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition"
         >
           <Lock className="w-5 h-5" />
-          {loading ? 'Processing...' : `Pay $${amount.toFixed(2)}`}
+          {loading ? 'Processing...' : `Pay LKR ${amount.toFixed(2)}`}
         </button>
 
         <p className="text-xs text-center text-gray-500">

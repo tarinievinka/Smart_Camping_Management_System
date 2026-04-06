@@ -19,7 +19,7 @@ const PaymentSuccess = () => {
               <p className="text-sm font-semibold text-gray-900 mb-2">Booking Details</p>
               <p className="text-sm text-gray-600">Wilderness Retreat - Site #42</p>
               <p className="text-sm text-gray-600">Oct 12 - Oct 15, 2023</p>
-              <p className="text-sm text-gray-600 font-semibold">Total: $303.80</p>
+              <p className="text-sm text-gray-600 font-semibold">Total: LKR 91140.00</p>
             </div>
 
             <div className="space-y-2">
