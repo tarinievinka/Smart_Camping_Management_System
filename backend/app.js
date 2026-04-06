@@ -1,7 +1,7 @@
-require('dotenv').config();
+require('dotenv').config(); // Load variables from .env
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
-const path = require('path');                         
 const app = express();
 const connectDB = require('./src/config/db');
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
@@ -9,6 +9,8 @@ const feedbackRoute = require('./src/routes/feedback-route/feedbackRoute');
 const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
 const notifyRoute = require('./src/routes/Notify-route/NotifyRoute'); 
 const userRoute = require('./src/routes/user-routes/userRoutes');
+const guideRoute = require("./src/routes/guide-routes/guideRoute");
+const guideBookingRoute = require("./src/routes/guide-booking-routes/guideBookingRoute");
 
 const port = process.env.PORT || 5000;
 
@@ -20,13 +22,25 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  
 
-app.get('/', (req, res) => res.send('Server running!'));
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: 'Invalid JSON: ' + err.message });
+  }
+  next();
+});
+
+// Routes
+app.get('/', (req, res) => {
+  res.send('Server running with .env port!');
+});
+
 app.use('/api/payment', paymentRoute);
 app.use('/api/feedback', feedbackRoute);
 app.use('/api/equipment', equipmentRouter);
 app.use('/api/notify', notifyRoute); 
 app.use('/api', userRoute);
-
+app.use('/api/guides', guideRoute);
+app.use('/api/guide-bookings', guideBookingRoute);
 const start = async () => {
   await connectDB();
   const server = app.listen(port, () => {
