@@ -94,7 +94,7 @@ const HistoryTable = ({ payments = [] }) => {
                       {transaction.description || 'Camping Service'}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      ${transaction.amount?.toFixed(2) || '0.00'}
+                      LKR {transaction.amount?.toFixed(2) || '0.00'}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`inline-block px-3 py-1 rounded font-semibold ${getStatusColor(transaction.status)}`}>

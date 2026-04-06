@@ -225,7 +225,7 @@ const PaymentManagement = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Amount ($)
+                      Amount (LKR)
                     </label>
                     <input
                       type="number"
@@ -348,7 +348,7 @@ const PaymentManagement = () => {
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Amount</label>
-                    <p className="font-semibold text-gray-900">${selectedPayment.amount?.toFixed(2)}</p>
+                    <p className="font-semibold text-gray-900">LKR {selectedPayment.amount?.toFixed(2)}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Description</label>
@@ -413,7 +413,7 @@ const PaymentManagement = () => {
                   {payments.map((payment) => (
                     <tr key={payment._id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm text-gray-900 font-semibold">{payment.orderId || 'N/A'}</td>
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">${payment.amount?.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">LKR {payment.amount?.toFixed(2)}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{payment.description}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 capitalize">{payment.paymentMethod.replace('-', ' ')}</td>
                       <td className="px-6 py-4 text-sm">
@@ -475,25 +475,25 @@ const PaymentManagement = () => {
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Total Amount</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  ${payments.reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Completed</p>
                 <p className="text-3xl font-bold text-[#166534]">
-                  ${payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Pending</p>
                 <p className="text-3xl font-bold text-yellow-600">
-                  ${payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Failed/Refunded</p>
                 <p className="text-3xl font-bold text-red-600">
-                  ${payments.filter(p => ['failed', 'refunded'].includes(p.status)).reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.filter(p => ['failed', 'refunded'].includes(p.status)).reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
             </div>

@@ -115,7 +115,7 @@ const SecureCheckout = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Card Details */}
           <div className="lg:col-span-2">
-            {paymentMethod === 'credit-card' && <SimplePaymentForm amount={303.80} />}
+            {paymentMethod === 'credit-card' && <SimplePaymentForm amount={91140.00} />}
             {paymentMethod === 'paypal' && (
               <div className="bg-white rounded-lg p-6 border border-gray-100">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">PayPal Payment</h2>
