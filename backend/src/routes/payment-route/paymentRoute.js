@@ -1,20 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const paymentController = require('../../controllers/payment-controller/paymentController');
+const upload = require('../../config/upload');
 
-// Create a new payment
-router.post('/add', paymentController.createPayment);
+// Create a new Payment
+router.post('/add', upload.single('receipt'), paymentController.createPayment);
 
-// Get all payments
+// Get all Payments
 router.get('/display', paymentController.getAllPayments);
 
-// Get a payment by ID
+// Get a Payment by ID
 router.get('/:id', paymentController.getPaymentById);
 
-// Update a payment by ID
+// Update a Payment by ID
 router.put('/update/:id', paymentController.updatePayment);
 
-// Delete a payment by ID
+// Delete a Payment by ID
 router.delete('/delete/:id', paymentController.deletePayment);
 
 // Update payment status

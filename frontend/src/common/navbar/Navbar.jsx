@@ -34,10 +34,11 @@ const Navbar = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+
     return (
-        <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
+        <nav className="w-full bg-gradient-to-r from-white/75 via-white/35 to-white/75 backdrop-blur-xl border-b border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.08)] sticky top-0 z-50 transition-all duration-300">
+            <div className="w-full px-4 sm:px-6 lg:px-10">
+                <div className="flex items-center w-full justify-between h-16">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2.5 shrink-0">
                         <svg className="w-10 h-10" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -53,13 +54,13 @@ const Navbar = () => {
                     </Link>
 
                     {/* Desktop Nav Links */}
-                    <div className="hidden md:flex items-center gap-8 ml-10">
+                    <div className="hidden md:flex items-center gap-10 lg:gap-14 ml-10">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.label}
                                 to={link.href}
                                 onClick={() => setMobileOpen(false)}
-                                className={`text-sm font-medium transition-colors duration-200 pb-0.5 ${isActive(link.href)
+                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive(link.href)
                                         ? "text-[#166534] border-b-2 border-[#166534]"
                                         : "text-gray-600 hover:text-[#166534]"
                                     }`}
@@ -81,6 +82,14 @@ const Navbar = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
                             </svg>
                         </button>
+
+                        {/* CTA */}
+                        <Link
+                            to="/guides"
+                            className="hidden lg:inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#155e2e] active:bg-[#14532d] shadow-md hover:shadow-lg transition-all duration-200 mr-2"
+                        >
+                            Plan Your Adventure
+                        </Link>
 
                         {/* Auth Buttons */}
                         <div className="flex items-center gap-3 mr-2">
@@ -190,7 +199,17 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
-
+                        {/* Mobile CTA */}
+                        <div className="pt-2 border-t border-gray-100">
+                            <Link
+                                to="/guides"
+                                onClick={() => setMobileOpen(false)}
+                                className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#14532d] transition-all duration-200"
+                            >
+                                Plan Your Adventure
+                            </Link>
+                        </div>
+                        
                         {/* Mobile auth links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">
                             <Link
@@ -208,6 +227,7 @@ const Navbar = () => {
                                 Sign Up
                             </Link>
                         </div>
+
 
                         {/* Mobile profile links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">

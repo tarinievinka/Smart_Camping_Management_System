@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from '../../../context/ToastContext';
 import HistoryCards from './history-card/HistoryCards';
 import HistoryTable from './history-table/HistoryTable';
 import PaymentMethod from './payment-method/PaymentMethod';
 import RecentInvoices from './recent-invoices/RecentInvoices';
 
-import Footer from '../../../common/footer/Footer';
 import { getAllPayments } from '../../../services/paymentApi';
 
 const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchPayments();
   }, []);
+
+  useEffect(() => {
+    if (location.state?.message) {
+      showToast(location.state.message, location.state.variant || 'success');
+      // Clear the message state so it doesn't pop up again on generic refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, showToast, navigate]);
 
   const fetchPayments = async () => {
     try {
@@ -100,7 +112,6 @@ const PaymentHistory = () => {
           )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
