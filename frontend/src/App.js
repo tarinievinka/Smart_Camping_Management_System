@@ -81,7 +81,7 @@ function App() {
 
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
-            <Route path="/booking-summary/:id" element={<BookingSummary />} />
+            <Route path="/booking-summary" element={<BookingSummary />} />
             <Route path="/equipment-dashboard" element={<EquipmentDashboard />} />
             <Route path="/equipment-list" element={<EquipmentList />} />
             <Route path="/add-equipment" element={<AddEquipment />} />

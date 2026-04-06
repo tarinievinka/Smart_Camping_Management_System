@@ -247,7 +247,18 @@ const ManageTrip = () => {
 
                             {/* Pay Now Button */}
                             {!isPaid && (
-                                <button className="mt-8 w-full bg-[#166534] hover:bg-[#14532d] transition-all text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 text-[15px] shadow-[0_4px_14px_0_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.23)] hover:-translate-y-0.5">
+                                <button 
+                                    onClick={() => navigate('/payment-checkout', { state: { 
+                                        bookingId: trip.id, 
+                                        amount: trip.amount, 
+                                        bookingType: 'GuideBooking', 
+                                        title: trip.title, 
+                                        image: trip.heroImage,
+                                        stay: `${trip.totalDays} Day Trip`,
+                                        dates: trip.totalDays > 1 ? `${new Date(trip.date).toLocaleDateString()} - ${new Date(trip.endDate).toLocaleDateString()}` : new Date(trip.date).toLocaleDateString(),
+                                        guests: `${trip.travelers} Traveler(s)`
+                                    } })}
+                                    className="mt-8 w-full bg-[#166534] hover:bg-[#14532d] transition-all text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 text-[15px] shadow-[0_4px_14px_0_rgba(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.23)] hover:-translate-y-0.5">
                                     <CreditCard className="w-5 h-5" />
                                     Pay Now
                                 </button>
