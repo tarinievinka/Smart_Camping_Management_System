@@ -63,32 +63,6 @@ function App() {
       <ToastProvider>
         <Navbar />
 
-<<<<<<< HEAD
-      <div className="min-h-screen">
-        <Routes>
-          <Route path='/' element={<Landing />} />
-          <Route path='/blogs' element={<Blogs />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUP />} />
-          <Route path="/login/forgot" element={<Forgot />} />
-          <Route path="/camper-dashboard" element={<CamperDashboard />} />
-          <Route path="/edit-profile" element={<EditProfile />} />
-          <Route path="/admin/delete-users" element={<DeleteUsers />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          
-          {/* Payment management routes */}
-          <Route path="/payment-history" element={<PaymentHistory />} />
-          <Route path="/payment-management" element={<PaymentManagement />} />
-          <Route path="/payment-checkout" element={<SecureCheckout />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
-          
-          {/* Feedback Routes */}
-          <Route path='/feedback' element={<Feedback />} />
-          <Route path='/my-reviews' element={<MyReviews />} />
-          <Route path='/admin/feedback' element={<AdminFeedback />} />
-          <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
-=======
         <div className="min-h-screen">
           <Routes>
             <Route path='/' element={<Landing />} />
@@ -109,7 +83,12 @@ function App() {
             <Route path="/payment-failure" element={<PaymentFailure />} />
             <Route path="/payment-card" element={<PaymentCard />} />
             <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
->>>>>>> 4f74985e4ad2e919f0d3b44f2541bec8d69b24a8
+            
+            {/* Feedback Routes */}
+            <Route path='/feedback' element={<Feedback />} />
+            <Route path='/my-reviews' element={<MyReviews />} />
+            <Route path='/admin/feedback' element={<AdminFeedback />} />
+            <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
 
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
