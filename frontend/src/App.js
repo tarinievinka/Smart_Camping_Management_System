@@ -17,12 +17,11 @@ import SecureCheckout from './components/payment-management/payment-checkout/Sec
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
 import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
 
-<<<<<<< HEAD
 import Feedback from './components/feedbck-and-review-management/Feedback';
 import MyReviews from './components/feedbck-and-review-management/my-reviews/MyReviews';
 import AdminFeedback from './components/feedbck-and-review-management/admin-feedback/AdminFeedback';
 import AdminAllReviews from './components/feedbck-and-review-management/admin-feedback/AdminAllReviews';
-=======
+
 // Equipment management components
 import EquipmentStore from './components/equipment-management/EquipmentStore';
 import BookingSummary from './components/equipment-management/BookingSummary';
@@ -37,7 +36,6 @@ import Landing from './components/landing/Landing';
 
 // Blogs page
 import Blogs from './components/blogs/Blogs';
->>>>>>> 6270a3e0d8f747b6ea8fe4342c7c3c91ce7a0b78
 
 function App() {
   return (
@@ -62,14 +60,12 @@ function App() {
           <Route path="/payment-checkout" element={<SecureCheckout />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
-<<<<<<< HEAD
           
           {/* Feedback Routes */}
           <Route path='/feedback' element={<Feedback />} />
           <Route path='/my-reviews' element={<MyReviews />} />
           <Route path='/admin/feedback' element={<AdminFeedback />} />
           <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
-=======
 
           {/* Equipment management routes */}
           <Route path="/equipment-store" element={<EquipmentStore />} />
@@ -79,7 +75,6 @@ function App() {
           <Route path="/add-equipment" element={<AddEquipment />} />
           <Route path="/edit-equipment/:id" element={<EditEquipment />} />
           <Route path="/notify-requests" element={<NotifyRequests />} />
->>>>>>> 6270a3e0d8f747b6ea8fe4342c7c3c91ce7a0b78
         </Routes>
       </div>
       <Footer />
