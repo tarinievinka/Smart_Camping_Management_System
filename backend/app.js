@@ -1,50 +1,96 @@
-require('dotenv').config(); // Load variables from .env
-const express = require('express');
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import authRoutes from './src/routes/auth-routes/auth.js';
+import userRoutes from './src/routes/user-routes/users.js';
+import campsiteRoutes from './src/routes/campingsite-routes/campsites.js';
+import reservationRoutes from './src/routes/reservation-routes/reservations.js';
+import Campsite from './src/models/camping-site-models/Campsite.js';
+import User from './src/models/user-models/User.js';
+
+dotenv.config();
+
 const app = express();
-const connectDB = require('./src/config/db');
-const paymentRoute = require('./src/routes/payment-route/paymentRoute');
-const campsiteRoute = require('./src/routes/campingsite-routes/campingsiteRoutes');
+const PORT = process.env.PORT || 5000;
 
-// Use the port from .env, or fallback to 5000 if not found
-const port = process.env.PORT || 5000;
-
-// Middleware
+app.use(cors());
 app.use(express.json());
 
-// Normalize duplicate slashes and log normalization events to avoid 404s
-app.use((req, res, next) => {
-  if (req.url && req.url.includes('//')) {
-    const normalized = req.url.replace(/\/{2,}/g, '/');
-    if (normalized !== req.url) {
-      console.log(`Normalized URL: ${req.url} -> ${normalized}`);
-      req.url = normalized;
-      if (req.originalUrl) req.originalUrl = normalized;
+// MongoDB connection + seeding
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+    // Seed admin if missing
+    const adminCount = await User.countDocuments({ username: 'admin' });
+    if (adminCount === 0) {
+      await User.create({
+        username: 'admin',
+        email: 'admin@campingsite.com',
+        password: 'Admin@12345',
+        role: 'admin'
+      });
+      console.log('Seeded default admin user');
     }
+
+    // Seed sample campsites if none exist
+    const siteCount = await Campsite.countDocuments();
+    if (siteCount === 0) {
+      await Campsite.insertMany([
+        {
+          title: 'Pine Ridge Sanctuary',
+          description: 'A serene eco-reserve nestled in the heart of the evergreen forest. Perfect for families and nature lovers alike.',
+          location: 'Evergreen National Park',
+          price: 120,
+          amenities: ['Free WiFi', 'Outdoor Kitchen', 'Free Parking', 'Fire Pit', 'Hiking Trails'],
+          availability: true,
+        },
+        {
+          title: 'Lakeside Retreat',
+          description: 'Wake up to the sound of lapping waves at this beautiful lakeside camping spot with panoramic water views.',
+          location: 'Crystal Lake Reserve',
+          price: 95,
+          amenities: ['Kayak Rental', 'Fishing Dock', 'BBQ Area', 'Campfire Ring'],
+          availability: true,
+        },
+        {
+          title: 'Mountain Peak Camp',
+          description: 'Experience breathtaking sunrise views from high altitude. A paradise for hikers and adventure seekers.',
+          location: 'Rocky Summit Trail, Colorado',
+          price: 150,
+          amenities: ['Stargazing Deck', 'Guided Hikes', 'Equipment Rental', 'Hot Showers'],
+          availability: true,
+        },
+        {
+          title: 'Meadow Bliss',
+          description: 'A peaceful open meadow campsite with vibrant wildflowers and wide open skies, great for families.',
+          location: 'Sunflower Meadow Park',
+          price: 75,
+          amenities: ['Picnic Area', 'Playground', 'Pet Friendly', 'Water Hookup'],
+          availability: true,
+        },
+      ]);
+      console.log('Seeded 4 sample campsites');
+    }
+  } catch (error) {
+    console.error(`Error connecting to MongoDB: ${error.message}`);
+    process.exit(1);
   }
-  next();
-});
-
-// Error handling for JSON parse errors
-app.use((err, req, res, next) => {
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return res.status(400).json({ error: 'Invalid JSON: ' + err.message });
-  }
-  next();
-});
-
-// Routes
-app.get('/', (req, res) => {
-  res.send('Server running with .env port!');
-});
-
-app.use('/api/payment', paymentRoute);
-app.use('/api/campsites', campsiteRoute);
-
-const start = async () => {
-  await connectDB();
-  app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-  });
 };
 
-start();
+connectDB();
+
+app.get('/api/status', (req, res) => {
+  res.json({ message: 'API is running' });
+});
+
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/campsites', campsiteRoutes);
+app.use('/api/reservations', reservationRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
