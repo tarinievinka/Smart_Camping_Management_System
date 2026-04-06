@@ -17,7 +17,6 @@ import SecureCheckout from './components/payment-management/payment-checkout/Sec
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
 import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
 
-<<<<<<< HEAD
 import Feedback from './components/feedbck-and-review-management/Feedback';
 import MyReviews from './components/feedbck-and-review-management/my-reviews/MyReviews';
 import AdminFeedback from './components/feedbck-and-review-management/admin-feedback/AdminFeedback';
@@ -26,10 +25,8 @@ import AdminAllReviews from './components/feedbck-and-review-management/admin-fe
 
 
 
-=======
 // Landing page
 import Landing from './components/landing/Landing';
->>>>>>> 94a4d7be74f7fadf9e6798353f2e40017c9f4a10
 
 function App() {
   return (
