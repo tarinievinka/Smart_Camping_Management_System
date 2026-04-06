@@ -3,7 +3,7 @@ import HistoryCards from './history-card/HistoryCards';
 import HistoryTable from './history-table/HistoryTable';
 import PaymentMethod from './payment-method/PaymentMethod';
 import RecentInvoices from './recent-invoices/RecentInvoices';
-import Navbar from '../../../common/navbar/Navbar';
+
 import Footer from '../../../common/footer/Footer';
 import { getAllPayments } from '../../../services/paymentApi';
 
@@ -53,7 +53,7 @@ const PaymentHistory = () => {
   };
   return (
     <div>
-      <Navbar />
+
       <div className="min-h-screen bg-gray-50">
         {/* Main Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

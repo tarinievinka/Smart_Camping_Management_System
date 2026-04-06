@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit, Trash2, Loader, Eye, FileText } from 'lucide-react';
-import Navbar from '../../common/navbar/Navbar';
+
 import Footer from '../../common/footer/Footer';
 import PaymentInvoice from './payment-invoice/PaymentInvoice';
 import {
@@ -178,7 +178,7 @@ const PaymentManagement = () => {
 
   return (
     <div>
-      <Navbar />
+
       
       <div className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-6xl mx-auto">
