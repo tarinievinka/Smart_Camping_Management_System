@@ -36,9 +36,9 @@ const Navbar = () => {
 
 
     return (
-        <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
+        <nav className="w-full bg-gradient-to-r from-white/75 via-white/35 to-white/75 backdrop-blur-xl border-b border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.08)] sticky top-0 z-50 transition-all duration-300">
+            <div className="w-full px-4 sm:px-6 lg:px-10">
+                <div className="flex items-center w-full justify-between h-16">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2.5 shrink-0">
                         <svg className="w-10 h-10" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -54,13 +54,13 @@ const Navbar = () => {
                     </Link>
 
                     {/* Desktop Nav Links */}
-                    <div className="hidden md:flex items-center gap-8 ml-10">
+                    <div className="hidden md:flex items-center gap-10 lg:gap-14 ml-10">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.label}
                                 to={link.href}
                                 onClick={() => setMobileOpen(false)}
-                                className={`text-sm font-medium transition-colors duration-200 pb-0.5 ${isActive(link.href)
+                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive(link.href)
                                         ? "text-[#166534] border-b-2 border-[#166534]"
                                         : "text-gray-600 hover:text-[#166534]"
                                     }`}

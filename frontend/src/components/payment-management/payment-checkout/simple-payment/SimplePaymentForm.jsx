@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import { createPayment } from '../../../../services/paymentApi';
 import CardDetails from '../card-details/CardDetails';
 
 const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking" }) => {
+  const navigate = useNavigate();
   const [cardType, setCardType] = useState('visa');
   const [cardData, setCardData] = useState({
     cardholder: '',
@@ -69,7 +71,7 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
 
       // Redirect after 2 seconds
       setTimeout(() => {
-        window.location.href = '/payment-history';
+        navigate('/payment-history', { state: { message: 'Payment Successful! Your booking has been confirmed.', variant: 'success' } });
       }, 2000);
     } catch (err) {
       console.error('Payment failed:', err);
