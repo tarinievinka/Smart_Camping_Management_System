@@ -23,7 +23,7 @@ const PaymentManagement = () => {
   const [formData, setFormData] = useState({
     amount: '',
     description: '',
-    status: 'pending',
+    paymentStatus: 'pending',
     paymentMethod: 'credit-card',
     orderId: '',
     date: new Date().toISOString().split('T')[0],
@@ -37,7 +37,7 @@ const PaymentManagement = () => {
       if (filter === 'all') {
         setPayments(data);
       } else {
-        setPayments(data.filter(p => p.status === filter));
+        setPayments(data.filter(p => p.paymentStatus === filter));
       }
     } catch (error) {
       console.error('Failed to fetch payments:', error);
@@ -85,7 +85,7 @@ const PaymentManagement = () => {
       setFormData({
         amount: '',
         description: '',
-        status: 'pending',
+        paymentStatus: 'pending',
         paymentMethod: 'credit-card',
         orderId: '',
         date: new Date().toISOString().split('T')[0],
@@ -104,7 +104,7 @@ const PaymentManagement = () => {
     setFormData({
       amount: item.amount,
       description: item.description,
-      status: item.status,
+      paymentStatus: item.paymentStatus,
       paymentMethod: item.paymentMethod,
       orderId: item.orderId,
       date: item.date?.split('T')[0] || new Date().toISOString().split('T')[0],
@@ -149,7 +149,7 @@ const PaymentManagement = () => {
     setFormData({
       amount: '',
       description: '',
-      status: 'pending',
+      paymentStatus: 'pending',
       paymentMethod: 'credit-card',
       orderId: '',
       date: new Date().toISOString().split('T')[0],
@@ -163,7 +163,7 @@ const PaymentManagement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed':
+      case 'success':
         return 'bg-[#166534]/20 text-[#14532d]';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
@@ -199,7 +199,7 @@ const PaymentManagement = () => {
 
           {/* Filter Tabs */}
           <div className="bg-white rounded-lg shadow mb-6 p-4 flex gap-4">
-            {['all', 'completed', 'pending', 'failed', 'refunded'].map(status => (
+            {['all', 'success', 'pending', 'failed', 'refunded'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
@@ -288,13 +288,13 @@ const PaymentManagement = () => {
                       Status
                     </label>
                     <select
-                      name="status"
-                      value={formData.status}
+                      name="paymentStatus"
+                      value={formData.paymentStatus}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     >
                       <option value="pending">Pending</option>
-                      <option value="completed">Completed</option>
+                      <option value="success">Completed</option>
                       <option value="failed">Failed</option>
                       <option value="refunded">Refunded</option>
                     </select>
@@ -360,14 +360,26 @@ const PaymentManagement = () => {
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Status</label>
-                    <p className={`inline-block px-3 py-1 rounded font-semibold text-sm ${getStatusColor(selectedPayment.status)}`}>
-                      {selectedPayment.status}
+                    <p className={`inline-block px-3 py-1 rounded font-semibold text-sm ${getStatusColor(selectedPayment.paymentStatus)}`}>
+                      {selectedPayment.paymentStatus}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Date</label>
-                    <p className="text-gray-700">{new Date(selectedPayment.date).toLocaleDateString()}</p>
+                    <p className="text-gray-700">{selectedPayment.date ? new Date(selectedPayment.date).toLocaleDateString() : 'N/A'}</p>
                   </div>
+                  {selectedPayment.receiptUrl && (
+                    <div className="pt-2">
+                      <label className="text-sm text-gray-600 block mb-2">Receipt Image</label>
+                      <a href={`http://localhost:5000${selectedPayment.receiptUrl}`} target="_blank" rel="noopener noreferrer">
+                        <img 
+                          src={`http://localhost:5000${selectedPayment.receiptUrl}`} 
+                          alt="Payment Receipt" 
+                          className="w-full h-auto rounded-lg border border-gray-200 cursor-pointer object-cover max-h-48 hover:opacity-90 transition"
+                        />
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 <button
@@ -418,12 +430,12 @@ const PaymentManagement = () => {
                       <td className="px-6 py-4 text-sm text-gray-600 capitalize">{payment.paymentMethod.replace('-', ' ')}</td>
                       <td className="px-6 py-4 text-sm">
                         <select
-                          value={payment.status}
+                          value={payment.paymentStatus}
                           onChange={(e) => handleStatusChange(payment._id, e.target.value)}
-                          className={`px-2 py-1 rounded font-semibold text-sm cursor-pointer ${getStatusColor(payment.status)}`}
+                          className={`px-2 py-1 rounded font-semibold text-sm cursor-pointer ${getStatusColor(payment.paymentStatus)}`}
                         >
                           <option value="pending">Pending</option>
-                          <option value="completed">Completed</option>
+                          <option value="success">Completed</option>
                           <option value="failed">Failed</option>
                           <option value="refunded">Refunded</option>
                         </select>
@@ -481,19 +493,19 @@ const PaymentManagement = () => {
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Completed</p>
                 <p className="text-3xl font-bold text-[#166534]">
-                  LKR {payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.filter(p => p.paymentStatus === 'success').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Pending</p>
                 <p className="text-3xl font-bold text-yellow-600">
-                  LKR {payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.filter(p => p.paymentStatus === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Failed/Refunded</p>
                 <p className="text-3xl font-bold text-red-600">
-                  LKR {payments.filter(p => ['failed', 'refunded'].includes(p.status)).reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.filter(p => ['failed', 'refunded'].includes(p.paymentStatus)).reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
             </div>

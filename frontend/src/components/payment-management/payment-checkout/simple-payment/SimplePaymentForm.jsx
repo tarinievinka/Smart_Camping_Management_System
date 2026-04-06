@@ -3,7 +3,7 @@ import { Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import { createPayment } from '../../../../services/paymentApi';
 import CardDetails from '../card-details/CardDetails';
 
-const SimplePaymentForm = ({ amount = 303.80 }) => {
+const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking" }) => {
   const [cardType, setCardType] = useState('visa');
   const [cardData, setCardData] = useState({
     cardholder: '',
@@ -54,8 +54,8 @@ const SimplePaymentForm = ({ amount = 303.80 }) => {
       // Prepared payment data with placeholder IDs
       const paymentData = {
         userId: "507f1f77bcf86cd799439011",
-        bookingType: "CampsiteBooking",
-        bookingId: "507f1f77bcf86cd799439012",
+        bookingType: bookingType,
+        bookingId: bookingId,
         amount: amount,
         paymentMethod: "card",
         transactionId: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
