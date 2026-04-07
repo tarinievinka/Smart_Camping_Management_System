@@ -1,16 +1,55 @@
 
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon } from "lucide-react";
 
 const starLabels = ["Terrible", "Bad", "Okay", "Good", "Very Good"];
 
 const FeedbackForm = () => {
-    const [selectedReview, setSelectedReview] = useState("");
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [selectedReview, setSelectedReview] = useState(location.state?.targetType || "guide");
     const [userName, setUserName] = useState("Nethmi User");
-    const [locationName, setLocationName] = useState("");
+    const [locationName, setLocationName] = useState(location.state?.targetName || "");
+    const [bookedGuides, setBookedGuides] = useState([]);
+    const isEditingSpecificGuide = !!location.state?.targetName && location.state?.targetType === "guide";
+
+    useEffect(() => {
+        const fetchBookedGuides = async () => {
+            try {
+                const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+                const bookingsRes = await axios.get(`${apiUrl}/api/guide-bookings/display`);
+                const parsedBookings = bookingsRes.data || [];
+                const res = await axios.get(`${apiUrl}/api/guides/display`);
+                const guides = Array.isArray(res.data) ? res.data : res.data?.guides || res.data?.data || [];
+                const merged = parsedBookings.map((b) => {
+                    const guide = guides.find((g) => String(g._id) === String(b.guideId));
+                    if (!guide) return null;
+                    return { ...guide, booking: b };
+                }).filter(Boolean);
+
+                merged.sort((a,b) => new Date(b.booking?.startDate || b.booking?.bookedAt || 0) - new Date(a.booking?.startDate || a.booking?.bookedAt || 0));
+                
+                const uniqueGuides = [];
+                const map = new Map();
+                for (const item of merged) {
+                     if(!map.has(item._id)){
+                         map.set(item._id, true);
+                         uniqueGuides.push(item);
+                     }
+                }
+                setBookedGuides(uniqueGuides);
+                if (uniqueGuides.length > 0 && !location.state?.targetName) {
+                    setLocationName(uniqueGuides[0].name);
+                }
+            } catch (err) {
+                console.error("Failed to load booked guides", err);
+            }
+        };
+        fetchBookedGuides();
+    }, []);
     const [sessionStartDate, setSessionStartDate] = useState("");
     const [sessionEndDate, setSessionEndDate] = useState("");
     const [rating, setRating] = useState(4);
@@ -19,7 +58,6 @@ const FeedbackForm = () => {
     const [imageFiles, setImageFiles] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
     const [errors, setErrors] = useState({});
-    const navigate = useNavigate();
     const nameFieldConfig = {
         campsite: { label: "Location Name", placeholder: "e.g., Pine Valley Campground" },
         guide: { label: "Guider Name", placeholder: "e.g., Mountain Adventures - John Smith" },
@@ -135,49 +173,12 @@ const FeedbackForm = () => {
         <div className="w-full py-10 px-4 sm:px-6 lg:px-8 flex flex-col items-center font-sans bg-white">
             <div className="w-full max-w-3xl">
                 <div className="mb-6 pl-1">
-                    <h2 className="text-4xl font-extrabold text-slate-900 mb-2">Submit a Review</h2>
-                    <p className="text-slate-500 text-lg">Share your experience to help fellow campers</p>
+                    <h2 className="text-[40px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
+                    <p className="text-slate-500 font-medium text-sm">Share your experience to help fellow campers</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
-                        <label className="text-xl font-bold text-slate-900 block mb-4">What are you reviewing?</label>
-                        <div className="space-y-3">
-                            {[
-                                { id: "campsite", title: "Camping Location", desc: "Campgrounds, parks, and sites", Icon: MapPin, color: "text-green-600" },
-                                { id: "guide", title: "Guide", desc: "Tour guides, instructors, and experts", Icon: User, color: "text-blue-600" },
-                                { id: "equipment", title: "Camping Equipment", desc: "Gear, tools, and supplies", Icon: Backpack, color: "text-orange-500" },
-                            ].map(({ id, title, desc, Icon, color }) => (
-                                <button
-                                    key={id}
-                                    type="button"
-                                    aria-pressed={selectedReview === id}
-                                    onClick={() => {
-                                        setSelectedReview(id);
-                                        if (errors.selectedReview) setErrors({ ...errors, selectedReview: "" });
-                                    }}
-                                    className={`w-full text-left border rounded-xl px-4 py-3 flex items-center gap-3 transition-colors cursor-pointer ${
-                                        selectedReview === id ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900" : "border-slate-200 hover:bg-slate-50"
-                                    }`}
-                                >
-                                    <span className={`w-3 h-3 rounded-full border flex items-center justify-center ${selectedReview === id ? "border-black" : "border-slate-300"}`}>
-                                        {selectedReview === id && <span className="w-1.5 h-1.5 rounded-full bg-black" />}
-                                    </span>
-                                    <Icon size={18} className={color} />
-                                    <div>
-                                        <p className="text-slate-900 font-semibold text-[15px] leading-tight">{title}</p>
-                                        <p className="text-slate-500 text-sm">{desc}</p>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                        {errors.selectedReview && (
-                            <div className="text-red-500 text-sm mt-2 font-medium flex items-center gap-1.5">
-                                <AlertCircle size={14} />
-                                {errors.selectedReview}
-                            </div>
-                        )}
-                    </div>
+
 
                     <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4">
                         <div className="mb-4">
@@ -199,16 +200,27 @@ const FeedbackForm = () => {
                             <label className="text-sm font-semibold text-slate-900 mb-1 block">
                                 {activeNameField.label} <span className="text-red-500">*</span>
                             </label>
-                            <input
-                                type="text"
-                                value={locationName}
-                                onChange={(e) => {
-                                    setLocationName(e.target.value);
-                                    if (errors.locationName) setErrors({ ...errors, locationName: "" });
-                                }}
-                                placeholder={activeNameField.placeholder}
-                                className={`w-full bg-slate-50 border ${errors.locationName ? "border-red-400" : "border-slate-200"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400`}
-                            />
+                            {selectedReview === "guide" ? (
+                                <input
+                                    type="text"
+                                    value={locationName}
+                                    readOnly
+                                    disabled
+                                    placeholder={locationName ? activeNameField.placeholder : "Please navigate here from your Bookings to review a specific Guide."}
+                                    className="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-500 cursor-not-allowed"
+                                />
+                            ) : (
+                                <input
+                                    type="text"
+                                    value={locationName}
+                                    onChange={(e) => {
+                                        setLocationName(e.target.value);
+                                        if (errors.locationName) setErrors({ ...errors, locationName: "" });
+                                    }}
+                                    placeholder={activeNameField.placeholder}
+                                    className={`w-full bg-slate-50 border ${errors.locationName ? "border-red-400" : "border-slate-200"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400`}
+                                />
+                            )}
                             {errors.locationName && (
                                 <div className="text-red-500 text-sm mt-1 font-medium flex items-center gap-1.5">
                                     <AlertCircle size={14} />
@@ -389,6 +401,10 @@ const FeedbackForm = () => {
                                 setSelectedReview("");
                                 setUserName("");
                                 setLocationName("");
+                                // Reset to state if exists instead of blindly clearing if we want, but clear form means clear
+                                if (location.state) {
+                                    window.history.replaceState({}, document.title)
+                                }
                                 setSessionStartDate("");
                                 setSessionEndDate("");
                                 setRating(4);

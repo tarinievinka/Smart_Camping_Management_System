@@ -175,7 +175,7 @@ const MyReviews = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">My Reviews</h1>
+              <h1 className="text-[40px] font-extrabold text-slate-900 leading-tight tracking-tight">My Reviews</h1>
             </div>
 
             <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-sm self-start sm:self-auto">
@@ -302,10 +302,10 @@ const MyReviews = () => {
                             {new Date(review.createdAt || Date.now()).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                           </span>
                         </div>
-                        <h4 className="text-xl font-semibold text-slate-900 mb-1">
+                        <h4 className="text-base font-bold text-slate-900 mb-1">
                           {review.title || "Great experience"}
                         </h4>
-                        <p className="text-slate-700 text-lg leading-relaxed mb-2">
+                        <p className="text-slate-700 text-sm leading-relaxed mb-2">
                           {review.comment || review.description}
                         </p>
                       </div>
