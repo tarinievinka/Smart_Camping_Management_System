@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const paymentController = require('../../controllers/payment-controller/paymentController');
+const upload = require('../../config/upload');
 
 // Create a new Payment
-router.post('/add', paymentController.createPayment);
+router.post('/add', upload.single('receipt'), paymentController.createPayment);
 
 // Get all Payments
 router.get('/display', paymentController.getAllPayments);

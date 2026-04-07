@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown } from "lucide-react";
+import axios from "axios";
 
 const API = process.env.REACT_APP_API_URL + '/api/equipment';
 
@@ -14,35 +16,6 @@ const CATEGORY_ICONS = {
   'Lighting':      '🔦',
   'Other':         '📦',
 };
-
-// ── Star Rating ──────────────────────────────────────────────
-const StarRating = ({ condition }) => {
-  const count = condition === 'New' ? 5 : condition === 'Good' ? 4 : condition === 'Fair' ? 3 : 2;
-  return (
-    <div style={{ display: 'flex', gap: '2px' }}>
-      {[1,2,3,4,5].map(i => (
-        <span key={i} style={{ color: i <= count ? '#f59e0b' : '#d1d5db', fontSize: '13px' }}>★</span>
-      ))}
-    </div>
-  );
-};
-
-// ── Grey placeholder when no photo uploaded ──────────────────
-const NoPhoto = ({ height = '160px' }) => (
-  <div style={{
-    width: '100%', height, background: '#f3f4f6',
-    display: 'flex', flexDirection: 'column',
-    alignItems: 'center', justifyContent: 'center', gap: '8px',
-  }}>
-    <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-      stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <circle cx="8.5" cy="8.5" r="1.5"/>
-      <polyline points="21 15 16 10 5 21"/>
-    </svg>
-    <span style={{ fontSize: '11px', color: '#9ca3af' }}>No photo uploaded</span>
-  </div>
-);
 
 // ── Notify Me Modal ──────────────────────────────────────────
 const NotifyModal = ({ item, onClose }) => {
@@ -77,94 +50,70 @@ const NotifyModal = ({ item, onClose }) => {
   };
 
   return (
-    <div onClick={onClose} style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
-    }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: '#fff', borderRadius: '16px', padding: '32px',
-        width: '100%', maxWidth: '400px', margin: '0 16px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-      }}>
+    <div onClick={onClose} className="fixed inset-0 bg-black/45 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm">
+      <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl w-full max-w-[400px] p-8 shadow-2xl">
         {submitted ? (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '52px', marginBottom: '16px' }}>✅</div>
-            <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: '700', color: '#111827' }}>You're on the list!</h3>
-            <p style={{ margin: '0 0 24px', fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
-              We'll email <strong>{email}</strong> as soon as <strong>"{item.name}"</strong> is back in stock.
+          <div className="text-center">
+            <div className="text-[52px] mb-4">✅</div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">You're on the list!</h3>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+              We'll email <strong className="text-gray-900">{email}</strong> as soon as <strong className="text-gray-900">"{item.name}"</strong> is back in stock.
             </p>
-            <button onClick={onClose} style={{
-              width: '100%', padding: '12px', borderRadius: '8px',
-              background: '#16a34a', color: '#fff', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer',
-            }}>Done ✓</button>
+            <button onClick={onClose} className="w-full py-3 bg-[#166534] hover:bg-[#14532d] text-white rounded-xl text-sm font-bold transition-colors">
+              Done ✓
+            </button>
           </div>
         ) : (
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+            <div className="flex justify-between items-start mb-5">
               <div>
-                <h3 style={{ margin: '0 0 4px', fontSize: '18px', fontWeight: '700', color: '#111827' }}>🔔 Notify Me</h3>
-                <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Get notified when this item is back in stock</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">🔔 Notify Me</h3>
+                <p className="text-[13px] text-gray-500">Get notified when this item is back in stock</p>
               </div>
-              <button onClick={onClose} style={{
-                background: '#f3f4f6', border: 'none', borderRadius: '50%',
-                width: '32px', height: '32px', cursor: 'pointer', fontSize: '14px', color: '#6b7280',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>✕</button>
+              <button onClick={onClose} className="bg-gray-100 hover:bg-gray-200 text-gray-500 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                ✕
+              </button>
             </div>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '12px', padding: '12px',
-              background: '#fef2f2', borderRadius: '10px', border: '1px solid #fecaca', marginBottom: '20px',
-            }}>
-              <span style={{ fontSize: '24px' }}>📦</span>
+            <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-xl mb-5">
+              <span className="text-2xl">📦</span>
               <div>
-                <div style={{ fontWeight: '700', fontSize: '14px', color: '#111827' }}>{item.name}</div>
-                <div style={{ fontSize: '12px', color: '#ef4444', fontWeight: '600' }}>Currently Out of Stock</div>
+                <div className="font-bold text-[14px] text-gray-900 line-clamp-1">{item.name}</div>
+                <div className="text-[12px] font-semibold text-red-500">Currently Out of Stock</div>
               </div>
             </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+            <div className="mb-4">
+              <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
                 Your Email Address
               </label>
               <input
-                type="email" placeholder="e.g. john@example.com" value={email}
+                type="email" placeholder="e.g. camper@wilderness.com" value={email}
                 onChange={e => { setEmail(e.target.value); setError(''); }}
                 onKeyDown={e => e.key === 'Enter' && !loading && handleSubmit()}
                 disabled={loading}
-                style={{
-                  width: '100%', padding: '10px 12px',
-                  border: `1px solid ${error ? '#ef4444' : '#d1d5db'}`,
-                  borderRadius: '8px', fontSize: '14px', color: '#111827',
-                  outline: 'none', boxSizing: 'border-box',
-                  background: loading ? '#f9fafb' : '#fff',
-                }}
-                onFocus={e => e.target.style.borderColor = '#16a34a'}
-                onBlur={e => e.target.style.borderColor = error ? '#ef4444' : '#d1d5db'}
+                className={`w-full p-3 border rounded-xl text-sm outline-none transition-colors ${error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-[#166534]'}`}
+                style={{ backgroundColor: loading ? '#f9fafb' : '#fff' }}
               />
               {error && (
-                <p style={{ margin: '4px 0 0', fontSize: '12px', color: error.startsWith('✓') ? '#16a34a' : '#ef4444' }}>
+                <p className={`mt-1.5 text-[12px] font-medium ${error.startsWith('✓') ? 'text-[#16a34a]' : 'text-red-500'}`}>
                   {error}
                 </p>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={onClose} disabled={loading} style={{
-                flex: 1, padding: '11px', borderRadius: '8px',
-                background: '#f3f4f6', color: '#374151', border: 'none',
-                fontSize: '14px', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer',
-              }}>Cancel</button>
-              <button onClick={handleSubmit} disabled={loading} style={{
-                flex: 2, padding: '11px', borderRadius: '8px',
-                background: loading ? '#86efac' : '#16a34a',
-                color: '#fff', border: 'none', fontSize: '14px', fontWeight: '700',
-                cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s',
-              }}
-                onMouseEnter={e => { if (!loading) e.target.style.background = '#15803d'; }}
-                onMouseLeave={e => { if (!loading) e.target.style.background = '#16a34a'; }}
+            <div className="flex gap-2">
+              <button 
+                onClick={onClose} disabled={loading} 
+                className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
               >
-                {loading ? '⏳ Saving...' : '🔔 Notify Me When Available'}
+                Cancel
+              </button>
+              <button 
+                onClick={handleSubmit} disabled={loading} 
+                className="flex-[2] py-3 bg-[#166534] hover:bg-[#14532d] text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50 disabled:bg-green-300"
+              >
+                {loading ? '⏳ Saving...' : '🔔 Notify Me'}
               </button>
             </div>
-            <p style={{ margin: '12px 0 0', fontSize: '11px', color: '#9ca3af', textAlign: 'center' }}>
+            <p className="mt-4 text-[11px] text-gray-400 text-center font-medium">
               We'll only email you once when restocked. No spam ever.
             </p>
           </>
@@ -175,212 +124,150 @@ const NotifyModal = ({ item, onClose }) => {
 };
 
 // ── Equipment Card ───────────────────────────────────────────
-const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart }) => {
+const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify }) => {
   const [liked, setLiked]           = useState(false);
   const [mode, setMode]             = useState('rent');
-  const [showNotify, setShowNotify] = useState(false);
 
   const isUnavailable = item.availabilityStatus === 'Out of Stock' || item.availabilityStatus === 'Deactivated';
   const isLowStock    = item.stockQuantity > 0 && item.stockQuantity <= 3;
   const inCart        = cart.some(c => c._id === item._id && c.mode === mode);
 
-  const imgSrc = item.imageUrl
-    ? `${process.env.REACT_APP_API_URL}${item.imageUrl}`
-    : null;
-
-  const getBadge = () => {
-    if (item.availabilityStatus === 'Out of Stock') return { text: 'SOLD OUT',                        bg: '#ef4444' };
-    if (item.availabilityStatus === 'Deactivated')  return { text: 'UNAVAILABLE',                     bg: '#6b7280' };
-    if (isLowStock)                                  return { text: `ONLY ${item.stockQuantity} LEFT`, bg: '#f59e0b' };
-    return                                                  { text: 'AVAILABLE',                       bg: '#16a34a' };
-  };
-  const badge      = getBadge();
-  const stockColor = item.stockQuantity === 0 ? '#ef4444' : item.stockQuantity <= 3 ? '#f59e0b' : '#16a34a';
-  const stockPct   = Math.min(100, (item.stockQuantity / 20) * 100);
+  const imgSrc = item.imageUrl ? `${process.env.REACT_APP_API_URL}${item.imageUrl}` : null;
+  const backOn = item.availabilityStatus === 'Out of Stock' ? "soon" : null;
 
   return (
-    <>
-      {showNotify && <NotifyModal item={item} onClose={() => setShowNotify(false)} />}
-
+    <div
+      className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all group cursor-pointer ${
+        isUnavailable ? "opacity-95" : inCart ? "border-[#16a34a] shadow-md ring-1 ring-[#16a34a]" : "hover:shadow-md"
+      }`}
+    >
       <div
-        style={{
-          background: '#fff', borderRadius: '12px', overflow: 'hidden',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          border: inCart ? '2px solid #16a34a' : '1px solid #e5e7eb',
-          display: 'flex', flexDirection: 'column', transition: 'box-shadow 0.2s, border 0.2s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)'}
-        onMouseLeave={e => e.currentTarget.style.boxShadow = inCart ? '0 4px 16px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.1)'}
+        className="relative h-48 overflow-hidden"
+        style={{ background: "linear-gradient(to bottom right, #166534, #14532d)" }}
       >
-        {/* Image area */}
-        <div style={{ position: 'relative' }}>
-          {imgSrc ? (
-            <img src={imgSrc} alt={item.name}
-              style={{ width: '100%', height: '160px', objectFit: 'cover', display: 'block' }}
-              onError={e => { e.target.style.display = 'none'; }}
-            />
-          ) : (
-            <NoPhoto height="160px" />
-          )}
-
-          {/* Status badge */}
-          <div style={{ position: 'absolute', top: '8px', left: '8px' }}>
-            <span style={{
-              background: badge.bg, color: '#fff', padding: '2px 8px',
-              borderRadius: '4px', fontSize: '10px', fontWeight: '700', letterSpacing: '0.5px',
-            }}>{badge.text}</span>
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt={item.name}
+            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${isUnavailable ? "grayscale-[0.35]" : ""}`}
+            onError={(e) => { e.target.style.display = 'none'; }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-white text-4xl font-bold">
+            {item.name?.charAt(0)?.toUpperCase() || "?"}
           </div>
+        )}
 
-          {/* In-cart checkmark */}
-          {inCart && (
-            <div style={{
-              position: 'absolute', top: '8px', right: '40px',
-              background: '#16a34a', color: '#fff', borderRadius: '50%',
-              width: '22px', height: '22px', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700',
-            }}>✓</div>
-          )}
+        {isUnavailable && (
+          <div className="absolute inset-0 bg-gray-900/45 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1 px-3 text-center z-[5]">
+             <span className="text-white text-xs font-black uppercase tracking-[0.2em]">Unavailable</span>
+             <span className="text-white/90 text-[11px] font-semibold">Back {backOn}</span>
+          </div>
+        )}
 
-          {/* Heart button */}
-          <button
-            onClick={() => setLiked(!liked)}
-            title={liked ? 'Remove from wishlist' : 'Add to wishlist'}
-            style={{
-              position: 'absolute', top: '8px', right: '8px',
-              background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%',
-              width: '28px', height: '28px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'transform 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.15)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24"
-              fill={liked ? '#ef4444' : 'none'}
-              stroke={liked ? '#ef4444' : '#9ca3af'}
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-          </button>
+        <div
+          className="absolute top-3 right-3 text-white px-2.5 py-1 rounded-full text-[10px] font-bold z-[6] tracking-wider"
+          style={{ backgroundColor: isUnavailable ? '#ef4444' : isLowStock ? '#f59e0b' : '#166534' }}
+        >
+          {isUnavailable ? 'SOLD OUT' : isLowStock ? `ONLY ${item.stockQuantity} LEFT` : 'AVAILABLE'}
         </div>
 
-        {/* Card body */}
-        <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {inCart && (
+           <div className="absolute top-3 left-3 bg-[#16a34a] text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-lg z-[6]">
+             ✓
+           </div>
+        )}
+      </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <h3 style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: '#111827', flex: 1, lineHeight: '1.3' }}>
-              {item.name}
-            </h3>
-            <span style={{
-              color: mode === 'buy' ? '#1d4ed8' : '#16a34a',
-              fontWeight: '700', fontSize: '13px', whiteSpace: 'nowrap', marginLeft: '6px',
-            }}>
-              Rs {mode === 'rent' ? item.rentalPrice : item.salePrice}
-              <span style={{ fontSize: '11px', fontWeight: '400', color: '#6b7280' }}>
-                {mode === 'rent' ? '/day' : ' total'}
-              </span>
-            </span>
+      <div className="p-5 flex flex-col h-[220px]">
+        <h3 className="text-lg font-bold text-gray-900 truncate">{item.name}</h3>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+          {item.category} • {item.condition}
+        </p>
+
+        {/* Mode Toggle */}
+        <div className="flex bg-gray-100 rounded-lg p-1.5 mb-3">
+           {['rent', 'buy'].map((m) => (
+             <button key={m} onClick={(e) => { e.stopPropagation(); setMode(m); }} className={`flex-1 py-1.5 text-[11px] font-bold rounded-md transition-all ${mode === m ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:bg-gray-200'}`}>
+               {m === 'rent' ? '🔄 Rent/day' : '🏷️ Buy'}
+             </button>
+           ))}
+        </div>
+
+        <div className="flex-1"></div>
+
+        <div className="flex justify-between items-end gap-3 mt-1">
+          <div className="flex flex-col">
+             <span className="text-[11px] text-gray-500 font-semibold mb-0.5">{mode === 'rent' ? 'Daily Rate' : 'Total Price'}</span>
+             <span className="font-black text-lg leading-none" style={{ color: mode === 'buy' ? "#1d4ed8" : "#166534" }}>
+               LKR {mode === 'rent' ? item.rentalPrice : item.salePrice}
+             </span>
           </div>
 
-          <p style={{ margin: 0, fontSize: '11px', color: '#6b7280' }}>
-            {item.category} · {item.condition}
-            {isLowStock && <span style={{ color: '#f59e0b', fontWeight: '600' }}> · ⚠ Low</span>}
-          </p>
-
-          <StarRating condition={item.condition} />
-
-          {/* Rent / Buy toggle */}
-          <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: '6px', padding: '2px', gap: '2px' }}>
-            {['rent','buy'].map(m => (
-              <button key={m} onClick={() => setMode(m)} style={{
-                flex: 1, padding: '5px', border: 'none', borderRadius: '5px', cursor: 'pointer',
-                background: mode === m ? '#fff' : 'transparent',
-                color:      mode === m ? '#111827' : '#6b7280',
-                fontWeight: mode === m ? '700' : '400',
-                fontSize: '11px',
-                boxShadow: mode === m ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                transition: 'all 0.15s',
-              }}>
-                {m === 'rent' ? '🔄 Rent/day' : '🏷️ Buy'}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ fontSize: '10px', color: '#9ca3af', textAlign: 'center' }}>
-            {mode === 'rent'
-              ? `Buy: Rs ${item.salePrice.toLocaleString()} (own it)`
-              : `Rent from Rs ${item.rentalPrice.toLocaleString()}/day`}
-          </div>
-
-          <div style={{ flex: 1 }} />
-
-          {/* Stock bar */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#9ca3af', marginBottom: '3px' }}>
-              <span>Stock</span>
-              <span style={{ fontWeight: '600', color: stockColor }}>{item.stockQuantity} units</span>
-            </div>
-            <div style={{ background: '#e5e7eb', borderRadius: '99px', height: '4px' }}>
-              <div style={{ height: '4px', borderRadius: '99px', width: `${stockPct}%`, background: stockColor, transition: 'width 0.3s' }} />
-            </div>
-          </div>
-
-          {/* Action button */}
-          {isUnavailable ? (
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setShowNotify(true)}
-              style={{
-                width: '100%', padding: '8px', borderRadius: '7px',
-                background: '#fff', color: '#374151', border: '1px solid #d1d5db',
-                fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s',
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLiked(!liked);
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#fef9c3'; e.currentTarget.style.borderColor = '#f59e0b'; e.currentTarget.style.color = '#a16207'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#d1d5db'; e.currentTarget.style.color = '#374151'; }}
-            >🔔 Notify Me</button>
-
-          ) : inCart ? (
-            <button
-              onClick={() => onRemoveFromCart(item._id, mode)}
-              style={{
-                width: '100%', padding: '8px', borderRadius: '7px',
-                background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5',
-                fontSize: '12px', fontWeight: '600', cursor: 'pointer',
-              }}
-            >✕ Remove from Cart</button>
-
-          ) : (
-            <button
-              onClick={() => onAddToCart({ ...item, mode, price: mode === 'rent' ? item.rentalPrice : item.salePrice })}
-              style={{
-                width: '100%', padding: '8px', borderRadius: '7px',
-                background: mode === 'buy' ? '#1d4ed8' : '#16a34a',
-                color: '#fff', border: 'none',
-                fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'background 0.2s',
-              }}
-              onMouseEnter={e => e.target.style.background = mode === 'buy' ? '#1e40af' : '#15803d'}
-              onMouseLeave={e => e.target.style.background = mode === 'buy' ? '#1d4ed8' : '#16a34a'}
+              className={`p-2 rounded-xl border transition-colors ${
+                liked
+                  ? "bg-red-50 border-red-200 text-red-600"
+                  : "bg-white border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+              }`}
             >
-              {mode === 'buy' ? '🏷️ Buy Now' : '🛒 Add to Cart'}
+              <Heart size={18} fill={liked ? "currentColor" : "transparent"} />
             </button>
-          )}
+
+            {isUnavailable ? (
+              <div className="flex flex-col items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onShowNotify(item); }}
+                  className="px-4 py-2 rounded-xl font-bold text-[13px] bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors border border-amber-200"
+                >
+                  🔔 Notify Me
+                </button>
+              </div>
+            ) : inCart ? (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onRemoveFromCart(item._id, mode); }}
+                  className="px-4 py-2 rounded-xl font-bold text-[13px] border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors shrink-0"
+                >
+                  Remove
+                </button>
+            ) : (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); onAddToCart({ ...item, mode, price: mode === 'rent' ? item.rentalPrice : item.salePrice }); }}
+                  className="text-white px-4 py-2 rounded-xl font-bold text-[13px] transition-colors shrink-0 shadow-sm"
+                  style={{ backgroundColor: mode === 'buy' ? '#1d4ed8' : '#166534' }}
+                >
+                  {mode === 'buy' ? 'Buy Now' : 'Add to Cart'}
+                </button>
+            )}
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
 // ── Main Store Component ─────────────────────────────────────
 const EquipmentStore = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [equipment, setEquipment]               = useState([]);
   const [loading, setLoading]                   = useState(true);
   const [error, setError]                       = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All Gear');
   const [searchQuery, setSearchQuery]           = useState('');
-  const [currentPage, setCurrentPage]           = useState(1);
   const [cart, setCart]                         = useState([]);
-  const ITEMS_PER_PAGE = 8;
+  const [displayCount, setDisplayCount]         = useState(8);
+  const [notifyItem, setNotifyItem]             = useState(null);
 
   useEffect(() => {
     fetch(`${API}/display`)
@@ -392,17 +279,16 @@ const EquipmentStore = () => {
   const addToCart      = (item)     => setCart(prev => [...prev, item]);
   const removeFromCart = (id, mode) => setCart(prev => prev.filter(c => !(c._id === id && c.mode === mode)));
 
-  const filtered = equipment?.filter(item => {
-    const matchCat    = selectedCategory === 'All Gear' || item.category === selectedCategory;
-    const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  const filtered = useMemo(() => {
+    return equipment?.filter(item => {
+      const matchCat    = selectedCategory === 'All Gear' || item.category === selectedCategory;
+      const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [equipment, selectedCategory, searchQuery]);
 
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated  = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
-  const handleCategoryChange = (cat) => { setSelectedCategory(cat); setCurrentPage(1); };
-  const handleSearch         = (e)   => { setSearchQuery(e.target.value); setCurrentPage(1); };
+  const visibleEquipment = filtered.slice(0, displayCount);
+  const hasMore = filtered.length > displayCount;
 
   const handleBookNow = () => {
     if (cart.length === 0) { alert('Please add at least one item to your cart first!'); return; }
@@ -410,142 +296,175 @@ const EquipmentStore = () => {
   };
 
   return (
-    <div style={{ fontFamily: 'system-ui, sans-serif', background: '#f9fafb', minHeight: '100vh' }}>
+    <div className="flex min-h-screen bg-gray-100">
+      {notifyItem && <NotifyModal item={notifyItem} onClose={() => setNotifyItem(null)} />}
 
-      {/* Hero header */}
-      <div style={{ padding: '24px 24px 16px', background: '#fff', borderBottom: '1px solid #e5e7eb' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <h1 style={{ margin: '0 0 4px', fontSize: '28px', fontWeight: '800', color: '#111827' }}>
-              Premium Gear Rental
-            </h1>
-            <p style={{ margin: '0 0 12px', color: '#6b7280', fontSize: '14px' }}>
-              Professional grade equipment for your wilderness journey.
-            </p>
-          </div>
-          <button
-            onClick={handleBookNow}
-            style={{
-              position: 'relative', background: '#16a34a', color: '#fff',
-              border: 'none', borderRadius: '10px', padding: '10px 18px',
-              fontSize: '14px', fontWeight: '700', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '8px',
-              transition: 'background 0.2s', flexShrink: 0,
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = '#15803d'}
-            onMouseLeave={e => e.currentTarget.style.background = '#16a34a'}
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
+        <div className="flex items-center gap-3 mb-10">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold shrink-0"
+            style={{ backgroundColor: "#166534" }}
           >
-            🛒 Book Now
-            {cart.length > 0 && (
-              <span style={{
-                background: '#fff', color: '#16a34a', borderRadius: '50%',
-                width: '22px', height: '22px', fontSize: '12px', fontWeight: '800',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>{cart.length}</span>
-            )}
-          </button>
-        </div>
-        <div style={{ position: 'relative', maxWidth: '360px' }}>
-          <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }}>🔍</span>
-          <input
-            type="text" placeholder="Search equipment..." value={searchQuery} onChange={handleSearch}
-            style={{
-              width: '100%', padding: '9px 12px 9px 36px', border: '1px solid #d1d5db',
-              borderRadius: '8px', fontSize: '14px', color: '#111827', outline: 'none', boxSizing: 'border-box',
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Cart bar */}
-      {cart.length > 0 && (
-        <div style={{
-          background: '#f0fdf4', borderBottom: '1px solid #bbf7d0',
-          padding: '10px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <div style={{ fontSize: '13px', color: '#15803d', fontWeight: '600' }}>
-            🛒 {cart.length} item{cart.length > 1 ? 's' : ''} in cart:{' '}
-            <span style={{ fontWeight: '400', color: '#374151' }}>
-              {cart.map(c => `${c.name} (${c.mode})`).join(', ')}
-            </span>
+            E
           </div>
-          <button onClick={handleBookNow} style={{
-            background: '#16a34a', color: '#fff', border: 'none',
-            borderRadius: '8px', padding: '7px 18px', fontSize: '13px', fontWeight: '700', cursor: 'pointer',
-          }}>Proceed to Booking →</button>
+          <div>
+            <h2 className="text-gray-900 font-bold text-lg">WildGear</h2>
+            <p className="text-gray-500 text-xs">Equip your journey</p>
+          </div>
         </div>
-      )}
 
-      {/* ── Body: sidebar + grid ── */}
-      <div style={{ display: 'flex', padding: '16px' }}>
-
-        {/* Sidebar — narrow, left aligned */}
-        <div style={{ width: '160px', flexShrink: 0, marginRight: '16px' }}>
-          <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-            <div style={{ padding: '12px 14px', borderBottom: '1px solid #e5e7eb' }}>
-              <span style={{ fontSize: '13px', fontWeight: '700', color: '#111827' }}>☰ Categories</span>
-            </div>
-            {CATEGORIES.map(cat => (
-              <button key={cat} onClick={() => handleCategoryChange(cat)} style={{
-                display: 'flex', alignItems: 'center', gap: '8px',
-                width: '100%', padding: '9px 14px', border: 'none', cursor: 'pointer',
-                background: selectedCategory === cat ? '#16a34a' : 'transparent',
-                color:      selectedCategory === cat ? '#fff' : '#374151',
-                fontSize: '13px', fontWeight: selectedCategory === cat ? '600' : '400',
-                textAlign: 'left', borderBottom: '1px solid #f3f4f6', transition: 'background 0.15s',
+        <nav className="flex-1 space-y-1">
+          {[
+            { icon: LayoutGrid, label: "Browse Gear", path: "/equipment-store", active: true },
+            { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
+            { icon: Heart, label: "Favorites", path: "#" },
+          ].map((item, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                if (item.action) item.action();
+                else if (item.path !== '#') navigate(item.path);
               }}
-                onMouseEnter={e => { if (selectedCategory !== cat) e.currentTarget.style.background = '#f0fdf4'; }}
-                onMouseLeave={e => { if (selectedCategory !== cat) e.currentTarget.style.background = 'transparent'; }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                item.active 
+                  ? "text-white bg-[#166534]" 
+                  : item.highlight
+                    ? "text-[#16a34a] bg-[#f0fdf4] hover:bg-[#dcfce7] font-bold"
+                    : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <item.icon size={18} /> {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <button
+          type="button"
+          className="flex items-center gap-3 px-4 py-3 text-red-500 text-sm font-medium hover:bg-red-50 rounded-xl transition-colors mt-auto"
+        >
+          <LogOut size={18} className="rotate-180" /> Sign Out
+        </button>
+      </aside>
+
+      <main className="flex-1 p-8 overflow-auto">
+        <div className="max-w-6xl mx-auto">
+          
+          {cart.length > 0 && (
+             <div className="mb-8 bg-[#f0fdf4] border border-[#bbf7d0] rounded-2xl p-4 lg:hidden flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                <div className="text-sm text-[#15803d] font-bold flex items-center gap-3">
+                   <ShoppingCart size={20} />
+                   <span>
+                     {cart.length} item{cart.length > 1 ? 's' : ''} in cart: <span className="font-medium text-gray-700">{cart.map(c => c.name).join(', ')}</span>
+                   </span>
+                </div>
+                <button onClick={handleBookNow} className="w-full sm:w-auto bg-[#16a34a] hover:bg-[#15803d] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-colors cursor-pointer whitespace-nowrap">
+                  Checkout →
+                </button>
+             </div>
+          )}
+
+          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Premium Gear Rental</h1>
+              <p className="text-gray-500 text-sm mt-1">
+                Professional grade equipment for your wilderness journey.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search equipment..."
+                  className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm w-72 bg-white outline-none transition-all"
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#166534";
+                    e.target.style.boxShadow = "0 0 0 2px rgba(22,101,52,0.2)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+              <button type="button" className="p-2.5 border border-gray-200 rounded-xl hover:bg-white bg-white transition-colors">
+                <SlidersHorizontal size={18} className="text-gray-500" />
+              </button>
+            </div>
+          </header>
+
+          <div className="flex gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => { setSelectedCategory(cat); setDisplayCount(8); }}
+                className={`px-4 py-2 flex items-center gap-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                  selectedCategory === cat ? "text-white shadow-sm" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+                }`}
+                style={selectedCategory === cat ? { backgroundColor: "#166534", borderColor: "#166534" } : {}}
               >
-                <span style={{ fontSize: '14px' }}>{CATEGORY_ICONS[cat]}</span>{cat}
+                <span>{CATEGORY_ICONS[cat]}</span>
+                {cat}
               </button>
             ))}
           </div>
-        </div>
 
-        {/* Grid — fills all remaining space */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {loading && <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280' }}>Loading equipment...</div>}
-          {error   && <div style={{ textAlign: 'center', padding: '60px', color: '#ef4444' }}>{error}</div>}
+          {loading && (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-4 border-gray-200 rounded-full animate-spin" style={{ borderTopColor: "#166534" }} />
+                <p className="text-sm text-gray-500 font-medium">Loading gear...</p>
+              </div>
+            </div>
+          )}
 
-          {!loading && !error && (
+          {error && !loading && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm mb-6">{error}</div>
+          )}
+
+          {!loading && !error && filtered.length === 0 && (
+            <div className="text-center py-20">
+              <div className="text-4xl mb-3">⛺</div>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">No items found</h3>
+              <p className="text-gray-500 text-sm mb-4">Try adjusting your category or search term.</p>
+              <button onClick={() => { setSearchQuery(''); setSelectedCategory('All Gear'); }} className="text-sm font-semibold text-[#166534] hover:underline">
+                Clear all filters
+              </button>
+            </div>
+          )}
+
+          {!loading && filtered.length > 0 && (
             <>
-              <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#6b7280' }}>
-                Showing {paginated.length} of {filtered.length} items
-              </p>
-
-              {/* ── 4 columns, fills all width ── */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }}>
-                {paginated.map(item => (
-                  <EquipmentCard key={item._id} item={item} cart={cart} onAddToCart={addToCart} onRemoveFromCart={removeFromCart} />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {visibleEquipment.map((item) => (
+                  <EquipmentCard 
+                    key={item._id} 
+                    item={item} 
+                    cart={cart} 
+                    onAddToCart={addToCart} 
+                    onRemoveFromCart={removeFromCart} 
+                    onShowNotify={setNotifyItem}
+                  />
                 ))}
               </div>
-
-              {paginated.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280' }}>No equipment found.</div>
-              )}
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '24px' }}>
-                  <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                    style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #d1d5db', background: '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: '#374151', fontSize: '16px' }}>‹</button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                    <button key={page} onClick={() => setCurrentPage(page)} style={{
-                      width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #d1d5db',
-                      background: currentPage === page ? '#16a34a' : '#fff',
-                      color: currentPage === page ? '#fff' : '#374151',
-                      fontWeight: currentPage === page ? '700' : '400', cursor: 'pointer', fontSize: '13px',
-                    }}>{page}</button>
-                  ))}
-                  <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                    style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #d1d5db', background: '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: '#374151', fontSize: '16px' }}>›</button>
+              {hasMore && (
+                <div className="flex justify-center mt-10">
+                  <button
+                    type="button"
+                    onClick={() => setDisplayCount((c) => c + 8)}
+                    className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-200 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                  >
+                    Show More Gear <ChevronDown size={18} />
+                  </button>
                 </div>
               )}
             </>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };

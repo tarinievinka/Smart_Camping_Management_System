@@ -3,7 +3,11 @@ const paymentService = require('../../services/payment-service/paymentService');
 // Create a new payment
 exports.createPayment = async (req, res) => {
   try {
-    const payment = await paymentService.createPayment(req.body);
+    const paymentData = { ...req.body };
+    if (req.file) {
+      paymentData.receiptUrl = `/uploads/${req.file.filename}`;
+    }
+    const payment = await paymentService.createPayment(paymentData);
     res.status(201).json(payment);
   } catch (err) {
     res.status(400).json({ error: err.message });
