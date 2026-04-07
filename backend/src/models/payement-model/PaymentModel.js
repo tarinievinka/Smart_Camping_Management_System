@@ -26,8 +26,12 @@ const paymentSchema = new mongoose.Schema({
 
   paymentMethod: {
     type: String,
-    enum: ["card", "upi", "cash", "online"],
+    enum: ["card", "upi", "cash", "online", "bank-deposit"],
     required: true
+  },
+
+  receiptUrl: {
+    type: String
   },
 
   transactionId: {

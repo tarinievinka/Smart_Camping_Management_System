@@ -1,32 +1,20 @@
 import React from 'react';
 import { Lock } from 'lucide-react';
 
-const PaymentSummary = () => {
+const PaymentSummary = ({ amount, title, image, stay, dates, guests }) => {
   const orderData = {
-    title: 'Wilderness Retreat - Site #42',
-    image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=150&h=150&fit=crop',
-    stay: '3 Nights Stay',
-    dates: 'Oct 12 - Oct 15, 2023',
-    guests: '2 Adults, 1 Child',
+    title: title || 'Wilderness Retreat - Site #42',
+    image: image || 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=150&h=150&fit=crop',
+    stay: stay || '3 Nights Stay',
+    dates: dates || 'Oct 12 - Oct 15, 2023',
+    guests: guests || '2 Adults, 1 Child',
     costs: [
       {
-        label: 'Campsite (Site #42)',
-        amount: 67500.00
-      },
-      {
-        label: 'Equipment Rental (Grill, Tent)',
-        amount: 13500.00
-      },
-      {
-        label: 'Service Fee',
-        amount: 3750.00
-      },
-      {
-        label: 'Taxes',
-        amount: 6390.00
+        label: 'Total Due',
+        amount: amount || 91140.00
       }
     ],
-    total: 91140.00
+    total: amount || 91140.00
   };
 
   return (
@@ -73,10 +61,8 @@ const PaymentSummary = () => {
         </div>
 
         {/* Complete Payment Button */}
-        <button className="w-full bg-[#166534]/90 hover:bg-[#166534] text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition mb-4">
-          <Lock className="w-5 h-5" />
-          Complete Payment
-        </button>
+        {/* Button removed as form submission is handled in the main left panel */}
+        <div className="mb-4"></div>
 
         {/* Terms Footer */}
         <p className="text-xs text-center text-gray-500">
