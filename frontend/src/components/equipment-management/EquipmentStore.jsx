@@ -9,7 +9,7 @@ const CATEGORIES = ['All Gear', 'Tents', 'Sleeping Bags', 'Backpacks', 'Cooking 
 
 const CATEGORY_ICONS = {
   'All Gear':      '⛺',
-  'Tents':         '🏕️',
+  'Tent':         '🏕️',
   'Sleeping Bags': '🛏️',
   'Backpacks':     '🎒',
   'Cooking Gear':  '🍳',
