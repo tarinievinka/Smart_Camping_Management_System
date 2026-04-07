@@ -19,13 +19,11 @@ const Header = () => {
     const [profileOpen, setProfileOpen] = useState(false);
     const profileRef = useRef(null);
 
-    // Auto-detect active link from current URL
     const isActive = (href) => {
         if (href === "/") return location.pathname === "/";
         return location.pathname.startsWith(href);
     };
 
-    // Close profile dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -77,7 +75,7 @@ const Header = () => {
                         ))}
                     </div>
 
-                    {/* Right Side — Search + CTA + Profile */}
+                    {/* Right Side */}
                     <div className="hidden md:flex items-center gap-4 ml-auto pl-8">
 
                         {/* Search Icon */}
@@ -90,8 +88,8 @@ const Header = () => {
                             </svg>
                         </button>
 
-                        {/* Auth Buttons */}
-                        {!user ? (
+                        {/* Auth Buttons (logged out) */}
+                        {!user && (
                             <div className="flex items-center gap-3 mr-2">
                                 <Link
                                     to="/login"
@@ -106,60 +104,84 @@ const Header = () => {
                                     Sign Up
                                 </Link>
                             </div>
-                        ) : (
-                            /* Profile Dropdown (Logged In) */
-                            <div className="relative" ref={profileRef}>
-                                <button
-                                    onClick={() => setProfileOpen(!profileOpen)}
-                                    className="flex items-center gap-1.5 p-1.5 rounded-full border-2 border-gray-200 hover:border-[#166534]/40 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#166534]/50"
-                                    aria-label="Profile menu"
-                                >
-                                    <div className="w-8 h-8 rounded-full bg-[#166534] flex items-center justify-center">
-                                        <User className="w-4 h-4 text-white" />
-                                    </div>
-                                    <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`} />
-                                </button>
-
-                                {/* Dropdown */}
-                                {profileOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
-                                        <div className="px-4 py-2.5 border-b border-gray-100">
-                                            <p className="text-sm font-semibold text-gray-900">{user.username || 'Account'}</p>
-                                            <p className="text-xs text-gray-500 truncate">{user.email || 'user@smartcamping.com'}</p>
-                                        </div>
-
-                                        <button
-                                            onClick={() => { setProfileOpen(false); navigate("/profile"); }}
-                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
-                                        >
-                                            <User className="w-4 h-4" />
-                                            Profile
-                                        </button>
-
-                                        <button
-                                            onClick={() => { setProfileOpen(false); navigate("/my-bookings"); }}
-                                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${isActive("/my-bookings")
-                                                    ? "text-[#166534] bg-[#166534]/10 font-semibold"
-                                                    : "text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534]"
-                                                }`}
-                                        >
-                                            <CreditCard className="w-4 h-4" />
-                                            Reservations
-                                        </button>
-
-                                        <div className="border-t border-gray-100 mt-1 pt-1">
-                                            <button
-                                                onClick={handleLogout}
-                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors duration-150"
-                                            >
-                                                <LogOut className="w-4 h-4" />
-                                                Sign Out
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
                         )}
+
+                        {/* Profile Dropdown */}
+                        <div className="relative" ref={profileRef}>
+                            <button
+                                onClick={() => setProfileOpen(!profileOpen)}
+                                className="flex items-center gap-1.5 p-1.5 rounded-full border-2 border-gray-200 hover:border-[#166534]/40 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#166534]/50"
+                                aria-label="Profile menu"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-[#166534] flex items-center justify-center">
+                                    <User className="w-4 h-4 text-white" />
+                                </div>
+                                <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`} />
+                            </button>
+
+                            {profileOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
+                                    {user ? (
+                                        <>
+                                            <div className="px-4 py-2.5 border-b border-gray-100">
+                                                <p className="text-sm font-semibold text-gray-900">{user.username || 'My Account'}</p>
+                                                <p className="text-xs text-gray-500 truncate">{user.email || 'user@smartcamping.com'}</p>
+                                            </div>
+
+                                            <button
+                                                onClick={() => { setProfileOpen(false); navigate("/profile"); }}
+                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
+                                            >
+                                                <User className="w-4 h-4" />
+                                                Profile
+                                            </button>
+
+                                            <button
+                                                onClick={() => { setProfileOpen(false); navigate("/my-bookings"); }}
+                                                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${isActive("/my-bookings")
+                                                        ? "text-[#166534] bg-[#166534]/10 font-semibold"
+                                                        : "text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534]"
+                                                    }`}
+                                            >
+                                                <CreditCard className="w-4 h-4" />
+                                                Payment
+                                            </button>
+
+                                            <div className="border-t border-gray-100 mt-1 pt-1">
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors duration-150"
+                                                >
+                                                    <LogOut className="w-4 h-4" />
+                                                    Sign Out
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="px-4 py-2.5 border-b border-gray-100">
+                                                <p className="text-sm font-semibold text-gray-900">My Account</p>
+                                                <p className="text-xs text-gray-500">user@smartcamping.com</p>
+                                            </div>
+                                            <button
+                                                onClick={() => { setProfileOpen(false); navigate("/login"); }}
+                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
+                                            >
+                                                <User className="w-4 h-4" />
+                                                Sign In
+                                            </button>
+                                            <button
+                                                onClick={() => { setProfileOpen(false); navigate("/register"); }}
+                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
+                                            >
+                                                <CreditCard className="w-4 h-4" />
+                                                Sign Up
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Mobile Hamburger */}
@@ -239,7 +261,7 @@ const Header = () => {
                                         }`}
                                 >
                                     <CreditCard className="w-4 h-4" />
-                                    Reservations
+                                    Payment
                                 </Link>
                                 <button
                                     onClick={handleLogout}
