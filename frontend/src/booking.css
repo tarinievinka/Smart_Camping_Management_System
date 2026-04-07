@@ -27,7 +27,7 @@
 }
 
 .avail-dot.booked { background: #e74c3c; }
-.avail-dot.available { background: #27ae60; }
+.avail-dot.available { background: #166534; }
 .avail-dot.past { background: #ccc; }
 
 .avail-months-row {
@@ -81,7 +81,7 @@
 
 .avail-day.available {
   background: #f0faf4;
-  color: #27ae60;
+  color: #166534;
 }
 
 .avail-day.booked {
@@ -129,7 +129,7 @@
 .booking-card-img {
   width: 180px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #27ae60, #1e9952);
+  background: linear-gradient(135deg, #166534, #1e9952);
   display: flex;
   align-items: center;
   justify-content: center;

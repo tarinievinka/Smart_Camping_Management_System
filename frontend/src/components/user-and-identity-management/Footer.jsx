@@ -27,7 +27,7 @@ const Footer = () => {
                                     <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
                                 </svg>
                             </div>
-                            <span className="text-xl font-bold text-gray-900 uppercase">CAMPTRAIL 360</span>
+                            <span className="text-xl font-bold text-gray-900">CAMPTRAIL 360</span>
                         </div>
                         <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
                             A modern solution for outdoor management. Built with passion for the Great Outdoors.
@@ -44,7 +44,7 @@ const Footer = () => {
                         </div>
                     </div>
 
-                    {/* Column 2: Project Details */}
+                    {/* Column 2: Contact Us */}
                     <div>
                         <h3 className="text-gray-900 font-bold mb-6">Contact us</h3>
                         <ul className="space-y-4 text-sm">
@@ -84,7 +84,7 @@ const Footer = () => {
                             <input
                                 type="email"
                                 placeholder="Email"
-                                className="w-full bg-slate-100/50 border-none rounded-xl py-3 pl-4 pr-12 text-sm focus:ring-2 focus:ring-green-600 transition-all outline-none"
+                                className="w-full bg-slate-100/50 border-none rounded-xl py-3 pl-4 pr-12 text-sm focus:ring-2 focus:ring-green-500 transition-all outline-none"
                             />
                             <button className="absolute right-1 top-1 bottom-1 bg-green-600 hover:bg-green-700 text-white px-3 rounded-lg flex items-center justify-center transition-colors">
                                 <Send size={18} />
@@ -96,7 +96,7 @@ const Footer = () => {
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-gray-100 text-center">
                     <p className="text-gray-400 text-sm">
-                        © 2024 CAMPTRAIL 360. All rights reserved.
+                        © 2024 Smart Camping Management System. All rights reserved.
                     </p>
                 </div>
             </div>
