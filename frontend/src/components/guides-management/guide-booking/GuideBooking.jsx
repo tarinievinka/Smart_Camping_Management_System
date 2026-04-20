@@ -15,7 +15,7 @@ function rememberNotifyInterest(guideId) {
   if (!guideId) return;
   try {
     const raw = localStorage.getItem(NOTIFY_STORAGE_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
+    const arr = raw ? JSON.parse(raw) : [];  
     const list = Array.isArray(arr) ? arr : [];
     const id = String(guideId);
     if (!list.includes(id)) {
