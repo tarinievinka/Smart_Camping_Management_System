@@ -108,10 +108,17 @@ const BookingSummary = () => {
         setProcessing(false);
         return;
       }
-      alert(
-        `✅ Booking confirmed!\n\n${activeItems.length} item(s) booked.\nTotal: Rs ${parseFloat(totalAmount).toLocaleString()}\n\nStock has been updated in the system.\nConnecting to payment...`
-      );
-      // navigate('/payment', { state: { items: activeItems, total: totalAmount } });
+      navigate('/payment-checkout', { 
+        state: { 
+          amount: parseFloat(totalAmount),
+          bookingType: 'EquipmentBooking',
+          title: 'Equipment Booking',
+          dates: `${pickupDate} to ${returnDate}`,
+          stay: activeItems.some(i => i.mode === 'rent') ? `${nights} Night${nights !== 1 ? 's' : ''} / ${days} Day${days !== 1 ? 's' : ''}` : 'Purchase',
+          guests: `${activeItems.length} Item${activeItems.length !== 1 ? 's' : ''}`,
+          image: activeItems.length > 0 && activeItems[0].imageUrl ? `${API_BASE}${activeItems[0].imageUrl}` : 'https://images.unsplash.com/photo-1504280741562-60234eb0fded?w=150&h=150&fit=crop'
+        } 
+      });
     } catch {
       alert('Failed to process booking. Please try again.');
     } finally {
@@ -341,7 +348,7 @@ const BookingSummary = () => {
               onMouseEnter={e => { if (activeItems.length > 0 && !processing) e.target.style.background = '#15803d'; }}
               onMouseLeave={e => { if (activeItems.length > 0 && !processing) e.target.style.background = '#16a34a'; }}
             >
-              {processing ? '⏳ Processing...' : '🔒 Proceed to Secure Payment'}
+              {processing ? '⏳ Processing...' : 'Pay Now'}
             </button>
 
             <p style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center', margin: 0 }}>
