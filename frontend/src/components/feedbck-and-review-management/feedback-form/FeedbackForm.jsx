@@ -3,18 +3,46 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon } from "lucide-react";
 
 const starLabels = ["Terrible", "Bad", "Okay", "Good", "Very Good"];
 
+const getStoredUser = () => {
+    try {
+        const rawUser = localStorage.getItem("userInfo") || localStorage.getItem("user");
+        return rawUser ? JSON.parse(rawUser) : null;
+    } catch (error) {
+        console.warn("Unable to parse stored user", error);
+        return null;
+    }
+};
+
+const getDisplayName = (candidateUser) => {
+    if (!candidateUser) return "";
+    return (
+        candidateUser.name ||
+        candidateUser.fullName ||
+        candidateUser.username ||
+        candidateUser.userName ||
+        ""
+    );
+};
+
 const FeedbackForm = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { user } = useAuth();
+    const resolvedUser = user || getStoredUser();
     const [selectedReview, setSelectedReview] = useState(location.state?.targetType || "guide");
-    const [userName, setUserName] = useState("Nethmi User");
+    const [userName, setUserName] = useState(getDisplayName(resolvedUser));
     const [locationName, setLocationName] = useState(location.state?.targetName || "");
     const [bookedGuides, setBookedGuides] = useState([]);
     const isEditingSpecificGuide = !!location.state?.targetName && location.state?.targetType === "guide";
+
+    useEffect(() => {
+        setUserName(getDisplayName(resolvedUser));
+    }, [user]);
 
     useEffect(() => {
         const fetchBookedGuides = async () => {
@@ -114,7 +142,7 @@ const FeedbackForm = () => {
         setErrors({});
 
         const formData = new FormData();
-        formData.append("userId", "507f1f77bcf86cd799439011");
+        formData.append("userId", resolvedUser?._id || resolvedUser?.id || "507f1f77bcf86cd799439011");
         formData.append("userName", userName.trim());
         formData.append("targetType", selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1));
         formData.append("targetId", "507f1f77bcf86cd799439012");
@@ -140,7 +168,7 @@ const FeedbackForm = () => {
 
             // Reset form
             setSelectedReview("");
-            setUserName("");
+            setUserName(getDisplayName(resolvedUser) || "Nethmi User");
             setLocationName("");
             setSessionStartDate("");
             setSessionEndDate("");
@@ -399,7 +427,7 @@ const FeedbackForm = () => {
                             type="button"
                             onClick={() => {
                                 setSelectedReview("");
-                                setUserName("");
+                                setUserName(getDisplayName(resolvedUser));
                                 setLocationName("");
                                 // Reset to state if exists instead of blindly clearing if we want, but clear form means clear
                                 if (location.state) {
