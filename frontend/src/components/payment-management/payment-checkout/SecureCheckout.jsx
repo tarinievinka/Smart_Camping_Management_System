@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import PaymentSummary from './payment-summary/PaymentSummary';
 import SimplePaymentForm from './simple-payment/SimplePaymentForm';
 import { createPaymentWithReceipt } from '../../../services/paymentApi';
+import GooglePayButton from '@google-pay/button-react';
 
 const SecureCheckout = () => {
   const location = useLocation();
@@ -197,9 +198,56 @@ const SecureCheckout = () => {
               <div className="bg-white rounded-lg p-6 border border-gray-100">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Google Pay</h2>
                 <p className="text-gray-600 mb-4">You will be redirected to Google Pay to complete your payment securely.</p>
-                <button className="w-full bg-black hover:bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg transition">
-                  Continue with Google Pay
-                </button>
+                <div className="w-full flex justify-center mt-4">
+                  <GooglePayButton
+                    environment="TEST"
+                    paymentRequest={{
+                      apiVersion: 2,
+                      apiVersionMinor: 0,
+                      allowedPaymentMethods: [
+                        {
+                          type: 'CARD',
+                          parameters: {
+                            allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+                            allowedCardNetworks: ['MASTERCARD', 'VISA'],
+                          },
+                          tokenizationSpecification: {
+                            type: 'PAYMENT_GATEWAY',
+                            parameters: {
+                              gateway: 'example',
+                              gatewayMerchantId: 'exampleGatewayMerchantId',
+                            },
+                          },
+                        },
+                      ],
+                      merchantInfo: {
+                        merchantId: '12345678901234567890',
+                        merchantName: 'Smart Camping Management',
+                      },
+                      transactionInfo: {
+                        totalPriceStatus: 'FINAL',
+                        totalPriceLabel: 'Total',
+                        totalPrice: currentAmount.toString() || '0.00',
+                        currencyCode: 'LKR',
+                        countryCode: 'LK',
+                      },
+                    }}
+                    onLoadPaymentData={paymentRequest => {
+                      console.log('Google Pay successful', paymentRequest);
+                      navigate('/payment-history', { 
+                        state: { 
+                          message: 'Google Pay payment completed successfully!', 
+                          variant: 'success' 
+                        } 
+                      });
+                    }}
+                    onError={error => console.error('Google Pay Error:', error)}
+                    buttonType="buy"
+                    buttonColor="black"
+                    buttonSizeMode="fill"
+                    style={{ width: '100%', height: '48px' }}
+                  />
+                </div>
               </div>
             )}
           </div>
