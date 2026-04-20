@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const API_BASE  = process.env.REACT_APP_API_URL;
+const API_BASE = process.env.REACT_APP_API_URL;
 const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
 
 // ── No CATEGORY_IMAGES — only admin-uploaded photos shown ──
@@ -15,9 +15,9 @@ const NoPhoto = ({ size = '72px' }) => (
   }}>
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
       stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <circle cx="8.5" cy="8.5" r="1.5"/>
-      <polyline points="21 15 16 10 5 21"/>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
     </svg>
   </div>
 );
@@ -27,7 +27,7 @@ const BookingSummary = () => {
   const navigate = useNavigate();
   const { items } = location.state || {};
 
-  const today         = new Date();
+  const today = new Date();
   const returnDefault = new Date(today);
   returnDefault.setDate(today.getDate() + 4);
   const fmt = (d) => d.toISOString().split('T')[0];
@@ -57,16 +57,18 @@ const BookingSummary = () => {
     );
   }
 
-  const ms     = new Date(returnDate) - new Date(pickupDate);
-  const days   = Math.max(1, Math.ceil(ms / (1000 * 60 * 60 * 24)));
+  const ms = new Date(returnDate) - new Date(pickupDate);
+  const days = Math.max(1, Math.ceil(ms / (1000 * 60 * 60 * 24)));
   const nights = Math.max(0, days - 1);
 
   const key = (item) => item._id + item.mode;
 
   const updateQty = (item, delta) => {
     setItemStates(prev => {
-      const k      = key(item);
-      const newQty = Math.min(item.stockQuantity, Math.max(1, prev[k].quantity + delta));
+      const k = key(item);
+      const currentQty = prev[k]?.quantity || 1;
+      const maxStock = item.stockQuantity || 999; // Fallback if stockQuantity is missing
+      const newQty = Math.min(maxStock, Math.max(1, currentQty + delta));
       return { ...prev, [k]: { ...prev[k], quantity: newQty } };
     });
   };
@@ -85,39 +87,29 @@ const BookingSummary = () => {
     return sum + item.rentalPrice * state.quantity * days;
   }, 0);
 
-  const serviceFee  = parseFloat((itemsTotal * 0.05).toFixed(2));
+  const serviceFee = parseFloat((itemsTotal * 0.05).toFixed(2));
   const totalAmount = (itemsTotal + serviceFee).toFixed(2);
 
   const handleProceed = async () => {
     if (activeItems.length === 0) return;
     setProcessing(true);
     try {
-      const results = await Promise.all(
-        activeItems.map(item => {
-          const state = itemStates[key(item)] || { quantity: 1 };
-          return fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ quantity: state.quantity, mode: item.mode }),
-          }).then(res => res.json());
-        })
-      );
-      const failed = results.filter(r => r.error);
-      if (failed.length > 0) {
-        alert(`Some items could not be processed: ${failed.map(f => f.error).join(', ')}`);
-        setProcessing(false);
-        return;
-      }
-      navigate('/payment-checkout', { 
-        state: { 
+      // Stock reduction will now be handled ONLY after successful payment confirmation
+      navigate('/payment-checkout', {
+        state: {
           amount: parseFloat(totalAmount),
           bookingType: 'EquipmentBooking',
           title: 'Equipment Booking',
           dates: `${pickupDate} to ${returnDate}`,
           stay: activeItems.some(i => i.mode === 'rent') ? `${nights} Night${nights !== 1 ? 's' : ''} / ${days} Day${days !== 1 ? 's' : ''}` : 'Purchase',
           guests: `${activeItems.length} Item${activeItems.length !== 1 ? 's' : ''}`,
-          image: activeItems.length > 0 && activeItems[0].imageUrl ? `${API_BASE}${activeItems[0].imageUrl}` : 'https://images.unsplash.com/photo-1504280741562-60234eb0fded?w=150&h=150&fit=crop'
-        } 
+          image: activeItems.length > 0 && activeItems[0].imageUrl ? `${API_BASE}${activeItems[0].imageUrl}` : 'https://images.unsplash.com/photo-1504280741562-60234eb0fded?w=150&h=150&fit=crop',
+          equipmentItems: activeItems.map(item => ({
+            _id: item._id,
+            quantity: (itemStates[key(item)] || { quantity: 1 }).quantity,
+            mode: item.mode
+          }))
+        }
       });
     } catch {
       alert('Failed to process booking. Please try again.');
@@ -195,9 +187,9 @@ const BookingSummary = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {items.map(item => {
-                  const state     = itemStates[key(item)] || { quantity: 1, removed: false };
+                  const state = itemStates[key(item)] || { quantity: 1, removed: false };
                   // ── Only show admin-uploaded photo ──
-                  const imgSrc    = item.imageUrl ? `${API_BASE}${item.imageUrl}` : null;
+                  const imgSrc = item.imageUrl ? `${API_BASE}${item.imageUrl}` : null;
                   const lineTotal = item.mode === 'buy'
                     ? item.salePrice * state.quantity
                     : item.rentalPrice * state.quantity * days;
@@ -236,7 +228,7 @@ const BookingSummary = () => {
                           <span style={{
                             fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '4px',
                             background: item.mode === 'buy' ? '#dbeafe' : '#dcfce7',
-                            color:      item.mode === 'buy' ? '#1d4ed8' : '#15803d',
+                            color: item.mode === 'buy' ? '#1d4ed8' : '#15803d',
                           }}>
                             {item.mode === 'buy' ? '🏷️ PURCHASE' : '🔄 RENTAL'}
                           </span>
@@ -244,21 +236,37 @@ const BookingSummary = () => {
                         <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
                           {item.category} · {item.condition} condition
                         </div>
-                        {item.mode === 'buy' ? (
-                          <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                            Sale price: <strong>Rs {item.salePrice.toLocaleString()}</strong> per unit
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                          <span style={{ fontSize: '12px', color: '#374151' }}>Qty:</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                              onClick={() => updateQty(item, -1)}
+                              style={{
+                                width: '24px', height: '24px', borderRadius: '50%',
+                                border: '1px solid #d1d5db', background: '#fff',
+                                cursor: 'pointer', fontWeight: '700', fontSize: '14px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                              }}
+                            >−</button>
+                            <span style={{ fontWeight: '700', fontSize: '14px', minWidth: '20px', textAlign: 'center' }}>
+                              {state.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQty(item, 1)}
+                              style={{
+                                width: '24px', height: '24px', borderRadius: '50%',
+                                border: '1px solid #d1d5db', background: '#fff',
+                                cursor: 'pointer', fontWeight: '700', fontSize: '14px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                              }}
+                            >+</button>
                           </div>
-                        ) : (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '12px', color: '#374151' }}>Qty:</span>
-                            <button onClick={() => updateQty(item, -1)}
-                              style={{ width: '24px', height: '24px', borderRadius: '50%', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>−</button>
-                            <span style={{ fontWeight: '700', fontSize: '14px', minWidth: '20px', textAlign: 'center' }}>{state.quantity}</span>
-                            <button onClick={() => updateQty(item, 1)}
-                              style={{ width: '24px', height: '24px', borderRadius: '50%', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer', fontWeight: '700', fontSize: '14px' }}>+</button>
-                            <span style={{ fontSize: '12px', color: '#6b7280' }}>Rs {item.rentalPrice}/day</span>
-                          </div>
-                        )}
+                          <span style={{ fontSize: '12px', color: '#6b7280', marginLeft: '4px' }}>
+                            {item.mode === 'buy'
+                              ? `Rs ${item.salePrice.toLocaleString()} each`
+                              : `Rs ${item.rentalPrice.toLocaleString()}/day`}
+                          </span>
+                        </div>
                       </div>
 
                       <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -292,7 +300,7 @@ const BookingSummary = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
               {activeItems.map(item => {
-                const state     = itemStates[key(item)] || { quantity: 1 };
+                const state = itemStates[key(item)] || { quantity: 1 };
                 const lineTotal = item.mode === 'buy'
                   ? item.salePrice * state.quantity
                   : item.rentalPrice * state.quantity * days;
@@ -303,7 +311,7 @@ const BookingSummary = () => {
                       <span style={{
                         fontSize: '10px', fontWeight: '700', padding: '1px 5px', borderRadius: '3px',
                         background: item.mode === 'buy' ? '#dbeafe' : '#dcfce7',
-                        color:      item.mode === 'buy' ? '#1d4ed8' : '#15803d',
+                        color: item.mode === 'buy' ? '#1d4ed8' : '#15803d',
                       }}>
                         {item.mode === 'buy' ? 'buy' : `${days}d`}
                       </span>

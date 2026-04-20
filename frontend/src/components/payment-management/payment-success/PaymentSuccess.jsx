@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
 
 import Footer from '../../../common/footer/Footer';
 
 const PaymentSuccess = () => {
+  useEffect(() => {
+    // Clear equipment cart and favorites on success
+    const user = JSON.parse(localStorage.getItem('user'));
+    const userId = user ? user._id : 'guest';
+    localStorage.removeItem(`equipment_cart_${userId}`);
+    // localStorage.removeItem(`equipment_favorites_${userId}`); // Keep favorites or clear? User said "my cart display empty", so keep favorites.
+  }, []);
+
   return (
     <div>
 
