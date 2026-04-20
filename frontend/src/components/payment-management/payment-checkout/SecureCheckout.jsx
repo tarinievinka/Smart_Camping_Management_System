@@ -9,7 +9,7 @@ import GooglePayButton from '@google-pay/button-react';
 const SecureCheckout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { bookingId, amount, bookingType, title, image, stay, dates, guests } = location.state || {};
+    const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems } = location.state || {};
   
   const currentBookingId = bookingId || '507f1f77bcf86cd799439012';
   const currentAmount = amount || 91140.00;
@@ -141,7 +141,14 @@ const SecureCheckout = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Card Details */}
           <div className="lg:col-span-2">
-            {paymentMethod === 'credit-card' && <SimplePaymentForm amount={currentAmount} bookingId={currentBookingId} bookingType={currentBookingType} />}
+            {paymentMethod === 'credit-card' && (
+              <SimplePaymentForm 
+                amount={currentAmount} 
+                bookingId={currentBookingId} 
+                bookingType={currentBookingType} 
+                equipmentItems={equipmentItems} 
+              />
+            )}
             {paymentMethod === 'bank-deposit' && (
               <div className="bg-white rounded-lg p-6 border border-gray-100">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Bank Deposit Details</h2>
@@ -232,8 +239,27 @@ const SecureCheckout = () => {
                         countryCode: 'LK',
                       },
                     }}
-                    onLoadPaymentData={paymentRequest => {
+                    onLoadPaymentData={async (paymentRequest) => {
                       console.log('Google Pay successful', paymentRequest);
+                      
+                      // Reduce stock for equipment
+                      if (currentBookingType === 'EquipmentBooking' && equipmentItems && equipmentItems.length > 0) {
+                        const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
+                        try {
+                          await Promise.all(
+                            equipmentItems.map(item =>
+                              fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
+                              }).then(res => res.json())
+                            )
+                          );
+                        } catch (err) {
+                          console.error('Stock reduction failed:', err);
+                        }
+                      }
+
                       navigate('/payment-history', { 
                         state: { 
                           message: 'Google Pay payment completed successfully!', 
