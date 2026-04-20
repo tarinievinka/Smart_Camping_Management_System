@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { getCurrentGuideId, isLoggedInAsGuide } from "./guideSession";
+import { useGuideBookingsForGuide } from "./useGuideBookingsForGuide";
 import Sidebar from "./Sidebar";
 
 const backBtnStyle = {
@@ -24,24 +25,21 @@ const GuideSelfEarnings = () => {
   const currentGuideId = getCurrentGuideId();
   const loggedInAsGuide = isLoggedInAsGuide();
 
+  const { loading, normalized, completed: completedBookings } = useGuideBookingsForGuide(
+    loggedInAsGuide ? currentGuideId : null
+  );
+
   const computed = useMemo(() => {
-    const raw = localStorage.getItem("guide_bookings");
-    const parsed = raw ? JSON.parse(raw) : [];
-    const entries = Array.isArray(parsed) ? parsed : [];
-    const mine = currentGuideId
-      ? entries.filter((b) => String(b?.guideId) === String(currentGuideId))
-      : [];
+    const pending = normalized.filter((b) => b.computedStatus === "upcoming").length;
+    const completed = completedBookings.length;
 
-    const pending = mine.filter((b) => b?.status !== "completed").length;
-    const completed = mine.filter((b) => b?.status === "completed").length;
-
-    const earnings = mine.reduce((sum, b) => {
+    const earnings = completedBookings.reduce((sum, b) => {
       const amount = typeof b?.amount === "number" ? b.amount : 0;
       return sum + amount * 0.9;
     }, 0);
 
-    return { pending, completed, earnings, count: mine.length };
-  }, [currentGuideId]);
+    return { pending, completed, earnings, count: normalized.length };
+  }, [normalized, completedBookings]);
 
   const shellStyle = {
     display: "flex",
@@ -71,38 +69,46 @@ const GuideSelfEarnings = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
             <div>
               <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", margin: 0 }}>Earnings</h1>
-              <p style={{ color: "#9ca3af", marginTop: 4 }}>Estimated from bookings (local demo)</p>
+              <p style={{ color: "#9ca3af", marginTop: 4 }}>Based on your actual booking data</p>
             </div>
             <button type="button" onClick={() => navigate("/guides/owndashboard")} style={backBtnStyle}>
               Back to Dashboard <ArrowRight size={18} />
             </button>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24, marginBottom: 32 }}>
-            <div style={statCard}>
-              <div style={{ color: "#6b7280", fontSize: 14 }}>Total Bookings</div>
-              <div style={{ fontSize: 36, fontWeight: 800, marginTop: 8, color: "#111827" }}>{computed.count}</div>
+          {loading ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 12, color: "#6b7280" }}>
+              <Loader2 className="animate-spin" size={20} />
+              <span>Loading earnings data...</span>
             </div>
+          ) : (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24, marginBottom: 32 }}>
+                <div style={statCard}>
+                  <div style={{ color: "#6b7280", fontSize: 14 }}>Total Bookings</div>
+                  <div style={{ fontSize: 36, fontWeight: 800, marginTop: 8, color: "#111827" }}>{computed.count}</div>
+                </div>
 
-            <div style={statCard}>
-              <div style={{ color: "#6b7280", fontSize: 14 }}>Pending</div>
-              <div style={{ fontSize: 36, fontWeight: 800, color: "#eab308", marginTop: 8 }}>{computed.pending}</div>
-            </div>
+                <div style={statCard}>
+                  <div style={{ color: "#6b7280", fontSize: 14 }}>Upcoming / Pending</div>
+                  <div style={{ fontSize: 36, fontWeight: 800, color: "#eab308", marginTop: 8 }}>{computed.pending}</div>
+                </div>
 
-            <div style={statCard}>
-              <div style={{ color: "#6b7280", fontSize: 14 }}>Completed</div>
-              <div style={{ fontSize: 36, fontWeight: 800, marginTop: 8, color: "#111827" }}>{computed.completed}</div>
-            </div>
-          </div>
+                <div style={statCard}>
+                  <div style={{ color: "#6b7280", fontSize: 14 }}>Completed</div>
+                  <div style={{ fontSize: 36, fontWeight: 800, marginTop: 8, color: "#111827" }}>{computed.completed}</div>
+                </div>
+              </div>
 
-          <div style={earningsCard}>
-            <div style={{ fontSize: 16, color: "#6b7280", marginBottom: 8 }}>Your Earnings (est.)</div>
-            <div style={{ fontSize: 48, fontWeight: 800, color: "#16a34a" }}>LKR {computed.earnings.toFixed(2)}</div>
-            <p style={{ marginTop: 16, color: "#9ca3af", fontSize: 14, lineHeight: 1.6 }}>
-              This is calculated using your booking estimate stored in <code>guide_bookings</code> in{" "}
-              <code>localStorage</code>.
-            </p>
-          </div>
+              <div style={earningsCard}>
+                <div style={{ fontSize: 16, color: "#6b7280", marginBottom: 8 }}>Total Earnings</div>
+                <div style={{ fontSize: 48, fontWeight: 800, color: "#16a34a" }}>LKR {computed.earnings.toFixed(2)}</div>
+                <p style={{ marginTop: 16, color: "#9ca3af", fontSize: 14, lineHeight: 1.6 }}>
+                  This is calculated strictly from bookings that have been finalized and completed.
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </main>
     </div>
