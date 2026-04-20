@@ -52,6 +52,13 @@ import GuideSelfReviews from './components/guides-management/guide-self/GuideSel
 // Blogs page
 import Blogs from './components/blogs/Blogs';
 
+// Campsite Management
+import CampingSitesManagement from './components/camping-sites-management/CampingSitesManagement';
+import CampsiteAdminContainer from './components/camping-sites-management/CampsiteAdminContainer';
+import CampsiteOwnerDashboard from './components/camping-sites-management/CampsiteOwnerDashboard';
+
+
+
 function App() {
   return (
     <BrowserRouter>
@@ -104,6 +111,11 @@ function App() {
             <Route path='/guides/owncalendar' element={<GuideSelfCalendar />} />
             <Route path='/guides/ownreviews' element={<GuideSelfReviews />} />
             <Route path='/guides/:id' element={<GuideProfile />} />
+            
+            {/* Campsite Routes */}
+            <Route path="/campsites" element={<CampingSitesManagement />} />
+            <Route path="/campsites-admin" element={<CampsiteAdminContainer />} />
+            <Route path="/owner-profile" element={<CampsiteOwnerDashboard />} />
           </Routes>
         </div>
         <Footer />
