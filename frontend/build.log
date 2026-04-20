@@ -1,0 +1,42 @@
+﻿
+> frontend@0.0.1 build
+> vite build
+
+[36mvite v4.5.14 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 39 modules transformed.
+[32mΓ£ô built in 770ms[39m
+node.exe : [31mCould not resolve 
+"../context/AuthContext" from "src/componen
+ts/user-and-identity-management/Header.jsx"
+[39m
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified 
+   : ([31mCould not ...eader.jsx"[39m:S  
+  tring) [], RemoteException
+    + FullyQualifiedErrorId : NativeComman 
+   dError
+ 
+file: [36mC:/Users/USER/Pictures/smart_cam
+ping_test/frontend/src/components/user-and-
+identity-management/Header.jsx[39m
+[31merror during build:
+RollupError: Could not resolve 
+"../context/AuthContext" from "src/componen
+ts/user-and-identity-management/Header.jsx"
+    at error (file:///C:/Users/USER/Picture
+s/smart_camping_test/frontend/node_modules/
+rollup/dist/es/shared/node-entry.js:2287:30
+)
+    at 
+ModuleLoader.handleInvalidResolvedId (file:
+///C:/Users/USER/Pictures/smart_camping_tes
+t/frontend/node_modules/rollup/dist/es/shar
+ed/node-entry.js:24889:24)
+    at file:///C:/Users/USER/Pictures/smart
+_camping_test/frontend/node_modules/rollup/
+dist/es/shared/node-entry.js:24851:26[39m
