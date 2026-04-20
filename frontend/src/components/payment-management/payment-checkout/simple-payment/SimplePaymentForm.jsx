@@ -4,7 +4,7 @@ import { Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import { createPayment } from '../../../../services/paymentApi';
 import CardDetails from '../card-details/CardDetails';
 
-const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking" }) => {
+const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking", equipmentItems = [] }) => {
   const navigate = useNavigate();
   const [cardType, setCardType] = useState('visa');
   const [cardData, setCardData] = useState({
@@ -66,12 +66,26 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
 
       await createPayment(paymentData);
 
+      // Reduce stock if this is an equipment booking
+      if (bookingType === 'EquipmentBooking' && equipmentItems.length > 0) {
+        const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
+        await Promise.all(
+          equipmentItems.map(item =>
+            fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
+            }).then(res => res.json())
+          )
+        );
+      }
+
       setProcessed(true);
       setLoading(false);
 
       // Redirect after 2 seconds
       setTimeout(() => {
-        navigate('/payment-history', { state: { message: 'Payment Successful! Your booking has been confirmed.', variant: 'success' } });
+        navigate('/payment-success', { state: { equipmentItems } });
       }, 2000);
     } catch (err) {
       console.error('Payment failed:', err);
