@@ -1,13 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
-=======
-import { useAuth } from '../../context/AuthContext';
-import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown } from "lucide-react";
-import axios from "axios";
->>>>>>> 5f97c96b97203d6e8bb230c9f212f2a9c31b625f
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
@@ -276,7 +271,6 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
 // ── Main Store Component ─────────────────────────────────────
 const EquipmentStore = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
 
   // Dynamic Key: 'equipment_cart_guest' or 'equipment_cart_USERID'
@@ -287,27 +281,13 @@ const EquipmentStore = () => {
   const [error, setError]                       = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All Gear');
   const [searchQuery, setSearchQuery]           = useState('');
-<<<<<<< HEAD
   const [showFavorites, setShowFavorites]       = useState(false);
-=======
-  const [cart, setCart]                         = useState(() => {
-    try {
-      const stored = localStorage.getItem(`equipment_cart_${user?._id || 'guest'}`);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
->>>>>>> 5f97c96b97203d6e8bb230c9f212f2a9c31b625f
   const [displayCount, setDisplayCount]         = useState(8);
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
 
-  // Get current user ID for specific cart/favorites
-  const user = JSON.parse(localStorage.getItem('user'));
-  const userId = user ? user._id : 'guest';
-  const cartKey = `equipment_cart_${userId}`;
-  const favKey = `equipment_favorites_${userId}`;
+  // Storage Keys
+  const favKey = React.useMemo(() => `equipment_favorites_${user?._id || 'guest'}`, [user?._id]);
 
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem(cartKey);
@@ -319,6 +299,7 @@ const EquipmentStore = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Keep storage in sync
   useEffect(() => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, cartKey]);
@@ -351,29 +332,33 @@ const EquipmentStore = () => {
     }
   }, [user?._id]);
 
-  // 2. Sync active cart with its specific localStorage key
-  useEffect(() => {
-    try {
-      localStorage.setItem(cartKey, JSON.stringify(cart));
-    } catch (err) {
-      console.error("Failed to save cart:", err);
-    }
-  }, [cart, cartKey]);
-
   useEffect(() => {
     fetch(`${API}/display`)
       .then(res => res.json())
       .then(data => { setEquipment(data); setLoading(false); })
-      .catch(() => { setError('Failed to load equipment.'); setLoading(false); });
+      .catch(err => { 
+        console.error("Fetch failed:", err);
+        setError("Failed to load equipment. Please try again later.");
+        setLoading(false);
+      });
   }, []);
 
-  const addToCart      = (item)     => setCart(prev => [...prev, item]);
-  const removeFromCart = (id, mode) => setCart(prev => prev.filter(c => !(c._id === id && c.mode === mode)));
+  const addToCart = (product) => {
+    setCart(prev => {
+      if (prev.some(i => i._id === product._id && i.mode === product.mode)) return prev;
+      return [...prev, product];
+    });
+  };
+
+  const removeFromCart = (id, mode) => {
+    setCart(prev => prev.filter(i => !(i._id === id && i.mode === mode)));
+  };
 
   const onToggleFavorite = (id) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
-    );
+    setFavorites(prev => {
+      if (prev.includes(id)) return prev.filter(i => i !== id);
+      return [...prev, id];
+    });
   };
 
   const filtered = useMemo(() => {
