@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Star } from "lucide-react";
-import EquipmentDetail from './EquipmentDetail';
-=======
 import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
 import axios from "axios";
->>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
@@ -310,9 +305,6 @@ const EquipmentStore = () => {
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
-<<<<<<< HEAD
-=======
-
   // 1. Migration Logic: If guest cart has items and user just logged in, move them.
   useEffect(() => {
     if (user?._id) {
@@ -336,7 +328,6 @@ const EquipmentStore = () => {
       }
     }
   }, [user?._id]);
->>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
 
   useEffect(() => {
     fetch(`${API}/display`)
@@ -349,15 +340,6 @@ const EquipmentStore = () => {
       });
   }, []);
 
-<<<<<<< HEAD
-  const addToCart      = (item)     => setCart(prev => [...prev, item]);
-  const removeFromCart = (id, mode) => setCart(prev => prev.filter(c => !(c._id === id && c.mode === mode)));
-
-  const onToggleFavorite = (id) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
-    );
-=======
   const addToCart = (product) => {
     setCart(prev => {
       if (prev.some(i => i._id === product._id && i.mode === product.mode)) return prev;
@@ -374,7 +356,6 @@ const EquipmentStore = () => {
       if (prev.includes(id)) return prev.filter(i => i !== id);
       return [...prev, id];
     });
->>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
   };
 
   const filtered = useMemo(() => {
