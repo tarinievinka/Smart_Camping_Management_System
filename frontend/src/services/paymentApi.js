@@ -54,6 +54,24 @@ export const createPayment = async (paymentData) => {
 };
 
 /**
+ * Create new payment with receipt file (multipart/form-data)
+ * @param {FormData} formData
+ */
+export const createPaymentWithReceipt = async (formData) => {
+  try {
+    const response = await apiClient.post('/payment/add', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating payment with receipt:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+/**
  * Update payment by ID
  * @param {string} id - Payment ID
  * @param {Object} updateData - Updated payment data

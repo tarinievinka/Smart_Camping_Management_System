@@ -1,32 +1,20 @@
 import React from 'react';
 import { Lock } from 'lucide-react';
 
-const PaymentSummary = () => {
+const PaymentSummary = ({ amount, title, image, stay, dates, guests }) => {
   const orderData = {
-    title: 'Wilderness Retreat - Site #42',
-    image: 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=150&h=150&fit=crop',
-    stay: '3 Nights Stay',
-    dates: 'Oct 12 - Oct 15, 2023',
-    guests: '2 Adults, 1 Child',
+    title: title || 'Wilderness Retreat - Site #42',
+    image: image || 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=150&h=150&fit=crop',
+    stay: stay || '3 Nights Stay',
+    dates: dates || 'Oct 12 - Oct 15, 2023',
+    guests: guests || '2 Adults, 1 Child',
     costs: [
       {
-        label: 'Campsite (Site #42)',
-        amount: 225.00
-      },
-      {
-        label: 'Equipment Rental (Grill, Tent)',
-        amount: 45.00
-      },
-      {
-        label: 'Service Fee',
-        amount: 12.50
-      },
-      {
-        label: 'Taxes',
-        amount: 21.30
+        label: 'Total Due',
+        amount: amount || 91140.00
       }
     ],
-    total: 303.80
+    total: amount || 91140.00
   };
 
   return (
@@ -58,7 +46,7 @@ const PaymentSummary = () => {
           {orderData.costs.map((cost, index) => (
             <div key={index} className="flex justify-between items-center">
               <span className="text-gray-700">{cost.label}</span>
-              <span className="font-semibold text-gray-900">${cost.amount.toFixed(2)}</span>
+              <span className="font-semibold text-gray-900">LKR {cost.amount.toFixed(2)}</span>
             </div>
           ))}
         </div>
@@ -67,16 +55,14 @@ const PaymentSummary = () => {
         <div className="mb-6">
           <div className="flex justify-between items-baseline mb-1">
             <span className="font-bold text-gray-900">Total Amount</span>
-            <span className="text-3xl font-bold text-gray-900">${orderData.total.toFixed(2)}</span>
+            <span className="text-3xl font-bold text-gray-900">LKR {orderData.total.toFixed(2)}</span>
           </div>
-          <p className="text-xs text-gray-500 uppercase tracking-wide">All prices in usd</p>
+          <p className="text-xs text-gray-500 uppercase tracking-wide">All prices in lkr</p>
         </div>
 
         {/* Complete Payment Button */}
-        <button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition mb-4">
-          <Lock className="w-5 h-5" />
-          Complete Payment
-        </button>
+        {/* Button removed as form submission is handled in the main left panel */}
+        <div className="mb-4"></div>
 
         {/* Terms Footer */}
         <p className="text-xs text-center text-gray-500">

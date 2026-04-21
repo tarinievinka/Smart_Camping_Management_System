@@ -1,25 +1,28 @@
 require('dotenv').config(); // Load variables from .env
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const connectDB = require('./src/config/db');
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
 const feedbackRoute = require('./src/routes/feedback-route/feedbackRoute');
-// const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
+const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
+const notifyRoute = require('./src/routes/Notify-route/NotifyRoute'); 
+const userRoute = require('./src/routes/user-routes/userRoutes');
+const guideRoute = require("./src/routes/guide-routes/guideRoute");
+const guideBookingRoute = require("./src/routes/guide-booking-routes/guideBookingRoute");
+const campsiteRoute = require('./src/routes/campsite-route/campsiteRoutes');
 
-// Use the port from .env, or fallback to 5000 if not found
 const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: true
 }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  
 
-// Error handling for JSON parse errors
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return res.status(400).json({ error: 'Invalid JSON: ' + err.message });
@@ -34,13 +37,25 @@ app.get('/', (req, res) => {
 
 app.use('/api/payment', paymentRoute);
 app.use('/api/feedback', feedbackRoute);
-// app.use('/api/equipment', equipmentRouter);
-
+app.use('/api/equipment', equipmentRouter);
+app.use('/api/notify', notifyRoute); 
+app.use('/api', userRoute);
+app.use('/api/guides', guideRoute);
+app.use('/api/guide-bookings', guideBookingRoute);
+app.use('/api/campsites', campsiteRoute);
 const start = async () => {
   await connectDB();
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
   });
-};
 
+  server.on('error', (err) => {
+    if (err && err.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Free the port or set a different PORT in .env`);
+      process.exit(1);
+    }
+    console.error('Server error:', err);
+    process.exit(1);
+  });
+};
 start();

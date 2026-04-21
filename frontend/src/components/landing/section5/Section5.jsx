@@ -1,4 +1,8 @@
 import React from "react";
+<<<<<<< HEAD
+=======
+import { useNavigate } from "react-router-dom";
+>>>>>>> fb3d5a2a59dcfa9a5f5b12c7909d8f2ca27df1a2
 import { Star, ShieldCheck, ChevronRight } from "lucide-react";
 
 /**
@@ -6,6 +10,10 @@ import { Star, ShieldCheck, ChevronRight } from "lucide-react";
  * Features value propositions for guides and a stylized image gallery.
  */
 const Section5 = () => {
+<<<<<<< HEAD
+=======
+    const navigate = useNavigate();
+>>>>>>> fb3d5a2a59dcfa9a5f5b12c7909d8f2ca27df1a2
     return (
         <section className="py-24 bg-white overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,7 +54,13 @@ const Section5 = () => {
                             </div>
                         </div>
 
+<<<<<<< HEAD
                         <button className="inline-flex items-center justify-center px-10 py-4 bg-green-600 hover:bg-green-700 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 text-lg group">
+=======
+                        <button 
+                            onClick={() => navigate('/guides')}
+                            className="inline-flex items-center justify-center px-10 py-4 bg-green-600 hover:bg-green-700 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 text-lg group">
+>>>>>>> fb3d5a2a59dcfa9a5f5b12c7909d8f2ca27df1a2
                             Meet Our Guides
                             <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                         </button>

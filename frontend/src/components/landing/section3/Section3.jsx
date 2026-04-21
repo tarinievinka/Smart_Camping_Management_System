@@ -113,7 +113,7 @@ const Section3 = () => {
                                 {/* Footer / Price & CTA */}
                                 <div className="mt-auto flex items-center justify-between">
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-2xl font-black text-green-700">${site.price}</span>
+                                        <span className="text-2xl font-black text-green-700">LKR {site.price}</span>
                                         <span className="text-gray-400 text-sm font-medium">/night</span>
                                     </div>
                                     <button className="px-6 py-2.5 bg-green-100 hover:bg-green-200 text-green-800 font-bold rounded-xl transition-colors">

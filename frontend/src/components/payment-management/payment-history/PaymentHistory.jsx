@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from '../../../context/ToastContext';
 import HistoryCards from './history-card/HistoryCards';
 import HistoryTable from './history-table/HistoryTable';
 import PaymentMethod from './payment-method/PaymentMethod';
 import RecentInvoices from './recent-invoices/RecentInvoices';
-import Navbar from '../../../common/navbar/Navbar';
-import Footer from '../../../common/footer/Footer';
+
 import { getAllPayments } from '../../../services/paymentApi';
 
 const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchPayments();
   }, []);
+
+  useEffect(() => {
+    if (location.state?.message) {
+      showToast(location.state.message, location.state.variant || 'success');
+      // Clear the message state so it doesn't pop up again on generic refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, showToast, navigate]);
 
   const fetchPayments = async () => {
     try {
@@ -23,7 +35,7 @@ const PaymentHistory = () => {
       console.log('Backend payments data received:', data);
 
       // Normalize backend data to match frontend expectations
-      const normalizedData = (data || []).map(payment => {
+      let normalizedData = (data || []).map(payment => {
         // Map backend 'success' to frontend 'completed'
         let status = payment.paymentStatus || 'pending';
         if (status === 'success') status = 'completed';
@@ -40,7 +52,27 @@ const PaymentHistory = () => {
         };
       });
 
-      console.log('Normalized payments data:', normalizedData);
+      // Filter to only show payments for the logged-in user
+      const storedUser = localStorage.getItem('user');
+      const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+      
+      if (parsedUser) {
+        const userEmail = parsedUser.email?.toLowerCase();
+        const userId = parsedUser._id || parsedUser.id || parsedUser.userId;
+        
+        normalizedData = normalizedData.filter(payment => {
+          // Check standard fields where email or user ID might be stored
+          const paymentEmail = payment.email?.toLowerCase() || payment.userEmail?.toLowerCase() || payment.billingDetails?.email?.toLowerCase();
+          const pUserId = payment.userId || payment.user?.id || payment.user?._id || payment.user || payment.clientId;
+          
+          return (userEmail && paymentEmail === userEmail) || (userId && pUserId === userId);
+        });
+      } else {
+        // No user logged in, so show no history
+        normalizedData = [];
+      }
+
+      console.log('Normalized and filtered payments data:', normalizedData);
       setPayments(normalizedData);
       setError(null);
     } catch (err) {
@@ -53,7 +85,7 @@ const PaymentHistory = () => {
   };
   return (
     <div>
-      <Navbar />
+
       <div className="min-h-screen bg-gray-50">
         {/* Main Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -100,7 +132,6 @@ const PaymentHistory = () => {
           )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

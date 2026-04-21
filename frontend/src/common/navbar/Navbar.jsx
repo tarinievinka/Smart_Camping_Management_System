@@ -5,9 +5,9 @@ import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
 const navLinks = [
     { label: "Home", href: "/" },
     { label: "Campsites", href: "/campsites" },
-    { label: "Equipment", href: "/equipment" },
+    { label: "Equipment", href: "/equipment-store" },
     { label: "Guides", href: "/guides" },
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Blogs", href: "/blogs" },
 ];
 
 const Navbar = () => {
@@ -34,32 +34,35 @@ const Navbar = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    return (
-        <nav className="w-full bg-white border-b border-gray-200 shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
 
+    return (
+        <nav className="w-full bg-gradient-to-r from-white/75 via-white/35 to-white/75 backdrop-blur-xl border-b border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.08)] sticky top-0 z-50 transition-all duration-300">
+            <div className="w-full px-4 sm:px-6 lg:px-10">
+                <div className="flex items-center w-full justify-between h-16">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-2 shrink-0">
-                        <svg className="w-9 h-9" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <Link to="/" className="flex items-center gap-2.5 shrink-0">
+                        <svg className="w-10 h-10" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect width="40" height="40" rx="8" fill="#166534" />
                             <path d="M20 8L30 28H10L20 8Z" fill="#22c55e" stroke="white" strokeWidth="1" />
                             <path d="M14 16L22 28H6L14 16Z" fill="#15803d" stroke="white" strokeWidth="1" />
                             <rect x="18" y="24" width="4" height="4" rx="0.5" fill="white" />
                         </svg>
-                        <span className="text-xl font-bold text-gray-900 tracking-tight">Smart Camping</span>
+                        <div className="flex flex-col justify-center">
+                            <span className="text-[1.35rem] font-black text-[#166534] tracking-widest uppercase leading-none">CAMPTRAIL</span>
+                            <span className="text-[0.95rem] font-bold text-[#166534] tracking-[0.3em] leading-none mt-1">360</span>
+                        </div>
                     </Link>
 
                     {/* Desktop Nav Links */}
-                    <div className="hidden md:flex items-center gap-8 ml-10">
+                    <div className="hidden md:flex items-center gap-10 lg:gap-14 ml-10">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.label}
                                 to={link.href}
                                 onClick={() => setMobileOpen(false)}
-                                className={`text-sm font-medium transition-colors duration-200 pb-0.5 ${isActive(link.href)
-                                        ? "text-green-700 border-b-2 border-green-700"
-                                        : "text-gray-600 hover:text-green-700"
+                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive(link.href)
+                                        ? "text-[#166534] border-b-2 border-[#166534]"
+                                        : "text-gray-600 hover:text-[#166534]"
                                     }`}
                             >
                                 {link.label}
@@ -72,7 +75,7 @@ const Navbar = () => {
 
                         {/* Search Icon */}
                         <button
-                            className="p-2 rounded-full text-gray-500 hover:text-green-700 hover:bg-green-50 transition-colors duration-200"
+                            className="p-2 rounded-full text-gray-500 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors duration-200"
                             aria-label="Search"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -80,22 +83,40 @@ const Navbar = () => {
                             </svg>
                         </button>
 
-                        {/* CTA Button */}
+                        {/* CTA */}
                         <Link
-                            to="/plan"
-                            className="inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-green-700 rounded-full hover:bg-green-800 active:bg-green-900 shadow-md hover:shadow-lg transition-all duration-200"
+                            to="/guides"
+                            className="hidden lg:inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#155e2e] active:bg-[#14532d] shadow-md hover:shadow-lg transition-all duration-200 mr-2"
                         >
                             Plan Your Adventure
                         </Link>
+
+                        {/* Auth Buttons */}
+                        <div className="flex items-center gap-3 mr-2">
+                            <Link
+                                to="/login"
+                                className="text-sm font-medium text-gray-600 hover:text-[#166534] transition-colors duration-200"
+                            >
+                                Sign In
+                            </Link>
+                            <Link
+                                to="/signup"
+                                className="text-sm font-medium text-[#166534] bg-[#166534]/10 px-4 py-2 rounded-full hover:bg-[#166534]/20 transition-colors duration-200"
+                            >
+                                Sign Up
+                            </Link>
+                        </div>
+
+
 
                         {/* Profile Dropdown */}
                         <div className="relative" ref={profileRef}>
                             <button
                                 onClick={() => setProfileOpen(!profileOpen)}
-                                className="flex items-center gap-1.5 p-1.5 rounded-full border-2 border-gray-200 hover:border-green-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                className="flex items-center gap-1.5 p-1.5 rounded-full border-2 border-gray-200 hover:border-[#166534]/40 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#166534]/50"
                                 aria-label="Profile menu"
                             >
-                                <div className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full bg-[#166534] flex items-center justify-center">
                                     <User className="w-4 h-4 text-white" />
                                 </div>
                                 <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`} />
@@ -111,7 +132,7 @@ const Navbar = () => {
 
                                     <button
                                         onClick={() => { setProfileOpen(false); navigate("/profile"); }}
-                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors duration-150"
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
                                     >
                                         <User className="w-4 h-4" />
                                         Profile
@@ -120,8 +141,8 @@ const Navbar = () => {
                                     <button
                                         onClick={() => { setProfileOpen(false); navigate("/payment-history"); }}
                                         className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${isActive("/payment-history")
-                                                ? "text-green-700 bg-green-50 font-semibold"
-                                                : "text-gray-700 hover:bg-green-50 hover:text-green-700"
+                                                ? "text-[#166534] bg-[#166534]/10 font-semibold"
+                                                : "text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534]"
                                             }`}
                                     >
                                         <CreditCard className="w-4 h-4" />
@@ -144,7 +165,7 @@ const Navbar = () => {
 
                     {/* Mobile Hamburger */}
                     <button
-                        className="md:hidden p-2 rounded-md text-gray-600 hover:text-green-700 hover:bg-green-50 transition-colors"
+                        className="md:hidden p-2 rounded-md text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors"
                         onClick={() => setMobileOpen(!mobileOpen)}
                         aria-label="Toggle menu"
                     >
@@ -171,20 +192,49 @@ const Navbar = () => {
                                 to={link.href}
                                 onClick={() => setMobileOpen(false)}
                                 className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive(link.href)
-                                        ? "text-green-700 bg-green-50"
-                                        : "text-gray-600 hover:text-green-700 hover:bg-green-50"
+                                        ? "text-[#166534] bg-[#166534]/10"
+                                        : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
                                     }`}
                             >
                                 {link.label}
                             </Link>
                         ))}
+                        {/* Mobile CTA */}
+                        <div className="pt-2 border-t border-gray-100">
+                            <Link
+                                to="/guides"
+                                onClick={() => setMobileOpen(false)}
+                                className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#14532d] transition-all duration-200"
+                            >
+                                Plan Your Adventure
+                            </Link>
+                        </div>
+                        
+                        {/* Mobile auth links */}
+                        <div className="pt-2 border-t border-gray-100 space-y-1">
+                            <Link
+                                to="/login"
+                                onClick={() => setMobileOpen(false)}
+                                className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors"
+                            >
+                                Sign In
+                            </Link>
+                            <Link
+                                to="/signup"
+                                onClick={() => setMobileOpen(false)}
+                                className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-[#166534] bg-[#166534]/10 hover:bg-[#166534]/20 transition-colors"
+                            >
+                                Sign Up
+                            </Link>
+                        </div>
+
 
                         {/* Mobile profile links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">
                             <Link
                                 to="/profile"
                                 onClick={() => setMobileOpen(false)}
-                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-green-700 hover:bg-green-50 transition-colors"
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors"
                             >
                                 <User className="w-4 h-4" />
                                 Profile
@@ -193,8 +243,8 @@ const Navbar = () => {
                                 to="/payment-history"
                                 onClick={() => setMobileOpen(false)}
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive("/payment-history")
-                                        ? "text-green-700 bg-green-50"
-                                        : "text-gray-600 hover:text-green-700 hover:bg-green-50"
+                                        ? "text-[#166534] bg-[#166534]/10"
+                                        : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
                                     }`}
                             >
                                 <CreditCard className="w-4 h-4" />
@@ -202,15 +252,7 @@ const Navbar = () => {
                             </Link>
                         </div>
 
-                        <div className="pt-2 border-t border-gray-100">
-                            <Link
-                                to="/plan"
-                                onClick={() => setMobileOpen(false)}
-                                className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-green-700 rounded-full hover:bg-green-800 transition-all duration-200"
-                            >
-                                Plan Your Adventure
-                            </Link>
-                        </div>
+
                     </div>
                 </div>
             )}

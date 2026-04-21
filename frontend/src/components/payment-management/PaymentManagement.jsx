@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit, Trash2, Loader, Eye, FileText } from 'lucide-react';
-import Navbar from '../../common/navbar/Navbar';
-import Footer from '../../common/footer/Footer';
+
 import PaymentInvoice from './payment-invoice/PaymentInvoice';
 import {
   getAllPayments,
@@ -22,10 +21,10 @@ const PaymentManagement = () => {
   const [invoicePayment, setInvoicePayment] = useState(null);
   const [formData, setFormData] = useState({
     amount: '',
-    description: '',
-    status: 'pending',
+    bookingType: 'CampsiteBooking',
+    paymentStatus: 'pending',
     paymentMethod: 'credit-card',
-    orderId: '',
+    bookingId: '',
     date: new Date().toISOString().split('T')[0],
   });
   const [filter, setFilter] = useState('all');
@@ -37,7 +36,7 @@ const PaymentManagement = () => {
       if (filter === 'all') {
         setPayments(data);
       } else {
-        setPayments(data.filter(p => p.status === filter));
+        setPayments(data.filter(p => p.paymentStatus === filter));
       }
     } catch (error) {
       console.error('Failed to fetch payments:', error);
@@ -84,10 +83,10 @@ const PaymentManagement = () => {
       // Reset form and refresh list
       setFormData({
         amount: '',
-        description: '',
-        status: 'pending',
+        bookingType: 'CampsiteBooking',
+        paymentStatus: 'pending',
         paymentMethod: 'credit-card',
-        orderId: '',
+        bookingId: '',
         date: new Date().toISOString().split('T')[0],
       });
       setShowForm(false);
@@ -103,10 +102,10 @@ const PaymentManagement = () => {
   const handleEdit = (item) => {
     setFormData({
       amount: item.amount,
-      description: item.description,
-      status: item.status,
+      bookingType: item.bookingType || 'CampsiteBooking',
+      paymentStatus: item.paymentStatus,
       paymentMethod: item.paymentMethod,
-      orderId: item.orderId,
+      bookingId: item.bookingId || '',
       date: item.date?.split('T')[0] || new Date().toISOString().split('T')[0],
     });
     setEditingId(item._id);
@@ -148,10 +147,10 @@ const PaymentManagement = () => {
     setEditingId(null);
     setFormData({
       amount: '',
-      description: '',
-      status: 'pending',
+      bookingType: 'CampsiteBooking',
+      paymentStatus: 'pending',
       paymentMethod: 'credit-card',
-      orderId: '',
+      bookingId: '',
       date: new Date().toISOString().split('T')[0],
     });
   };
@@ -163,8 +162,8 @@ const PaymentManagement = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
+      case 'success':
+        return 'bg-[#166534]/20 text-[#14532d]';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       case 'failed':
@@ -178,7 +177,7 @@ const PaymentManagement = () => {
 
   return (
     <div>
-      <Navbar />
+
       
       <div className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-6xl mx-auto">
@@ -190,7 +189,7 @@ const PaymentManagement = () => {
             </div>
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+              className="flex items-center gap-2 bg-[#166534] hover:bg-[#14532d] text-white font-semibold py-2 px-4 rounded-lg transition"
             >
               <Plus className="w-5 h-5" />
               Record Payment
@@ -199,13 +198,13 @@ const PaymentManagement = () => {
 
           {/* Filter Tabs */}
           <div className="bg-white rounded-lg shadow mb-6 p-4 flex gap-4">
-            {['all', 'completed', 'pending', 'failed', 'refunded'].map(status => (
+            {['all', 'success', 'pending', 'failed', 'refunded'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
                 className={`px-4 py-2 rounded-lg font-semibold transition ${
                   filter === status
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-[#166534] text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -225,7 +224,7 @@ const PaymentManagement = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Amount ($)
+                      Amount (LKR)
                     </label>
                     <input
                       type="number"
@@ -234,35 +233,37 @@ const PaymentManagement = () => {
                       onChange={handleInputChange}
                       step="0.01"
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Description
+                      Booking Type
                     </label>
-                    <input
-                      type="text"
-                      name="description"
-                      value={formData.description}
+                    <select
+                      name="bookingType"
+                      value={formData.bookingType}
                       onChange={handleInputChange}
-                      placeholder="e.g., Tent Rental"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
-                    />
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
+                    >
+                      <option value="CampsiteBooking">Campsite Booking</option>
+                      <option value="EquipmentBooking">Equipment Booking</option>
+                      <option value="GuideBooking">Guide Booking</option>
+                    </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      Order ID
+                      Booking ID
                     </label>
                     <input
                       type="text"
-                      name="orderId"
-                      value={formData.orderId}
+                      name="bookingId"
+                      value={formData.bookingId}
                       onChange={handleInputChange}
-                      placeholder="e.g., ORD-001"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      placeholder="e.g., 507f1f77bcf86cd799439012"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     />
                   </div>
 
@@ -274,7 +275,7 @@ const PaymentManagement = () => {
                       name="paymentMethod"
                       value={formData.paymentMethod}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     >
                       <option value="credit-card">Credit Card</option>
                       <option value="paypal">PayPal</option>
@@ -288,13 +289,13 @@ const PaymentManagement = () => {
                       Status
                     </label>
                     <select
-                      name="status"
-                      value={formData.status}
+                      name="paymentStatus"
+                      value={formData.paymentStatus}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     >
                       <option value="pending">Pending</option>
-                      <option value="completed">Completed</option>
+                      <option value="success">Completed</option>
                       <option value="failed">Failed</option>
                       <option value="refunded">Refunded</option>
                     </select>
@@ -309,7 +310,7 @@ const PaymentManagement = () => {
                       name="date"
                       value={formData.date}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#166534]"
                     />
                   </div>
 
@@ -317,7 +318,7 @@ const PaymentManagement = () => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
+                      className="flex-1 bg-[#166534] hover:bg-[#14532d] disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
                     >
                       {loading && <Loader className="w-4 h-4 animate-spin" />}
                       {editingId ? 'Update' : 'Create'}
@@ -343,16 +344,18 @@ const PaymentManagement = () => {
                 
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm text-gray-600">Order ID</label>
-                    <p className="font-semibold text-gray-900">{selectedPayment.orderId || 'N/A'}</p>
+                    <label className="text-sm text-gray-600">Booking ID</label>
+                    <p className="font-semibold text-gray-900 truncate" title={selectedPayment.bookingId || selectedPayment._id}>
+                      {selectedPayment.bookingId || selectedPayment._id || 'N/A'}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Amount</label>
-                    <p className="font-semibold text-gray-900">${selectedPayment.amount?.toFixed(2)}</p>
+                    <p className="font-semibold text-gray-900">LKR {selectedPayment.amount?.toFixed(2)}</p>
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Description</label>
-                    <p className="text-gray-700">{selectedPayment.description || 'N/A'}</p>
+                    <label className="text-sm text-gray-600">Booking Type</label>
+                    <p className="text-gray-700">{selectedPayment.bookingType || 'N/A'}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Payment Method</label>
@@ -360,14 +363,26 @@ const PaymentManagement = () => {
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Status</label>
-                    <p className={`inline-block px-3 py-1 rounded font-semibold text-sm ${getStatusColor(selectedPayment.status)}`}>
-                      {selectedPayment.status}
+                    <p className={`inline-block px-3 py-1 rounded font-semibold text-sm ${getStatusColor(selectedPayment.paymentStatus)}`}>
+                      {selectedPayment.paymentStatus}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Date</label>
-                    <p className="text-gray-700">{new Date(selectedPayment.date).toLocaleDateString()}</p>
+                    <p className="text-gray-700">{selectedPayment.date ? new Date(selectedPayment.date).toLocaleDateString() : 'N/A'}</p>
                   </div>
+                  {selectedPayment.receiptUrl && (
+                    <div className="pt-2">
+                      <label className="text-sm text-gray-600 block mb-2">Receipt Image</label>
+                      <a href={`http://localhost:5000${selectedPayment.receiptUrl}`} target="_blank" rel="noopener noreferrer">
+                        <img 
+                          src={`http://localhost:5000${selectedPayment.receiptUrl}`} 
+                          alt="Payment Receipt" 
+                          className="w-full h-auto rounded-lg border border-gray-200 cursor-pointer object-cover max-h-48 hover:opacity-90 transition"
+                        />
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 <button
@@ -383,14 +398,14 @@ const PaymentManagement = () => {
           {/* Payments Table */}
           {loading && payments.length === 0 ? (
             <div className="flex items-center justify-center py-12">
-              <Loader className="w-8 h-8 animate-spin text-green-600" />
+              <Loader className="w-8 h-8 animate-spin text-[#166534]" />
             </div>
           ) : payments.length === 0 ? (
             <div className="bg-white rounded-lg shadow p-8 text-center">
               <p className="text-gray-600 mb-4">No payments found</p>
               <button
                 onClick={() => setShowForm(true)}
-                className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+                className="bg-[#166534] hover:bg-[#14532d] text-white font-semibold py-2 px-4 rounded-lg transition"
               >
                 Record First Payment
               </button>
@@ -400,9 +415,9 @@ const PaymentManagement = () => {
               <table className="w-full">
                 <thead className="bg-gray-100 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Order ID</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Booking ID</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Amount</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Description</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Type</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Method</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
@@ -412,18 +427,20 @@ const PaymentManagement = () => {
                 <tbody>
                   {payments.map((payment) => (
                     <tr key={payment._id} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-900 font-semibold">{payment.orderId || 'N/A'}</td>
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">${payment.amount?.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{payment.description}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900 font-semibold truncate max-w-[120px]" title={payment.bookingId || payment._id}>
+                        {payment.bookingId || payment._id || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">LKR {payment.amount?.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{payment.bookingType}</td>
                       <td className="px-6 py-4 text-sm text-gray-600 capitalize">{payment.paymentMethod.replace('-', ' ')}</td>
                       <td className="px-6 py-4 text-sm">
                         <select
-                          value={payment.status}
+                          value={payment.paymentStatus}
                           onChange={(e) => handleStatusChange(payment._id, e.target.value)}
-                          className={`px-2 py-1 rounded font-semibold text-sm cursor-pointer ${getStatusColor(payment.status)}`}
+                          className={`px-2 py-1 rounded font-semibold text-sm cursor-pointer ${getStatusColor(payment.paymentStatus)}`}
                         >
                           <option value="pending">Pending</option>
-                          <option value="completed">Completed</option>
+                          <option value="success">Completed</option>
                           <option value="failed">Failed</option>
                           <option value="refunded">Refunded</option>
                         </select>
@@ -475,25 +492,25 @@ const PaymentManagement = () => {
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Total Amount</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  ${payments.reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Completed</p>
-                <p className="text-3xl font-bold text-green-600">
-                  ${payments.filter(p => p.status === 'completed').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                <p className="text-3xl font-bold text-[#166534]">
+                  LKR {payments.filter(p => p.paymentStatus === 'success').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Pending</p>
                 <p className="text-3xl font-bold text-yellow-600">
-                  ${payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.filter(p => p.paymentStatus === 'pending').reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-lg shadow p-6">
                 <p className="text-gray-600 text-sm mb-2">Failed/Refunded</p>
                 <p className="text-3xl font-bold text-red-600">
-                  ${payments.filter(p => ['failed', 'refunded'].includes(p.status)).reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
+                  LKR {payments.filter(p => ['failed', 'refunded'].includes(p.paymentStatus)).reduce((sum, p) => sum + (p.amount || 0), 0).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -512,7 +529,6 @@ const PaymentManagement = () => {
         />
       )}
 
-      <Footer />
     </div>
   );
 };
