@@ -85,18 +85,8 @@ const GuideSelfDashboard = () => {
   }, [currentGuideId, loggedInAsGuide]);
 
   const earningsEstimate = useMemo(() => {
-    try {
-      const raw = localStorage.getItem("guide_bookings");
-      const parsed = raw ? JSON.parse(raw) : [];
-      const entries = Array.isArray(parsed) ? parsed : [];
-      const mine = currentGuideId
-        ? entries.filter((b) => String(b?.guideId) === String(currentGuideId))
-        : [];
-      return mine.reduce((sum, b) => sum + (typeof b?.amount === "number" ? b.amount * 0.9 : 0), 0);
-    } catch {
-      return 0;
-    }
-  }, [currentGuideId, normalized.length]);
+    return completed.reduce((sum, b) => sum + (typeof b?.amount === "number" ? b.amount * 0.9 : 0), 0);
+  }, [completed]);
 
   const recentRows = useMemo(
     () =>
@@ -184,11 +174,10 @@ const GuideSelfDashboard = () => {
               </div>
             </div>
             <div>
-              <p className="text-gray-500 text-sm font-medium mb-1">Est. earnings (demo)</p>
+              <p className="text-gray-500 text-sm font-medium mb-1">Total Earnings</p>
               <h3 className="text-3xl font-bold text-gray-900">
                 {loading ? "—" : `LKR ${earningsEstimate.toFixed(0)}`}
               </h3>
-              <p className="text-[11px] text-gray-400 mt-1">From localStorage guide_bookings</p>
             </div>
           </div>
 
