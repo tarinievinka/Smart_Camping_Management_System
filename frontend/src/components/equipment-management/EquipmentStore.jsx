@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Star } from "lucide-react";
+import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
 
 const API = process.env.REACT_APP_API_URL + '/api/equipment';
@@ -179,11 +179,23 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
         )}
       </div>
 
-      <div className="p-5 flex flex-col h-[220px]">
+      <div className="p-5 flex flex-col h-[240px]">
         <h3 className="text-lg font-bold text-gray-900 truncate">{item.name}</h3>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
           {item.category} • {item.condition}
         </p>
+
+        {/* Rating */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex text-[#fbbf24] gap-0.5">
+             {[...Array(5)].map((_, i) => (
+               <Star key={i} size={14} fill={i < Math.round(item.averageRating || 0) ? "currentColor" : "none"} strokeWidth={2.5} />
+             ))}
+          </div>
+          <span className="text-[12px] font-black text-slate-400 uppercase tracking-wide mt-0.5">
+             {item.averageRating ? item.averageRating.toFixed(1) : "0.0"} ({item.reviewCount || 0} REVIEWS)
+          </span>
+        </div>
 
         {/* Mode Toggle */}
         <div className="flex bg-gray-100 rounded-lg p-1.5 mb-3">
@@ -345,6 +357,7 @@ const EquipmentStore = () => {
           {[
             { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
             { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
+            { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
             { icon: Heart, label: "Favorites", active: showFavorites, action: () => setShowFavorites(true) },
           ].map((item, idx) => (
             <button
