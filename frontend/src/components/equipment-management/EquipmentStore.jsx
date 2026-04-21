@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+<<<<<<< HEAD
 import { useLocation, useNavigate } from 'react-router-dom';
+=======
+import { useNavigate } from 'react-router-dom';
+>>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
 import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
@@ -288,6 +292,12 @@ const EquipmentStore = () => {
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
 
+<<<<<<< HEAD
+=======
+  // Storage Keys
+  const favKey = React.useMemo(() => `equipment_favorites_${user?._id || 'guest'}`, [user?._id]);
+
+>>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem(cartKey);
@@ -302,7 +312,11 @@ const EquipmentStore = () => {
     } catch { return []; }
   });
 
+<<<<<<< HEAD
   // Sync cart to localStorage
+=======
+  // Keep storage in sync
+>>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
   useEffect(() => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, cartKey]);
@@ -340,16 +354,29 @@ const EquipmentStore = () => {
     fetch(`${API}/display`)
       .then(res => res.json())
       .then(data => { setEquipment(data); setLoading(false); })
-      .catch(() => { setError('Failed to load equipment.'); setLoading(false); });
+      .catch(err => { 
+        console.error("Fetch failed:", err);
+        setError("Failed to load equipment. Please try again later.");
+        setLoading(false);
+      });
   }, []);
 
-  const addToCart      = (item)     => setCart(prev => [...prev, item]);
-  const removeFromCart = (id, mode) => setCart(prev => prev.filter(c => !(c._id === id && c.mode === mode)));
+  const addToCart = (product) => {
+    setCart(prev => {
+      if (prev.some(i => i._id === product._id && i.mode === product.mode)) return prev;
+      return [...prev, product];
+    });
+  };
+
+  const removeFromCart = (id, mode) => {
+    setCart(prev => prev.filter(i => !(i._id === id && i.mode === mode)));
+  };
 
   const onToggleFavorite = (id) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
-    );
+    setFavorites(prev => {
+      if (prev.includes(id)) return prev.filter(i => i !== id);
+      return [...prev, id];
+    });
   };
 
   const filtered = useMemo(() => {
