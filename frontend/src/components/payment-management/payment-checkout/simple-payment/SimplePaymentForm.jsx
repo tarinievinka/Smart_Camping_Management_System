@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import { createPayment } from '../../../../services/paymentApi';
 import CardDetails from '../card-details/CardDetails';
+import { saveEquipmentBooking } from '../../../../utils/equipmentBookings';
 
-const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking", equipmentItems = [] }) => {
+const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking", equipmentItems = [], equipmentBookingDraft = null }) => {
   const navigate = useNavigate();
   const [cardType, setCardType] = useState('visa');
   const [cardData, setCardData] = useState({
@@ -80,11 +81,27 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
         );
       }
 
+      if (bookingType === 'EquipmentBooking' && equipmentBookingDraft) {
+        saveEquipmentBooking(equipmentBookingDraft, {
+          bookingId,
+          status: 'paid',
+          paymentMethod: 'card',
+          transactionId: paymentData.transactionId,
+          totalAmount: amount,
+        });
+      }
+
       setProcessed(true);
       setLoading(false);
 
       // Redirect after 2 seconds
       setTimeout(() => {
+        if (bookingType === 'EquipmentBooking') {
+          navigate('/equipment-bookings', {
+            state: { message: 'Payment successful. Your equipment booking is now available.' },
+          });
+          return;
+        }
         navigate('/payment-success', { state: { equipmentItems } });
       }, 2000);
     } catch (err) {

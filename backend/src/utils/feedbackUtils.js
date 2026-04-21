@@ -5,7 +5,9 @@ function isValidRating(rating) {
 
 // Validate target type
 function isValidTargetType(type) {
-  return ["Campsite", "Equipment", "Guide"].includes(type);
+  if (!type) return false;
+  const validTypes = ["Campsite", "Equipment", "Guide"];
+  return validTypes.some(t => t.toLowerCase() === type.toLowerCase());
 }
 
 // Generate editable time (24 hours)

@@ -36,8 +36,17 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
       try {
         const res = await fetch(`${FEEDBACK_API}/display`);
         const data = await res.json();
-        // Filter reviews for this specific equipment
-        const filtered = data.filter(r => r.targetId === item._id && r.targetType === 'Equipment');
+        // Filter reviews for this specific equipment.
+        // Prefer exact targetId match; fallback to equipment name for old entries.
+        const filtered = data.filter((r) => {
+          const typeMatch = String(r.targetType || "").toLowerCase() === "equipment";
+          if (!typeMatch) return false;
+          const idMatch = String(r.targetId || "") === String(item._id || "");
+          const nameMatch =
+            String(r.targetName || "").trim().toLowerCase() ===
+            String(item.name || "").trim().toLowerCase();
+          return idMatch || nameMatch;
+        });
         setReviews(filtered);
       } catch (err) {
         console.error('Failed to fetch reviews:', err);

@@ -108,7 +108,29 @@ const BookingSummary = () => {
             _id: item._id,
             quantity: (itemStates[key(item)] || { quantity: 1 }).quantity,
             mode: item.mode
-          }))
+          })),
+          equipmentBookingDraft: {
+            pickupDate,
+            returnDate,
+            days,
+            totalAmount: parseFloat(totalAmount),
+            items: activeItems.map(item => {
+              const quantity = (itemStates[key(item)] || { quantity: 1 }).quantity;
+              const unitPrice = item.mode === 'buy' ? item.salePrice : item.rentalPrice;
+              const lineTotal = item.mode === 'buy'
+                ? unitPrice * quantity
+                : unitPrice * quantity * days;
+              return {
+                _id: item._id,
+                name: item.name,
+                mode: item.mode,
+                quantity,
+                unitPrice,
+                imageUrl: item.imageUrl || '',
+                lineTotal
+              };
+            })
+          }
         }
       });
     } catch {

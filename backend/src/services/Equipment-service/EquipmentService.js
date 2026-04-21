@@ -6,7 +6,31 @@ const createEquipment = async (data) => {
 };
 
 const getAllEquipment = async () => {
-  return await Equipment.find();
+  const equipments = await Equipment.find().lean();
+  
+  // Aggregate feedback to get average rating per equipment
+  const Feedback = require('../../models/feedback-model/FeedbackModel');
+  const feedbacks = await Feedback.find({ targetType: 'Equipment' }).lean();
+  
+  return equipments.map(eq => {
+    // Match exactly like EquipmentDetail.jsx: by targetId OR targetName
+    const eqFeedbacks = feedbacks.filter(f => {
+      const idMatch = f.targetId && f.targetId.toString() === eq._id.toString();
+      const nameMatch = f.targetName && f.targetName.trim().toLowerCase() === eq.name.trim().toLowerCase();
+      return idMatch || nameMatch;
+    });
+    
+    const reviewCount = eqFeedbacks.length;
+    const averageRating = reviewCount > 0 
+      ? eqFeedbacks.reduce((sum, f) => sum + f.rating, 0) / reviewCount 
+      : 0;
+
+    return {
+      ...eq,
+      averageRating,
+      reviewCount
+    };
+  });
 };
 
 const getEquipmentById = async (id) => {
