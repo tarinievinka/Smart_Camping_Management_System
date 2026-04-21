@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Search, SlidersHorizontal, LayoutGrid, Calendar, Heart, LogOut, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, LayoutGrid, Calendar, Heart, LogOut, ChevronDown, Star } from "lucide-react";
 import axios from "axios";
 import { resolveMediaUrl } from "../../../utils/resolveMediaUrl";
 import { getGuideDailyRate } from "../../../utils/guidePricing";
@@ -117,6 +117,18 @@ export const GuideCard = ({ guide, isFavourite, onToggleFavourite }) => {
       <div className="p-5">
         <h3 className="text-lg font-bold text-gray-900">{guide.name}</h3>
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{guide.specialty} Expert</p>
+        
+        {/* Rating */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex text-[#fbbf24] gap-0.5">
+             {[...Array(5)].map((_, i) => (
+               <Star key={i} size={14} fill={i < Math.round(guide.averageRating || 0) ? "currentColor" : "none"} strokeWidth={2.5} />
+             ))}
+          </div>
+          <span className="text-[12px] font-black text-slate-400 uppercase tracking-wide mt-0.5">
+             {guide.averageRating ? guide.averageRating.toFixed(1) : "0.0"} ({guide.reviewCount || 0} REVIEWS)
+          </span>
+        </div>
         {guide.description && (
           <p className="text-sm text-gray-500 line-clamp-2 mb-4">{guide.description}</p>
         )}

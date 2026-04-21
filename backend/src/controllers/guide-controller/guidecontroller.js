@@ -14,7 +14,8 @@ exports.createGuide = async (req, res) => {
 // Get all guides
 exports.getAllGuides = async (req, res) => {
   try {
-    const guides = await Guide.find();
+    const guideService = require("../../services/guide-service/guideService");
+    const guides = await guideService.getAllGuides();
     res.json(guides);
   } catch (err) {
     res.status(500).json({ error: err.message });
