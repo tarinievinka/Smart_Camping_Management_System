@@ -15,15 +15,14 @@ function isValidAvailability(status) {
   return typeof status === "boolean";
 }
 
-// Example: Validate supported languages for guides
-function isValidLanguage(language) {
-  const supportedLanguages = ["English", "Sinhala", "Tamil"];
-  return supportedLanguages.includes(language);
+// Example: Validate guide NIC (basic length check)
+function isValidNIC(nic) {
+  return typeof nic === "string" && (nic.length === 10 || nic.length === 12);
 }
 
 module.exports = {
   generateGuideId,
   isValidExperience,
   isValidAvailability,
-  isValidLanguage,
+  isValidNIC,
 };

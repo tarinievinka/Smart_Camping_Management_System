@@ -52,7 +52,7 @@ exports.updateBooking = async (req, res) => {
         if (prevStatus === "pending" && newStatus === "confirmed") {
             try {
                 await CustomerNotification.create({
-                    customerName: updated.customerName || "Guest",
+                    customerName: updated.customerName || "Anonymous",
                     bookingId: updated._id,
                     title: "Booking confirmed",
                     body: "Your guide confirmed your trip request. See details under My Bookings.",
