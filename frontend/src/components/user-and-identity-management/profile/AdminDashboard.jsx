@@ -287,7 +287,7 @@ const AdminDashboard = () => {
                                 sub="Manage campsite listings and owners"
                                 bg="linear-gradient(135deg,#0d9488,#0f766e)"
                                 glow="rgba(13,148,136,0.35)"
-                                onClick={() => navigate('/admin/campsites')}
+                                onClick={() => navigate('/campsites-admin')}
                             />
                             <ActionButton
                                 icon={

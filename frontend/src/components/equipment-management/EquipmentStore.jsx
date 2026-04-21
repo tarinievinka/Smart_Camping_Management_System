@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
+import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
+import EquipmentDetail from './EquipmentDetail';
+=======
 import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown } from "lucide-react";
 import axios from "axios";
+>>>>>>> 5f97c96b97203d6e8bb230c9f212f2a9c31b625f
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
@@ -10,7 +15,7 @@ const CATEGORIES = ['All Gear', 'Tents', 'Sleeping Bags', 'Backpacks', 'Cooking 
 
 const CATEGORY_ICONS = {
   'All Gear':      '⛺',
-  'Tents':         '🏕️',
+  'Tent':         '🏕️',
   'Sleeping Bags': '🛏️',
   'Backpacks':     '🎒',
   'Cooking Gear':  '🍳',
@@ -125,11 +130,10 @@ const NotifyModal = ({ item, onClose }) => {
 };
 
 // ── Equipment Card ───────────────────────────────────────────
-const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify }) => {
-  const [liked, setLiked]           = useState(false);
+const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify, isLiked, onToggleFavorite, onClick }) => {
   const [mode, setMode]             = useState('rent');
 
-  const isUnavailable = item.availabilityStatus === 'Out of Stock' || item.availabilityStatus === 'Deactivated';
+  const isUnavailable = item.availabilityStatus === 'Out of Stock' || item.availabilityStatus === 'Deactivated' || item.stockQuantity === 0;
   const isLowStock    = item.stockQuantity > 0 && item.stockQuantity <= 3;
   const inCart        = cart.some(c => c._id === item._id && c.mode === mode);
 
@@ -138,6 +142,7 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
 
   return (
     <div
+      onClick={() => onClick(item)}
       className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all group cursor-pointer ${
         isUnavailable ? "opacity-95" : inCart ? "border-[#16a34a] shadow-md ring-1 ring-[#16a34a]" : "hover:shadow-md"
       }`}
@@ -180,11 +185,23 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
         )}
       </div>
 
-      <div className="p-5 flex flex-col h-[220px]">
+      <div className="p-5 flex flex-col h-[240px]">
         <h3 className="text-lg font-bold text-gray-900 truncate">{item.name}</h3>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
           {item.category} • {item.condition}
         </p>
+
+        {/* Rating */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex text-[#fbbf24] gap-0.5">
+             {[...Array(5)].map((_, i) => (
+               <Star key={i} size={14} fill={i < Math.round(item.averageRating || 0) ? "currentColor" : "none"} strokeWidth={2.5} />
+             ))}
+          </div>
+          <span className="text-[12px] font-black text-slate-400 uppercase tracking-wide mt-0.5">
+             {item.averageRating ? item.averageRating.toFixed(1) : "0.0"} ({item.reviewCount || 0} REVIEWS)
+          </span>
+        </div>
 
         {/* Mode Toggle */}
         <div className="flex bg-gray-100 rounded-lg p-1.5 mb-3">
@@ -201,7 +218,7 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
           <div className="flex flex-col">
              <span className="text-[11px] text-gray-500 font-semibold mb-0.5">{mode === 'rent' ? 'Daily Rate' : 'Total Price'}</span>
              <span className="font-black text-lg leading-none" style={{ color: mode === 'buy' ? "#1d4ed8" : "#166534" }}>
-               LKR {mode === 'rent' ? item.rentalPrice : item.salePrice}
+                LKR {mode === 'rent' ? item.rentalPrice : item.salePrice}
              </span>
           </div>
 
@@ -210,15 +227,15 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setLiked(!liked);
+                onToggleFavorite(item._id);
               }}
               className={`p-2 rounded-xl border transition-colors ${
-                liked
+                isLiked
                   ? "bg-red-50 border-red-200 text-red-600"
                   : "bg-white border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50"
               }`}
             >
-              <Heart size={18} fill={liked ? "currentColor" : "transparent"} />
+              <Heart size={18} fill={isLiked ? "currentColor" : "transparent"} />
             </button>
 
             {isUnavailable ? (
@@ -270,6 +287,9 @@ const EquipmentStore = () => {
   const [error, setError]                       = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All Gear');
   const [searchQuery, setSearchQuery]           = useState('');
+<<<<<<< HEAD
+  const [showFavorites, setShowFavorites]       = useState(false);
+=======
   const [cart, setCart]                         = useState(() => {
     try {
       const stored = localStorage.getItem(`equipment_cart_${user?._id || 'guest'}`);
@@ -278,8 +298,34 @@ const EquipmentStore = () => {
       return [];
     }
   });
+>>>>>>> 5f97c96b97203d6e8bb230c9f212f2a9c31b625f
   const [displayCount, setDisplayCount]         = useState(8);
   const [notifyItem, setNotifyItem]             = useState(null);
+  const [selectedItem, setSelectedItem]         = useState(null);
+
+  // Get current user ID for specific cart/favorites
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user._id : 'guest';
+  const cartKey = `equipment_cart_${userId}`;
+  const favKey = `equipment_favorites_${userId}`;
+
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem(cartKey);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem(favKey);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+  }, [cart, cartKey]);
+
+  useEffect(() => {
+    localStorage.setItem(favKey, JSON.stringify(favorites));
+  }, [favorites, favKey]);
 
   // 1. Migration Logic: If guest cart has items and user just logged in, move them.
   useEffect(() => {
@@ -324,13 +370,20 @@ const EquipmentStore = () => {
   const addToCart      = (item)     => setCart(prev => [...prev, item]);
   const removeFromCart = (id, mode) => setCart(prev => prev.filter(c => !(c._id === id && c.mode === mode)));
 
+  const onToggleFavorite = (id) => {
+    setFavorites(prev => 
+      prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
+    );
+  };
+
   const filtered = useMemo(() => {
     return equipment?.filter(item => {
       const matchCat    = selectedCategory === 'All Gear' || item.category === selectedCategory;
       const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCat && matchSearch;
+      const matchFav    = !showFavorites || favorites.includes(item._id);
+      return matchCat && matchSearch && matchFav;
     });
-  }, [equipment, selectedCategory, searchQuery]);
+  }, [equipment, selectedCategory, searchQuery, showFavorites, favorites]);
 
   const visibleEquipment = filtered.slice(0, displayCount);
   const hasMore = filtered.length > displayCount;
@@ -343,32 +396,29 @@ const EquipmentStore = () => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       {notifyItem && <NotifyModal item={notifyItem} onClose={() => setNotifyItem(null)} />}
+      {selectedItem && (
+        <EquipmentDetail 
+          item={selectedItem} 
+          onClose={() => setSelectedItem(null)} 
+          onAddToCart={(item) => { addToCart(item); setSelectedItem(null); }}
+          cart={cart}
+        />
+      )}
 
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
-        <div className="flex items-center gap-3 mb-10">
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold shrink-0"
-            style={{ backgroundColor: "#166534" }}
-          >
-            E
-          </div>
-          <div>
-            <h2 className="text-gray-900 font-bold text-lg">WildGear</h2>
-            <p className="text-gray-500 text-xs">Equip your journey</p>
-          </div>
-        </div>
 
         <nav className="flex-1 space-y-1">
           {[
-            { icon: LayoutGrid, label: "Browse Gear", path: "/equipment-store", active: true },
+            { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
             { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
-            { icon: Heart, label: "Favorites", path: "#" },
+            { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
+            { icon: Heart, label: "Favorites", active: showFavorites, action: () => setShowFavorites(true) },
           ].map((item, idx) => (
             <button
               key={idx}
               onClick={() => {
                 if (item.action) item.action();
-                else if (item.path !== '#') navigate(item.path);
+                else if (item.path && item.path !== '#') navigate(item.path);
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                 item.active 
@@ -403,7 +453,7 @@ const EquipmentStore = () => {
                    </span>
                 </div>
                 <button onClick={handleBookNow} className="w-full sm:w-auto bg-[#16a34a] hover:bg-[#15803d] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-colors cursor-pointer whitespace-nowrap">
-                  Checkout →
+                   Checkout →
                 </button>
              </div>
           )}
@@ -492,6 +542,9 @@ const EquipmentStore = () => {
                     onAddToCart={addToCart} 
                     onRemoveFromCart={removeFromCart} 
                     onShowNotify={setNotifyItem}
+                    isLiked={favorites.includes(item._id)}
+                    onToggleFavorite={onToggleFavorite}
+                    onClick={setSelectedItem}
                   />
                 ))}
               </div>

@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 import os
+import joblib
+
 
 # 1. Load the Phase 1 Cleaned Data
 input_path = '../data/weather_cleaned_phase1.csv'
@@ -17,6 +19,9 @@ else:
     le = LabelEncoder()
     df['city_code'] = le.fit_transform(df['city'])
     print(f"Encoded {len(le.classes_)} cities.")
+
+    joblib.dump(le, '../models/city_label_encoder.pkl')
+
 
     # 3. Create the "Safety Label" (Target Variable)
     # Logic: If rain > 5mm OR wind > 25km/h, it's 'Unsafe' (1), else 'Safe' (0)

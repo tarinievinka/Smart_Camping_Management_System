@@ -339,7 +339,7 @@ const Bookings = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => navigate(`/guides/${b._id}`)}
+                            onClick={() => navigate(`/guides/${b._id}`, { state: { fromBookings: true } })}
                             className="text-sm font-bold flex items-center justify-center gap-1.5 hover:gap-2 transition-all flex-1 py-3.5 rounded-2xl"
                             style={{ color: "#166534", backgroundColor: "#f0fdf4" }}
                           >
@@ -373,12 +373,9 @@ const Bookings = () => {
                         <div className="flex items-center gap-4 text-xs font-bold text-[#A6B2CA]"><span className="flex items-center gap-1.5"><Calendar size={14} /> {formatDateRange(guide.booking.startDate, guide.booking.endDate, guide.booking.bookedAt)}</span></div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-8 w-full sm:w-auto justify-between sm:justify-end shrink-0 pr-2">
-                      <div className="text-center sm:text-right">
-                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Reviews</p>
-                        <p className="text-sm font-semibold text-gray-500 mt-1">—</p>
-                      </div>
-                      <button onClick={(e) => { e.stopPropagation(); navigate(`/guides/${guide._id}`); }} className="px-6 py-2.5 bg-[#F4F5F7] text-gray-700 font-bold text-sm rounded-xl hover:bg-[#e4e7ed] transition-colors">Rebook</button>
+                    <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end shrink-0 pr-2">
+                      <button onClick={(e) => { e.stopPropagation(); navigate('/feedback', { state: { targetType: 'guide', targetName: guide.name } }); }} className="px-6 py-2.5 bg-[#F4F5F7] text-gray-700 font-bold text-sm rounded-xl hover:bg-[#e4e7ed] transition-colors">Add Reviews</button>
+                      <button onClick={(e) => { e.stopPropagation(); navigate(`/guides/${guide._id}`, { state: { fromBookings: true } }); }} className="px-6 py-2.5 text-[#166534] bg-[#f0fdf4] font-bold text-sm rounded-xl hover:bg-[#dcfce7] transition-all flex items-center gap-1.5 hover:gap-2">View guide profile <ArrowRight size={14} /></button>
                     </div>
                   </div>
                 ))}

@@ -85,6 +85,7 @@ const GuideSelfDashboard = () => {
   }, [currentGuideId, loggedInAsGuide]);
 
   const earningsEstimate = useMemo(() => {
+<<<<<<< HEAD
     try {
       const raw = localStorage.getItem("guide_bookings");
       const parsed = raw ? JSON.parse(raw) : [];
@@ -97,6 +98,10 @@ const GuideSelfDashboard = () => {
       return 0;
     }
   }, [currentGuideId, normalized.length]);
+=======
+    return completed.reduce((sum, b) => sum + (typeof b?.amount === "number" ? b.amount * 0.9 : 0), 0);
+  }, [completed]);
+>>>>>>> fb3d5a2a59dcfa9a5f5b12c7909d8f2ca27df1a2
 
   const recentRows = useMemo(
     () =>
@@ -184,11 +189,18 @@ const GuideSelfDashboard = () => {
               </div>
             </div>
             <div>
+<<<<<<< HEAD
               <p className="text-gray-500 text-sm font-medium mb-1">Est. earnings (demo)</p>
               <h3 className="text-3xl font-bold text-gray-900">
                 {loading ? "—" : `LKR ${earningsEstimate.toFixed(0)}`}
               </h3>
               <p className="text-[11px] text-gray-400 mt-1">From localStorage guide_bookings</p>
+=======
+              <p className="text-gray-500 text-sm font-medium mb-1">Total Earnings</p>
+              <h3 className="text-3xl font-bold text-gray-900">
+                {loading ? "—" : `LKR ${earningsEstimate.toFixed(0)}`}
+              </h3>
+>>>>>>> fb3d5a2a59dcfa9a5f5b12c7909d8f2ca27df1a2
             </div>
           </div>
 

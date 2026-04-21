@@ -2,10 +2,10 @@ import React from 'react';
 
 const EquipmentList = ({ equipment, onEdit, onDelete }) => {
 
-  const statusColor = (status) => {
-    if (status === 'Available')    return 'bg-green-100 text-green-800';
-    if (status === 'Rented')       return 'bg-yellow-100 text-yellow-800';
-    if (status === 'Out of Stock') return 'bg-red-100 text-red-800';
+  const statusColor = (item) => {
+    if (item.stockQuantity === 0 || item.availabilityStatus === 'Out of Stock') return 'bg-red-100 text-red-800';
+    if (item.availabilityStatus === 'Available')    return 'bg-green-100 text-green-800';
+    if (item.availabilityStatus === 'Rented')       return 'bg-yellow-100 text-yellow-800';
     return 'bg-gray-100 text-gray-600';
   };
 
@@ -100,8 +100,8 @@ const EquipmentList = ({ equipment, onEdit, onDelete }) => {
 
               {/* Status */}
               <td className="px-5 py-4 border-b border-gray-200 text-sm">
-                <span className={`px-2 py-1 rounded text-xs font-bold ${statusColor(item.availabilityStatus)}`}>
-                  {item.availabilityStatus}
+                <span className={`px-2 py-1 rounded text-xs font-bold ${statusColor(item)}`}>
+                  {item.stockQuantity === 0 ? 'Out of Stock' : item.availabilityStatus}
                 </span>
               </td>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { MapPin, ShieldCheck, Star, Backpack, Award, Globe } from "lucide-react";
 import { resolveMediaUrl } from "../../../utils/resolveMediaUrl";
@@ -32,6 +32,8 @@ const TABS = ["About", "Past Tours", "Reviews", "Locations"];
 const GuideProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { fromBookings } = location.state || {};
   const { showToast } = useToast();
   const { user } = useAuth();
   const [guide, setGuide] = useState(null);
@@ -42,6 +44,9 @@ const GuideProfile = () => {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   useEffect(() => {
     const fetchGuide = async () => {
@@ -76,6 +81,28 @@ const GuideProfile = () => {
       }
     }
   }, [id, user]);
+
+  useEffect(() => {
+    if (!guide?.name) return;
+    const fetchReviews = async () => {
+      try {
+        setReviewsLoading(true);
+        const res = await axios.get(`${API_URL}/api/feedback/display`);
+        const relevant = (res.data || []).filter(
+          (r) => 
+            String(r.targetType || "").toLowerCase() === "guide" && 
+            String(r.targetName || "").trim() === String(guide.name || "").trim()
+        );
+        relevant.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setReviews(relevant);
+      } catch (err) {
+        console.error("Failed to load reviews:", err);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [guide?.name]);
 
   if (loading) return <div className="p-6 h-screen flex justify-center items-center">Loading...</div>;
   if (error) return <div className="p-6 h-screen flex justify-center items-center text-red-600">{error}</div>;
@@ -189,20 +216,84 @@ const GuideProfile = () => {
     }
 
     if (activeTab === "Reviews") {
+      const averageRating = reviews.length > 0 
+        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+        : 0;
+
       return (
         <section>
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-5">Reviews</h2>
-          <div className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
-              <Star size={22} />
-            </div>
-            <div>
-              <p className="text-gray-700 font-medium mb-1">Reviews coming soon</p>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                Trip feedback will show here after guests complete tours with {firstName}.
-              </p>
-            </div>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-extrabold text-gray-900">Reviews</h2>
+            {reviews.length > 0 && (
+              <div className="flex items-center gap-2 bg-[#f0fdf4] text-[#166534] px-4 py-2 rounded-xl font-bold">
+                <Star size={18} fill="currentColor" />
+                <span className="text-lg">{averageRating}</span>
+                <span className="text-sm opacity-80">({reviews.length})</span>
+              </div>
+            )}
           </div>
+
+          {reviewsLoading ? (
+            <div className="flex items-center justify-center p-8 text-gray-500 font-medium animate-pulse">
+              Loading reviews...
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="flex items-start gap-4 rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
+              <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
+                <Star size={24} />
+              </div>
+              <div className="pt-2">
+                <p className="text-gray-900 font-bold text-lg mb-2">No reviews yet</p>
+                <p className="text-gray-500 leading-relaxed font-medium">
+                  Trip feedback will show here after guests complete tours with {firstName}. Be the first to share your experience!
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {reviews.map((review) => (
+                <div key={review._id} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-800 to-green-950 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                        {review.userName?.charAt(0)?.toUpperCase() || "C"}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 leading-snug">{review.userName || "Camper"}</h4>
+                        <div className="text-xs font-bold text-gray-400 mt-0.5 uppercase tracking-wider">
+                          {new Date(review.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-1 text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={16} fill={i < review.rating ? "currentColor" : "none"} strokeWidth={i < review.rating ? 0 : 2} className={i >= review.rating ? "text-gray-300" : ""} />
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-700 font-medium leading-relaxed mb-5 text-[15px]">{review.comment}</p>
+                  
+                  {Array.isArray(review.images) && review.images.length > 0 && (
+                    <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                      {review.images.map((img, idx) => (
+                        <a key={idx} href={`http://localhost:5000/uploads/feedback/${img}`} target="_blank" rel="noreferrer" className="shrink-0 h-[100px] w-[130px] rounded-2xl overflow-hidden border border-gray-100 block shadow-sm">
+                          <img src={`http://localhost:5000/uploads/feedback/${img}`} alt="Review photo" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  {review.image && (!Array.isArray(review.images) || review.images.length === 0) && (
+                    <div className="mt-4">
+                      <a href={`http://localhost:5000/uploads/feedback/${review.image}`} target="_blank" rel="noreferrer" className="inline-block h-[100px] w-[130px] rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+                        <img src={`http://localhost:5000/uploads/feedback/${review.image}`} alt="Review photo" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       );
     }
@@ -394,8 +485,9 @@ const GuideProfile = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mt-10">
-          <div className="lg:col-span-8 space-y-12 px-2">{renderMainColumn()}</div>
+          <div className={`space-y-12 px-2 ${fromBookings ? 'lg:col-span-12 max-w-4xl mx-auto w-full' : 'lg:col-span-8'}`}>{renderMainColumn()}</div>
 
+          {!fromBookings && (
           <div className="lg:col-span-4">
             <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-8 sticky top-8">
               <div className="flex justify-between items-end mb-8">
@@ -530,6 +622,7 @@ const GuideProfile = () => {
               </p>
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>
