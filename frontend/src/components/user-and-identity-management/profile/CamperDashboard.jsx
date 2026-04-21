@@ -82,7 +82,7 @@ const CamperDashboard = () => {
                     <NavItem label="Equipment" icon="⛺" active={activeTab === 'Equipment'} onClick={() => setActiveTab('Equipment')} />
                     <NavItem label="Guides" icon="🧭" active={activeTab === 'Guides'} onClick={() => setActiveTab('Guides')} />
                     <NavItem label="Payments" icon="💳" active={activeTab === 'Payments'} onClick={() => setActiveTab('Payments')} />
-                    <NavItem label="Settings" icon="⚙️" active={activeTab === 'Settings'} onClick={() => navigate('/edit-profile')} />
+                    <NavItem label="My Reviews" icon="⭐" active={activeTab === 'My Reviews'} onClick={() => navigate('/my-reviews')} />
                 </nav>
 
                 <div style={styles.sidebarFooter}>
