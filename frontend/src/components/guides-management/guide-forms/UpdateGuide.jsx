@@ -5,7 +5,7 @@ import axios from "axios";
 import { useToast } from "../../../context/ToastContext";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-const LANGUAGES = ["English", "Sinhala", "Tamil", "French", "German", "Arabic", "Hindi", "Urdu", "Chinese", "Japanese", "Korean", "Russian", "Spanish", "Italian"];
+
 
 const UpdateGuide = () => {
     const navigate = useNavigate();
@@ -14,7 +14,7 @@ const UpdateGuide = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
-    const [form, setForm] = useState({ name: "", email: "", phone: "", experience: "", language: [], availability: true, description: "" });
+    const [form, setForm] = useState({ name: "", email: "", phone: "", experience: "", nic: "", age: "", availability: true, description: "" });
 
     useEffect(() => {
         const fetchGuide = async () => {
@@ -23,8 +23,9 @@ const UpdateGuide = () => {
                 const g = res.data;
                 setForm({
                     ...g,
-                    language: Array.isArray(g.language) ? g.language : typeof g.language === "string" ? g.language.split(", ").filter(Boolean) : [],
                     experience: g.experience ?? "",
+                    nic: g.nic || "",
+                    age: g.age || "",
                 });
             } catch (err) {
                 showToast("Failed to load guide details.", { variant: "error" });
@@ -38,15 +39,7 @@ const UpdateGuide = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        if (name === "language") {
-            setForm((prev) => {
-                const current = [...prev.language];
-                if (checked) return { ...prev, language: [...current, value] };
-                return { ...prev, language: current.filter((l) => l !== value) };
-            });
-        } else {
-            setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
-        }
+        setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
     };
 
@@ -69,7 +62,12 @@ const UpdateGuide = () => {
         } else if (Number(form.experience) < 0) {
             errs.experience = "Experience cannot be negative";
         }
-        if (form.language.length === 0) errs.language = "Select at least one language";
+        if (!form.nic?.trim()) errs.nic = "NIC is required";
+        if (form.age === "" || form.age === null) {
+            errs.age = "Age is required";
+        } else if (Number(form.age) < 18) {
+            errs.age = "Guide must be at least 18 years old";
+        }
         return errs;
     };
 
@@ -82,7 +80,7 @@ const UpdateGuide = () => {
             await axios.put(`${API_URL}/api/guides/update/${id}`, {
                 ...form,
                 experience: Number(form.experience),
-                language: form.language.join(", "),
+                age: Number(form.age),
             });
             navigate("/guides/dashboard");
         } catch (err) {
@@ -161,23 +159,27 @@ const UpdateGuide = () => {
                             {errors.experience && <p className="text-xs text-red-500 mt-1">{errors.experience}</p>}
                         </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Languages *</label>
-                        <div className={`p-4 rounded-xl border grid grid-cols-2 gap-3 ${errors.language ? "border-red-200 bg-red-50" : "border-gray-100 bg-gray-50/50"}`}>
-                            {LANGUAGES.map((lang) => (
-                                <label key={lang} className="flex items-center gap-3 cursor-pointer group">
-                                    <input
-                                        type="checkbox" name="language" value={lang}
-                                        checked={Array.isArray(form.language) && form.language.includes(lang)}
-                                        onChange={handleChange}
-                                        className="w-4 h-4 border-gray-300 rounded cursor-pointer"
-                                        style={{ accentColor: '#166534' }}
-                                    />
-                                    <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">{lang}</span>
-                                </label>
-                            ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">NIC Number *</label>
+                            <input
+                                name="nic" value={form.nic} onChange={handleChange}
+                                className={inputClasses("nic")} placeholder="e.g. 199012345678"
+                                onFocus={e => { if (!errors.nic) Object.assign(e.target.style, inputFocusStyle); }}
+                                onBlur={e => { e.target.style.borderColor = ''; e.target.style.boxShadow = ''; }}
+                            />
+                            {errors.nic && <p className="text-xs text-red-500 mt-1">{errors.nic}</p>}
                         </div>
-                        {errors.language && <p className="text-xs text-red-500 mt-1">{errors.language}</p>}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Age *</label>
+                            <input
+                                name="age" type="number" min="18" value={form.age} onChange={handleChange}
+                                className={inputClasses("age")} placeholder="25"
+                                onFocus={e => { if (!errors.age) Object.assign(e.target.style, inputFocusStyle); }}
+                                onBlur={e => { e.target.style.borderColor = ''; e.target.style.boxShadow = ''; }}
+                            />
+                            {errors.age && <p className="text-xs text-red-500 mt-1">{errors.age}</p>}
+                        </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <input

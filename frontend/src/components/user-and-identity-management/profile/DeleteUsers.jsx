@@ -18,8 +18,9 @@ const DeleteUsers = () => {
     const [search, setSearch]       = useState('');
     const [confirmId, setConfirmId] = useState(null); // ID waiting for confirm
 
-    const token = localStorage.getItem('token');
-    const me    = JSON.parse(localStorage.getItem('user') || '{}');
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const token = userInfo.token;
+    const me = userInfo;
 
     // Redirect if not admin
     useEffect(() => {

@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+<<<<<<< HEAD
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
+=======
+import { useAuth } from '../../context/AuthContext';
+import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
+import EquipmentDetail from './EquipmentDetail';
+import axios from "axios";
+>>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
 
-const API = process.env.REACT_APP_API_URL + '/api/equipment';
+const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
 const CATEGORIES = ['All Gear', 'Tents', 'Sleeping Bags', 'Backpacks', 'Cooking Gear', 'Lighting', 'Other'];
 
@@ -179,11 +186,23 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
         )}
       </div>
 
-      <div className="p-5 flex flex-col h-[220px]">
+      <div className="p-5 flex flex-col h-[240px]">
         <h3 className="text-lg font-bold text-gray-900 truncate">{item.name}</h3>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
           {item.category} • {item.condition}
         </p>
+
+        {/* Rating */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex text-[#fbbf24] gap-0.5">
+             {[...Array(5)].map((_, i) => (
+               <Star key={i} size={14} fill={i < Math.round(item.averageRating || 0) ? "currentColor" : "none"} strokeWidth={2.5} />
+             ))}
+          </div>
+          <span className="text-[12px] font-black text-slate-400 uppercase tracking-wide mt-0.5">
+             {item.averageRating ? item.averageRating.toFixed(1) : "0.0"} ({item.reviewCount || 0} REVIEWS)
+          </span>
+        </div>
 
         {/* Mode Toggle */}
         <div className="flex bg-gray-100 rounded-lg p-1.5 mb-3">
@@ -258,7 +277,10 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
 // ── Main Store Component ─────────────────────────────────────
 const EquipmentStore = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { user } = useAuth();
+  const userId = user?._id || 'guest';
+  const cartKey = `equipment_cart_${userId}`;
+  const favKey = `equipment_favorites_${userId}`;
 
   const [equipment, setEquipment]               = useState([]);
   const [loading, setLoading]                   = useState(true);
@@ -270,12 +292,6 @@ const EquipmentStore = () => {
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
 
-  // Get current user ID for specific cart/favorites
-  const user = JSON.parse(localStorage.getItem('user'));
-  const userId = user ? user._id : 'guest';
-  const cartKey = `equipment_cart_${userId}`;
-  const favKey = `equipment_favorites_${userId}`;
-
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem(cartKey);
     return saved ? JSON.parse(saved) : [];
@@ -286,6 +302,7 @@ const EquipmentStore = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Keep storage in sync
   useEffect(() => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, cartKey]);
@@ -293,14 +310,46 @@ const EquipmentStore = () => {
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
+<<<<<<< HEAD
+=======
+
+  // 1. Migration Logic: If guest cart has items and user just logged in, move them.
+  useEffect(() => {
+    if (user?._id) {
+      const guestCartJson = localStorage.getItem('equipment_cart_guest');
+      if (guestCartJson) {
+        try {
+          const guestCart = JSON.parse(guestCartJson);
+          if (guestCart.length > 0) {
+            setCart(prev => {
+              const merged = [...prev];
+              guestCart.forEach(gItem => {
+                if (!merged.some(m => m._id === gItem._id && m.mode === gItem.mode)) {
+                  merged.push(gItem);
+                }
+              });
+              return merged;
+            });
+            localStorage.removeItem('equipment_cart_guest');
+          }
+        } catch (e) { console.error("Migration failed:", e); }
+      }
+    }
+  }, [user?._id]);
+>>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
 
   useEffect(() => {
     fetch(`${API}/display`)
       .then(res => res.json())
       .then(data => { setEquipment(data); setLoading(false); })
-      .catch(() => { setError('Failed to load equipment.'); setLoading(false); });
+      .catch(err => { 
+        console.error("Fetch failed:", err);
+        setError("Failed to load equipment. Please try again later.");
+        setLoading(false);
+      });
   }, []);
 
+<<<<<<< HEAD
   const addToCart      = (item)     => setCart(prev => [...prev, item]);
   const removeFromCart = (id, mode) => setCart(prev => prev.filter(c => !(c._id === id && c.mode === mode)));
 
@@ -308,6 +357,24 @@ const EquipmentStore = () => {
     setFavorites(prev => 
       prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
     );
+=======
+  const addToCart = (product) => {
+    setCart(prev => {
+      if (prev.some(i => i._id === product._id && i.mode === product.mode)) return prev;
+      return [...prev, product];
+    });
+  };
+
+  const removeFromCart = (id, mode) => {
+    setCart(prev => prev.filter(i => !(i._id === id && i.mode === mode)));
+  };
+
+  const onToggleFavorite = (id) => {
+    setFavorites(prev => {
+      if (prev.includes(id)) return prev.filter(i => i !== id);
+      return [...prev, id];
+    });
+>>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
   };
 
   const filtered = useMemo(() => {
@@ -345,6 +412,7 @@ const EquipmentStore = () => {
           {[
             { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
             { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
+            { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
             { icon: Heart, label: "Favorites", active: showFavorites, action: () => setShowFavorites(true) },
           ].map((item, idx) => (
             <button

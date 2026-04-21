@@ -70,7 +70,7 @@ const GuideCard = ({ guide, onDelete, role = "user" }) => {
         <div className="flex gap-2"><Mail size={14}/> {guide.email}</div>
         <div className="flex gap-2"><Phone size={14}/> {guide.phone}</div>
         <div className="flex gap-2"><Clock size={14}/> {guide.experience} years</div>
-        <div className="flex gap-2"><Globe size={14}/> {guide.language}</div>
+
       </div>
 
       {/* ✅ ONLY ADMIN / GUIDE */}

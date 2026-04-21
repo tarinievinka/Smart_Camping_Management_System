@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const guideBookingController = require("../../controllers/guide-booking-controller/guideBookingController");
+const { protect } = require("../../middleware/authMiddleware");
 
 // Create booking
-router.post("/add", guideBookingController.createBooking);
+router.post("/add", protect, guideBookingController.createBooking);
 
 // Get all bookings
 router.get("/display", guideBookingController.getAllBookings);

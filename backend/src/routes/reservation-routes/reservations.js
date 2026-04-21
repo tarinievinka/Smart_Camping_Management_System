@@ -1,7 +1,7 @@
-import express from 'express';
-import Reservation from '../../models/reservation-models/Reservation.js';
-import Campsite from '../../models/camping-site-models/Campsite.js';
-import { protect, admin, campsiteOwner } from '../../utils/auth.js';
+const express = require('express');
+const Reservation = require('../../models/reservation-models/Reservation.js');
+const Campsite = require('../../models/campsite-model/CampsiteModel.js');
+const { protect, admin, campsiteOwner } = require('../../utils/auth.js');
 
 const router = express.Router();
 
@@ -29,7 +29,7 @@ router.get('/campsite/:id/bookeddates', async (req, res) => {
 router.get('/myreservations', protect, async (req, res) => {
   try {
     const reservations = await Reservation.find({ user: req.user._id })
-      .populate('campsite', 'title location price images contactNumber');
+      .populate('campsite', 'name location pricePerNight image');
     res.json(reservations);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -40,11 +40,11 @@ router.get('/myreservations', protect, async (req, res) => {
 // @access  Private/CampsiteOwner
 router.get('/owner', protect, campsiteOwner, async (req, res) => {
   try {
-    const ownedSites = await Campsite.find({ owner: req.user._id }).select('_id');
+    const ownedSites = await Campsite.find({ ownerId: req.user._id }).select('_id');
     const siteIds = ownedSites.map(s => s._id);
     const reservations = await Reservation.find({ campsite: { $in: siteIds }, status: { $ne: 'cancelled' } })
       .populate('user', 'username email phone')
-      .populate('campsite', 'title location');
+      .populate('campsite', 'name location');
     res.json(reservations);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -57,7 +57,7 @@ router.get('/', protect, admin, async (req, res) => {
   try {
     const reservations = await Reservation.find({})
       .populate('user', 'username email phone')
-      .populate('campsite', 'title location');
+      .populate('campsite', 'name location');
     res.json(reservations);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -79,12 +79,6 @@ router.post('/', protect, async (req, res) => {
     // Validate booking duration
     const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / 86400000);
     if (nights < 1) return res.status(400).json({ message: 'Check-out must be after check-in' });
-    if (nights < campsite.minBookingDays) {
-      return res.status(400).json({ message: `Minimum booking is ${campsite.minBookingDays} night(s)` });
-    }
-    if (nights > campsite.maxBookingDays) {
-      return res.status(400).json({ message: `Maximum booking is ${campsite.maxBookingDays} night(s)` });
-    }
 
     // Check for duplicate — same user, same campsite, overlapping dates
     const existingByUser = await Reservation.findOne({
@@ -138,8 +132,6 @@ router.put('/:id', protect, async (req, res) => {
     const campsite = await Campsite.findById(reservation.campsite);
     const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / 86400000);
     if (nights < 1) return res.status(400).json({ message: 'Check-out must be after check-in' });
-    if (nights < campsite.minBookingDays) return res.status(400).json({ message: `Min ${campsite.minBookingDays} nights required` });
-    if (nights > campsite.maxBookingDays) return res.status(400).json({ message: `Max ${campsite.maxBookingDays} nights allowed` });
 
     // Conflict check excluding this reservation
     const others = await Reservation.find({
@@ -150,7 +142,7 @@ router.put('/:id', protect, async (req, res) => {
     const hasConflict = others.some(r => hasOverlap(checkInDate, checkOutDate, r.checkInDate, r.checkOutDate));
     if (hasConflict) return res.status(400).json({ message: 'These dates are already taken.' });
 
-    const pricePerNight = campsite.price;
+    const pricePerNight = campsite.pricePerNight;
     reservation.checkInDate = checkInDate;
     reservation.checkOutDate = checkOutDate;
     reservation.totalPrice = nights * pricePerNight + 35 + 25;
@@ -178,4 +170,4 @@ router.delete('/:id', protect, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

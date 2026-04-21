@@ -4,13 +4,16 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { seedJayanthaDevSessionIfNeeded } from './components/guides-management/guide-self/guideSession';
+import { AuthProvider } from './context/AuthContext';
 
 seedJayanthaDevSessionIfNeeded();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>
 );
 

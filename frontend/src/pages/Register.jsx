@@ -26,7 +26,7 @@ const Register = () => {
             
             // Redirect based on role
             if (user.role === 'campsite-owner') navigate('/owner');
-            else navigate('/campsites');
+            else navigate('/');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed. This email or username may already be in use.');
         } finally {

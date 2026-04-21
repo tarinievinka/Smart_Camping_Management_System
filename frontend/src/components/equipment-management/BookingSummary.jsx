@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const API_BASE = process.env.REACT_APP_API_URL;
+<<<<<<< HEAD
 const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
+=======
+>>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
 
 // ── No CATEGORY_IMAGES — only admin-uploaded photos shown ──
 
@@ -25,6 +29,7 @@ const NoPhoto = ({ size = '72px' }) => (
 const BookingSummary = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { items } = location.state || {};
 
   const today = new Date();
@@ -92,6 +97,14 @@ const BookingSummary = () => {
 
   const handleProceed = async () => {
     if (activeItems.length === 0) return;
+
+    if (!user || !user.token) {
+      if (window.confirm("Please sign in or create an account to finalize your booking.")) {
+        navigate('/signup', { state: { from: location.pathname } });
+      }
+      return;
+    }
+
     setProcessing(true);
     try {
       // Stock reduction will now be handled ONLY after successful payment confirmation
@@ -108,7 +121,29 @@ const BookingSummary = () => {
             _id: item._id,
             quantity: (itemStates[key(item)] || { quantity: 1 }).quantity,
             mode: item.mode
-          }))
+          })),
+          equipmentBookingDraft: {
+            pickupDate,
+            returnDate,
+            days,
+            totalAmount: parseFloat(totalAmount),
+            items: activeItems.map(item => {
+              const quantity = (itemStates[key(item)] || { quantity: 1 }).quantity;
+              const unitPrice = item.mode === 'buy' ? item.salePrice : item.rentalPrice;
+              const lineTotal = item.mode === 'buy'
+                ? unitPrice * quantity
+                : unitPrice * quantity * days;
+              return {
+                _id: item._id,
+                name: item.name,
+                mode: item.mode,
+                quantity,
+                unitPrice,
+                imageUrl: item.imageUrl || '',
+                lineTotal
+              };
+            })
+          }
         }
       });
     } catch {
