@@ -35,6 +35,7 @@ const FeedbackForm = () => {
     const { user } = useAuth();
     const resolvedUser = user || getStoredUser();
     const [selectedReview, setSelectedReview] = useState(location.state?.targetType || "guide");
+    const [selectedTargetId, setSelectedTargetId] = useState(location.state?.targetId || "");
     const [userName, setUserName] = useState(getDisplayName(resolvedUser));
     const [locationName, setLocationName] = useState(location.state?.targetName || "");
     const [bookedGuides, setBookedGuides] = useState([]);
@@ -145,7 +146,11 @@ const FeedbackForm = () => {
         formData.append("userId", resolvedUser?._id || resolvedUser?.id || "507f1f77bcf86cd799439011");
         formData.append("userName", userName.trim());
         formData.append("targetType", selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1));
-        formData.append("targetId", "507f1f77bcf86cd799439012");
+        const resolvedTargetId =
+            selectedReview === "equipment"
+                ? selectedTargetId || location.state?.targetId || "507f1f77bcf86cd799439012"
+                : "507f1f77bcf86cd799439012";
+        formData.append("targetId", resolvedTargetId);
         formData.append("targetName", locationName.trim());
         formData.append("title", `${selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1)} Review`);
         formData.append("sessionDate", sessionStartDate);
@@ -170,6 +175,7 @@ const FeedbackForm = () => {
             setSelectedReview("");
             setUserName(getDisplayName(resolvedUser) || "Nethmi User");
             setLocationName("");
+            setSelectedTargetId("");
             setSessionStartDate("");
             setSessionEndDate("");
             setRating(4);
@@ -177,7 +183,11 @@ const FeedbackForm = () => {
             setImageFiles([]);
             setImagePreviews([]);
             setErrors({});
-            navigate("/my-reviews");
+            if (selectedReview === "equipment" || location.pathname === "/feedbackreview") {
+                navigate("/equipment-bookings");
+            } else {
+                navigate("/my-reviews");
+            }
         } catch (error) {
             console.error("Error submitting feedback:", error);
 
@@ -429,6 +439,7 @@ const FeedbackForm = () => {
                                 setSelectedReview("");
                                 setUserName(getDisplayName(resolvedUser));
                                 setLocationName("");
+                                setSelectedTargetId("");
                                 // Reset to state if exists instead of blindly clearing if we want, but clear form means clear
                                 if (location.state) {
                                     window.history.replaceState({}, document.title)
