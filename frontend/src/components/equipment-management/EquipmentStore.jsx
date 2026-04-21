@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
+import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
-=======
-import { useAuth } from '../../context/AuthContext';
-import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown } from "lucide-react";
 import axios from "axios";
->>>>>>> 5f97c96b97203d6e8bb230c9f212f2a9c31b625f
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
@@ -278,36 +274,19 @@ const EquipmentStore = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-
-  // Dynamic Key: 'equipment_cart_guest' or 'equipment_cart_USERID'
-  const cartKey = React.useMemo(() => `equipment_cart_${user?._id || 'guest'}`, [user?._id]);
+  const userId = user?._id || 'guest';
+  const cartKey = `equipment_cart_${userId}`;
+  const favKey = `equipment_favorites_${userId}`;
 
   const [equipment, setEquipment]               = useState([]);
   const [loading, setLoading]                   = useState(true);
   const [error, setError]                       = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All Gear');
   const [searchQuery, setSearchQuery]           = useState('');
-<<<<<<< HEAD
   const [showFavorites, setShowFavorites]       = useState(false);
-=======
-  const [cart, setCart]                         = useState(() => {
-    try {
-      const stored = localStorage.getItem(`equipment_cart_${user?._id || 'guest'}`);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
->>>>>>> 5f97c96b97203d6e8bb230c9f212f2a9c31b625f
   const [displayCount, setDisplayCount]         = useState(8);
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
-
-  // Get current user ID for specific cart/favorites
-  const user = JSON.parse(localStorage.getItem('user'));
-  const userId = user ? user._id : 'guest';
-  const cartKey = `equipment_cart_${userId}`;
-  const favKey = `equipment_favorites_${userId}`;
 
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem(cartKey);

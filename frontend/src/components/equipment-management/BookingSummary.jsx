@@ -104,7 +104,6 @@ const BookingSummary = () => {
 
     setProcessing(true);
     try {
-<<<<<<< HEAD
       // Stock reduction will now be handled ONLY after successful payment confirmation
       navigate('/payment-checkout', {
         state: {
@@ -144,31 +143,6 @@ const BookingSummary = () => {
           }
         }
       });
-=======
-      const results = await Promise.all(
-        activeItems.map(item => {
-          const state = itemStates[key(item)] || { quantity: 1 };
-          return fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
-            method: 'PATCH',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user.token}`
-            },
-            body: JSON.stringify({ quantity: state.quantity, mode: item.mode }),
-          }).then(res => res.json());
-        })
-      );
-      const failed = results.filter(r => r.error);
-      if (failed.length > 0) {
-        alert(`Some items could not be processed: ${failed.map(f => f.error).join(', ')}`);
-        setProcessing(false);
-        return;
-      }
-      alert(
-        `✅ Booking confirmed!\n\n${activeItems.length} item(s) booked.\nTotal: Rs ${parseFloat(totalAmount).toLocaleString()}\n\nStock has been updated in the system.\nConnecting to payment...`
-      );
-      // navigate('/payment', { state: { items: activeItems, total: totalAmount } });
->>>>>>> 5f97c96b97203d6e8bb230c9f212f2a9c31b625f
     } catch {
       alert('Failed to process booking. Please try again.');
     } finally {
