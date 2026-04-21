@@ -221,14 +221,6 @@ const GuideSelfBookings = () => {
                             <Clock size={16} style={{ color: "#ca8a04", flexShrink: 0 }} />
                             {formatDateRange(b.startDate, b.endDate, b.bookedAt)}
                           </div>
-<<<<<<< HEAD
-=======
-                          {b.amount != null && (
-                            <div style={{ marginTop: 8, color: "#16a34a", fontSize: 15, fontWeight: 700 }}>
-                              LKR {Number(b.amount).toFixed(2)}
-                            </div>
-                          )}
->>>>>>> fb3d5a2a59dcfa9a5f5b12c7909d8f2ca27df1a2
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                           {isPendingGuideBooking(b) ? (
@@ -320,14 +312,6 @@ const GuideSelfBookings = () => {
                         <div style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
                           Completed on {completedOnLabel(b)}
                         </div>
-<<<<<<< HEAD
-=======
-                        {b.amount != null && (
-                          <div style={{ marginTop: 4, color: "#16a34a", fontSize: 15, fontWeight: 700 }}>
-                            LKR {Number(b.amount).toFixed(2)}
-                          </div>
-                        )}
->>>>>>> fb3d5a2a59dcfa9a5f5b12c7909d8f2ca27df1a2
                       </div>
                       <div
                         style={{
