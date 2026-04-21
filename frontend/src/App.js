@@ -32,6 +32,7 @@ import AddEquipment from './components/equipment-management/AddEquipment';
 import EditEquipment from './components/equipment-management/EditEquipment';
 import EquipmentList from './components/equipment-management/EquipmentList';
 import NotifyRequests from './components/equipment-management/NotifyRequests';
+import EquipmentBookings from './components/equipment-management/EquipmentBookings';
 
 // Landing page
 import Landing from './components/landing/Landing';
@@ -86,6 +87,7 @@ function App() {
             
             {/* Feedback Routes */}
             <Route path='/feedback' element={<Feedback />} />
+            <Route path='/feedbackreview' element={<Feedback />} />
             <Route path='/my-reviews' element={<MyReviews />} />
             <Route path='/admin/feedback' element={<AdminFeedback />} />
             <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
@@ -93,6 +95,7 @@ function App() {
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
             <Route path="/booking-summary" element={<BookingSummary />} />
+            <Route path="/equipment-bookings" element={<EquipmentBookings />} />
             <Route path="/equipment-dashboard" element={<EquipmentDashboard />} />
             <Route path="/equipment-list" element={<EquipmentList />} />
             <Route path="/add-equipment" element={<AddEquipment />} />
