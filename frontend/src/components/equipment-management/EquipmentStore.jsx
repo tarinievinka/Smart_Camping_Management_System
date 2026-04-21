@@ -274,7 +274,9 @@ const EquipmentStore = () => {
   const { user } = useAuth();
 
   // Dynamic Key: 'equipment_cart_guest' or 'equipment_cart_USERID'
-  const cartKey = React.useMemo(() => `equipment_cart_${user?._id || 'guest'}`, [user?._id]);
+  const userId = user?._id || 'guest';
+  const cartKey = useMemo(() => `equipment_cart_${userId}`, [userId]);
+  const favKey = useMemo(() => `equipment_favorites_${userId}`, [userId]);
 
   const [equipment, setEquipment]               = useState([]);
   const [loading, setLoading]                   = useState(true);
@@ -286,12 +288,16 @@ const EquipmentStore = () => {
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
 
+<<<<<<< HEAD
   const favKey = React.useMemo(() => `equipment_favorites_${user?._id || 'guest'}`, [user?._id]);
 
+=======
+>>>>>>> 49ee29d92aa615ffc0565b64fa3e74c8844b93a2
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem(cartKey);
       return saved ? JSON.parse(saved) : [];
+<<<<<<< HEAD
     } catch {
       return [];
     }
@@ -300,6 +306,16 @@ const EquipmentStore = () => {
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem(`equipment_favorites_${user?._id || 'guest'}`);
     return saved ? JSON.parse(saved) : [];
+=======
+    } catch { return []; }
+  });
+
+  const [favorites, setFavorites] = useState(() => {
+    try {
+      const saved = localStorage.getItem(favKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+>>>>>>> 49ee29d92aa615ffc0565b64fa3e74c8844b93a2
   });
 
   // Keep storage in sync
@@ -307,11 +323,16 @@ const EquipmentStore = () => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, cartKey]);
 
+  // Sync favorites to localStorage
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
-
+<<<<<<< HEAD
   // 1. Migration Logic: If guest cart has items and user just logged in, move them.
+=======
+
+  // Migration Logic: If guest cart has items and user just logged in, move them.
+>>>>>>> 6356fa8f7392e9dc86e68507ee06d40959c6d1dc
   useEffect(() => {
     if (user?._id) {
       const guestCartJson = localStorage.getItem('equipment_cart_guest');
@@ -365,7 +386,7 @@ const EquipmentStore = () => {
   };
 
   const filtered = useMemo(() => {
-    return equipment?.filter(item => {
+    return (equipment || []).filter(item => {
       const matchCat    = selectedCategory === 'All Gear' || item.category === selectedCategory;
       const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchFav    = !showFavorites || favorites.includes(item._id);
@@ -394,7 +415,6 @@ const EquipmentStore = () => {
       )}
 
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
-
         <nav className="flex-1 space-y-1">
           {[
             { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
@@ -406,7 +426,7 @@ const EquipmentStore = () => {
               key={idx}
               onClick={() => {
                 if (item.action) item.action();
-                else if (item.path && item.path !== '#') navigate(item.path);
+                else if (item.path) navigate(item.path);
               }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                 item.active 
@@ -423,6 +443,7 @@ const EquipmentStore = () => {
 
         <button
           type="button"
+          onClick={() => { localStorage.removeItem('user'); window.location.reload(); }}
           className="flex items-center gap-3 px-4 py-3 text-red-500 text-sm font-medium hover:bg-red-50 rounded-xl transition-colors mt-auto"
         >
           <LogOut size={18} className="rotate-180" /> Sign Out
@@ -462,14 +483,6 @@ const EquipmentStore = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search equipment..."
                   className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm w-72 bg-white outline-none transition-all"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#166534";
-                    e.target.style.boxShadow = "0 0 0 2px rgba(22,101,52,0.2)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb";
-                    e.target.style.boxShadow = "none";
-                  }}
                 />
               </div>
               <button type="button" className="p-2.5 border border-gray-200 rounded-xl hover:bg-white bg-white transition-colors">

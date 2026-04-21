@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const API_BASE = process.env.REACT_APP_API_URL;
+const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
 
 // ── No CATEGORY_IMAGES — only admin-uploaded photos shown ──
 
@@ -26,12 +27,16 @@ const BookingSummary = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { items } = location.state || {};
+  const { items: initialItems } = location.state || {};
 
   const today = new Date();
   const returnDefault = new Date(today);
   returnDefault.setDate(today.getDate() + 4);
   const fmt = (d) => d.toISOString().split('T')[0];
+
+  // Sync with EquipmentStore's storage logic
+  const userId = user?._id || 'guest';
+  const cartKey = useMemo(() => `equipment_cart_${userId}`, [userId]);
 
   const [pickupDate, setPickupDate] = useState(fmt(today));
   const [returnDate, setReturnDate] = useState(fmt(returnDefault));
@@ -40,13 +45,13 @@ const BookingSummary = () => {
   const [processing, setProcessing] = useState(false);
 
   const [itemStates, setItemStates] = useState(
-    (items || []).reduce((acc, item) => {
+    (initialItems || []).reduce((acc, item) => {
       acc[item._id + item.mode] = { quantity: 1, removed: false };
       return acc;
     }, {})
   );
 
-  if (!items || items.length === 0) {
+  if (!initialItems || initialItems.length === 0) {
     return (
       <div style={{ padding: '60px', textAlign: 'center', fontFamily: 'system-ui, sans-serif' }}>
         <p style={{ color: '#6b7280', marginBottom: '16px', fontSize: '16px' }}>No equipment selected.</p>
@@ -68,19 +73,35 @@ const BookingSummary = () => {
     setItemStates(prev => {
       const k = key(item);
       const currentQty = prev[k]?.quantity || 1;
-      const maxStock = item.stockQuantity || 999; // Fallback if stockQuantity is missing
+      const maxStock = item.stockQuantity || 999; 
       const newQty = Math.min(maxStock, Math.max(1, currentQty + delta));
       return { ...prev, [k]: { ...prev[k], quantity: newQty } };
     });
   };
 
-  const removeItem = (item) =>
-    setItemStates(prev => ({ ...prev, [key(item)]: { ...prev[key(item)], removed: true } }));
+  // ── Sync Helper ──
+  const syncStorage = (updatedStates) => {
+    const newCart = initialItems.filter(i => !updatedStates[key(i)]?.removed);
+    localStorage.setItem(cartKey, JSON.stringify(newCart));
+  };
 
-  const undoRemove = (item) =>
-    setItemStates(prev => ({ ...prev, [key(item)]: { ...prev[key(item)], removed: false } }));
+  const removeItem = (item) => {
+    setItemStates(prev => {
+      const next = { ...prev, [key(item)]: { ...prev[key(item)], removed: true } };
+      syncStorage(next);
+      return next;
+    });
+  };
 
-  const activeItems = items.filter(i => !itemStates[key(i)]?.removed);
+  const undoRemove = (item) => {
+    setItemStates(prev => {
+      const next = { ...prev, [key(item)]: { ...prev[key(item)], removed: false } };
+      syncStorage(next);
+      return next;
+    });
+  };
+
+  const activeItems = initialItems.filter(i => !itemStates[key(i)]?.removed);
 
   const itemsTotal = activeItems.reduce((sum, item) => {
     const state = itemStates[key(item)] || { quantity: 1 };
@@ -217,7 +238,7 @@ const BookingSummary = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {items.map(item => {
+                {initialItems.map(item => {
                   const state = itemStates[key(item)] || { quantity: 1, removed: false };
                   // ── Only show admin-uploaded photo ──
                   const imgSrc = item.imageUrl ? `${API_BASE}${item.imageUrl}` : null;

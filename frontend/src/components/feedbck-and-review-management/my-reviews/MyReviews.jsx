@@ -4,12 +4,18 @@ import { useNavigate } from "react-router-dom";
 import { Star, Pencil, Trash2, X, ChevronDown, MapPin, PenSquare, User, Upload } from "lucide-react";
 
 const MyReviews = () => {
-  const CURRENT_USER_ID = "507f1f77bcf86cd799439011";
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const navigate = useNavigate();
+
+  const userInfo = useMemo(() => {
+    const stored = localStorage.getItem("userInfo");
+    return stored ? JSON.parse(stored) : null;
+  }, []);
+
+  const CURRENT_USER_ID = userInfo?._id || userInfo?.id || "";
 
   const [editingReview, setEditingReview] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
