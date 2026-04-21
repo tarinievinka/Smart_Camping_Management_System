@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
+<<<<<<< HEAD
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
 import axios from "axios";
+=======
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
+import EquipmentDetail from './EquipmentDetail';
+>>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
@@ -272,7 +279,6 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
 // ── Main Store Component ─────────────────────────────────────
 const EquipmentStore = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
 
   // Dynamic Key: 'equipment_cart_guest' or 'equipment_cart_USERID'
@@ -288,6 +294,7 @@ const EquipmentStore = () => {
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
 
+<<<<<<< HEAD
   const favKey = React.useMemo(() => `equipment_favorites_${user?._id || 'guest'}`, [user?._id]);
 
   const [cart, setCart]                         = useState(() => {
@@ -297,6 +304,14 @@ const EquipmentStore = () => {
     } catch {
       return [];
     }
+=======
+  // Storage Keys
+  const favKey = React.useMemo(() => `equipment_favorites_${user?._id || 'guest'}`, [user?._id]);
+
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem(cartKey);
+    return saved ? JSON.parse(saved) : [];
+>>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
   });
 
   const [favorites, setFavorites] = useState(() => {
@@ -304,6 +319,7 @@ const EquipmentStore = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Keep storage in sync
   useEffect(() => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, cartKey]);
@@ -336,29 +352,33 @@ const EquipmentStore = () => {
     }
   }, [user?._id]);
 
-  // 2. Sync active cart with its specific localStorage key
-  useEffect(() => {
-    try {
-      localStorage.setItem(cartKey, JSON.stringify(cart));
-    } catch (err) {
-      console.error("Failed to save cart:", err);
-    }
-  }, [cart, cartKey]);
-
   useEffect(() => {
     fetch(`${API}/display`)
       .then(res => res.json())
       .then(data => { setEquipment(data); setLoading(false); })
-      .catch(() => { setError('Failed to load equipment.'); setLoading(false); });
+      .catch(err => { 
+        console.error("Fetch failed:", err);
+        setError("Failed to load equipment. Please try again later.");
+        setLoading(false);
+      });
   }, []);
 
-  const addToCart      = (item)     => setCart(prev => [...prev, item]);
-  const removeFromCart = (id, mode) => setCart(prev => prev.filter(c => !(c._id === id && c.mode === mode)));
+  const addToCart = (product) => {
+    setCart(prev => {
+      if (prev.some(i => i._id === product._id && i.mode === product.mode)) return prev;
+      return [...prev, product];
+    });
+  };
+
+  const removeFromCart = (id, mode) => {
+    setCart(prev => prev.filter(i => !(i._id === id && i.mode === mode)));
+  };
 
   const onToggleFavorite = (id) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(fid => fid !== id) : [...prev, id]
-    );
+    setFavorites(prev => {
+      if (prev.includes(id)) return prev.filter(i => i !== id);
+      return [...prev, id];
+    });
   };
 
   const filtered = useMemo(() => {
