@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-<<<<<<< HEAD
 import { useLocation, useNavigate } from 'react-router-dom';
-=======
-import { useNavigate } from 'react-router-dom';
->>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
 import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
@@ -292,12 +288,6 @@ const EquipmentStore = () => {
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
 
-<<<<<<< HEAD
-=======
-  // Storage Keys
-  const favKey = React.useMemo(() => `equipment_favorites_${user?._id || 'guest'}`, [user?._id]);
-
->>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem(cartKey);
@@ -312,11 +302,7 @@ const EquipmentStore = () => {
     } catch { return []; }
   });
 
-<<<<<<< HEAD
-  // Sync cart to localStorage
-=======
   // Keep storage in sync
->>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
   useEffect(() => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, cartKey]);
