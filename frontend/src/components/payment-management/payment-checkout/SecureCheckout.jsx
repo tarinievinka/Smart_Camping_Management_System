@@ -5,19 +5,12 @@ import PaymentSummary from './payment-summary/PaymentSummary';
 import SimplePaymentForm from './simple-payment/SimplePaymentForm';
 import { createPaymentWithReceipt } from '../../../services/paymentApi';
 import GooglePayButton from '@google-pay/button-react';
-<<<<<<< HEAD
-=======
 import { saveEquipmentBooking } from '../../../utils/equipmentBookings';
->>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
 
 const SecureCheckout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-<<<<<<< HEAD
-    const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems } = location.state || {};
-=======
     const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems, equipmentBookingDraft } = location.state || {};
->>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
   
   const currentBookingId = bookingId || '507f1f77bcf86cd799439012';
   const currentAmount = amount || 91140.00;
