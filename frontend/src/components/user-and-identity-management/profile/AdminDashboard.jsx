@@ -299,7 +299,7 @@ const AdminDashboard = () => {
                                 sub="Manage camping equipment inventory"
                                 bg="linear-gradient(135deg,#2563eb,#1d4ed8)"
                                 glow="rgba(37,99,235,0.35)"
-                                onClick={() => navigate('/admin/equipment')}
+                                onClick={() => navigate('/equipment-dashboard')}
                             />
                             <ActionButton
                                 icon={
