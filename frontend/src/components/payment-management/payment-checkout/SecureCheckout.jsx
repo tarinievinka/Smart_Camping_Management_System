@@ -5,11 +5,12 @@ import PaymentSummary from './payment-summary/PaymentSummary';
 import SimplePaymentForm from './simple-payment/SimplePaymentForm';
 import { createPaymentWithReceipt } from '../../../services/paymentApi';
 import GooglePayButton from '@google-pay/button-react';
+import { saveEquipmentBooking } from '../../../utils/equipmentBookings';
 
 const SecureCheckout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-    const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems } = location.state || {};
+    const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems, equipmentBookingDraft } = location.state || {};
   
   const currentBookingId = bookingId || '507f1f77bcf86cd799439012';
   const currentAmount = amount || 91140.00;
@@ -146,7 +147,8 @@ const SecureCheckout = () => {
                 amount={currentAmount} 
                 bookingId={currentBookingId} 
                 bookingType={currentBookingType} 
-                equipmentItems={equipmentItems} 
+                equipmentItems={equipmentItems}
+                equipmentBookingDraft={equipmentBookingDraft}
               />
             )}
             {paymentMethod === 'bank-deposit' && (
@@ -260,7 +262,17 @@ const SecureCheckout = () => {
                         }
                       }
 
-                      navigate('/payment-history', { 
+                      if (currentBookingType === 'EquipmentBooking' && equipmentBookingDraft) {
+                        saveEquipmentBooking(equipmentBookingDraft, {
+                          bookingId: currentBookingId,
+                          status: 'paid',
+                          paymentMethod: 'google-pay',
+                          transactionId: `GPAY-${Date.now()}`,
+                          totalAmount: currentAmount,
+                        });
+                      }
+
+                      navigate('/equipment-bookings', { 
                         state: { 
                           message: 'Google Pay payment completed successfully!', 
                           variant: 'success' 
