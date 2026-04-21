@@ -1,16 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-<<<<<<< HEAD
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
 import axios from "axios";
-=======
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
-import EquipmentDetail from './EquipmentDetail';
->>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
@@ -294,12 +287,6 @@ const EquipmentStore = () => {
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
 
-<<<<<<< HEAD
-=======
-  // Storage Keys
-  const favKey = React.useMemo(() => `equipment_favorites_${user?._id || 'guest'}`, [user?._id]);
-
->>>>>>> edf89deb741d3a559b46262f10b7c2db205bf20f
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem(cartKey);
     return saved ? JSON.parse(saved) : [];
