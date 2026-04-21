@@ -206,7 +206,7 @@ const SignUP = () => {
 
 				switch (role) {
 					case 'camper':
-						navigate('/camper-dashboard');
+						navigate('/');
 						break;
 					case 'admin':
 						navigate('/admin-dashboard');

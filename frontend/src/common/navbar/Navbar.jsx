@@ -36,6 +36,22 @@ const Navbar = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const getDashboardPath = () => {
+        if (!user) return "/login";
+        switch (user.role) {
+            case "camper":
+                return "/camper-dashboard";
+            case "admin":
+                return "/admin-dashboard";
+            case "guide":
+                return "/guides/owndashboard";
+            case "owner":
+                return "/owner-profile";
+            default:
+                return "/camper-dashboard";
+        }
+    };
+
 
     return (
         <nav className="w-full bg-gradient-to-r from-white/75 via-white/35 to-white/75 backdrop-blur-xl border-b border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.08)] sticky top-0 z-50 transition-all duration-300">
@@ -146,7 +162,7 @@ const Navbar = () => {
                                     </div>
 
                                     <button
-                                        onClick={() => { setProfileOpen(false); navigate("/profile"); }}
+                                        onClick={() => { setProfileOpen(false); navigate(getDashboardPath()); }}
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
                                     >
                                         <User className="w-4 h-4" />
@@ -253,7 +269,7 @@ const Navbar = () => {
                         {/* Mobile profile links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">
                             <Link
-                                to="/profile"
+                                to={getDashboardPath()}
                                 onClick={() => setMobileOpen(false)}
                                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors"
                             >
