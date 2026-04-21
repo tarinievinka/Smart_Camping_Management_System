@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
+import axios from "axios";
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
@@ -272,11 +273,17 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
 const EquipmentStore = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+<<<<<<< HEAD
 
   // Dynamic Key: 'equipment_cart_guest' or 'equipment_cart_USERID'
   const userId = user?._id || 'guest';
   const cartKey = useMemo(() => `equipment_cart_${userId}`, [userId]);
   const favKey = useMemo(() => `equipment_favorites_${userId}`, [userId]);
+=======
+  const userId = user?._id || 'guest';
+  const cartKey = `equipment_cart_${userId}`;
+  const favKey = `equipment_favorites_${userId}`;
+>>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
 
   const [equipment, setEquipment]               = useState([]);
   const [loading, setLoading]                   = useState(true);

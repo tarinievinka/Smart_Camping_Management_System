@@ -36,6 +36,22 @@ const Navbar = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const getDashboardPath = () => {
+        if (!user) return "/login";
+        switch (user.role) {
+            case "camper":
+                return "/camper-dashboard";
+            case "admin":
+                return "/admin-dashboard";
+            case "guide":
+                return "/guides/owndashboard";
+            case "owner":
+                return "/owner-profile";
+            default:
+                return "/camper-dashboard";
+        }
+    };
+
 
     return (
         <nav className="w-full bg-gradient-to-r from-white/75 via-white/35 to-white/75 backdrop-blur-xl border-b border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.08)] sticky top-0 z-50 transition-all duration-300">
@@ -70,6 +86,17 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
+                        {user?.role === "camper" && (
+                            <Link
+                                to="/payment-history"
+                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/payment-history")
+                                        ? "text-[#166534] border-b-2 border-[#166534]"
+                                        : "text-gray-600 hover:text-[#166534]"
+                                    }`}
+                            >
+                                Payment
+                            </Link>
+                        )}
                     </div>
 
                     {/* Right Side — Search + CTA + Profile */}
@@ -130,28 +157,18 @@ const Navbar = () => {
                             {profileOpen && (
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
                                     <div className="px-4 py-2.5 border-b border-gray-100">
-                                        <p className="text-sm font-semibold text-gray-900">{user?.username || user?.name || "My Account"}</p>
-                                        <p className="text-xs text-gray-500">{user?.email || "Signed In"}</p>
+                                        <p className="text-sm font-semibold text-gray-900 truncate">{user?.name || "My Account"}</p>
+                                        <p className="text-xs text-gray-500 truncate">{user?.email || "user@smartcamping.com"}</p>
                                     </div>
 
                                     <button
-                                        onClick={() => { setProfileOpen(false); navigate("/profile"); }}
+                                        onClick={() => { setProfileOpen(false); navigate(getDashboardPath()); }}
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
                                     >
                                         <User className="w-4 h-4" />
                                         Profile
                                     </button>
 
-                                    <button
-                                        onClick={() => { setProfileOpen(false); navigate("/payment-history"); }}
-                                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${isActive("/payment-history")
-                                                ? "text-[#166534] bg-[#166534]/10 font-semibold"
-                                                : "text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534]"
-                                            }`}
-                                    >
-                                        <CreditCard className="w-4 h-4" />
-                                        Payment
-                                    </button>
 
                                     <div className="border-t border-gray-100 mt-1 pt-1">
                                         <button
@@ -207,6 +224,18 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
+                        {user?.role === "camper" && (
+                            <Link
+                                to="/payment-history"
+                                onClick={() => setMobileOpen(false)}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive("/payment-history")
+                                        ? "text-[#166534] bg-[#166534]/10"
+                                        : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
+                                    }`}
+                            >
+                                Payment
+                            </Link>
+                        )}
                         {/* Mobile CTA */}
                         <div className="pt-2 border-t border-gray-100">
                             <Link
@@ -240,24 +269,14 @@ const Navbar = () => {
                         {/* Mobile profile links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">
                             <Link
-                                to="/profile"
+                                to={getDashboardPath()}
                                 onClick={() => setMobileOpen(false)}
                                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors"
                             >
                                 <User className="w-4 h-4" />
                                 Profile
                             </Link>
-                            <Link
-                                to="/payment-history"
-                                onClick={() => setMobileOpen(false)}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive("/payment-history")
-                                        ? "text-[#166534] bg-[#166534]/10"
-                                        : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
-                                    }`}
-                            >
-                                <CreditCard className="w-4 h-4" />
-                                Payment
-                            </Link>
+
                         </div>
 
 

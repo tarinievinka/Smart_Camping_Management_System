@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { setUser } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -28,7 +30,9 @@ const Login = () => {
             if (response.ok) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('userInfo', JSON.stringify({ ...data.user, token: data.token }));
+                const userInfo = { ...data.user, token: data.token };
+                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                setUser(userInfo);
                 
                 alert('Login successful!');
                 
@@ -40,7 +44,7 @@ const Login = () => {
 
                 switch (data.user.role) {
                     case 'camper':
-                        navigate('/camper-dashboard');
+                        navigate('/');
                         break;
                     case 'guide':
                         navigate('/guide-profile');

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const ReservationSchema = new mongoose.Schema({
   user: {
@@ -30,6 +30,4 @@ const ReservationSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-const Reservation = mongoose.model('Reservation', ReservationSchema);
-
-export default Reservation;
+module.exports = mongoose.model('Reservation', ReservationSchema);

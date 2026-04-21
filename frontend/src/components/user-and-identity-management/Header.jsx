@@ -34,6 +34,22 @@ const Header = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const getDashboardPath = () => {
+        if (!user) return "/login";
+        switch (user.role) {
+            case "camper":
+                return "/camper-dashboard";
+            case "admin":
+                return "/admin-dashboard";
+            case "guide":
+                return "/guides/owndashboard";
+            case "owner":
+                return "/owner-profile";
+            default:
+                return "/camper-dashboard";
+        }
+    };
+
     const handleLogout = () => {
         logout();
         setProfileOpen(false);
@@ -129,7 +145,7 @@ const Header = () => {
                                             </div>
 
                                             <button
-                                                onClick={() => { setProfileOpen(false); navigate("/profile"); }}
+                                                onClick={() => { setProfileOpen(false); navigate(getDashboardPath()); }}
                                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
                                             >
                                                 <User className="w-4 h-4" />
@@ -245,7 +261,7 @@ const Header = () => {
                         {user && (
                             <div className="pt-2 border-t border-gray-100 space-y-1">
                                 <Link
-                                    to="/profile"
+                                    to={getDashboardPath()}
                                     onClick={() => setMobileOpen(false)}
                                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors"
                                 >
