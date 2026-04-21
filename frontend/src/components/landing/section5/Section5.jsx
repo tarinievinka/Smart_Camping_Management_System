@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Star, ShieldCheck, ChevronRight } from "lucide-react";
 
 /**
@@ -6,6 +7,7 @@ import { Star, ShieldCheck, ChevronRight } from "lucide-react";
  * Features value propositions for guides and a stylized image gallery.
  */
 const Section5 = () => {
+    const navigate = useNavigate();
     return (
         <section className="py-24 bg-white overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,7 +48,9 @@ const Section5 = () => {
                             </div>
                         </div>
 
-                        <button className="inline-flex items-center justify-center px-10 py-4 bg-green-600 hover:bg-green-700 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 text-lg group">
+                        <button 
+                            onClick={() => navigate('/guides')}
+                            className="inline-flex items-center justify-center px-10 py-4 bg-green-600 hover:bg-green-700 text-white font-black rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 text-lg group">
                             Meet Our Guides
                             <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                         </button>
