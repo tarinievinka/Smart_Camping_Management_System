@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
     { label: "Home", href: "/" },
@@ -13,27 +14,10 @@ const navLinks = [
 const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
     const profileRef = useRef(null);
-    const [user, setUser] = useState(null);
-
-    // Load user data on mount and whenever storage changes
-    useEffect(() => {
-        const fetchUser = () => {
-            try {
-                const storedUser = localStorage.getItem("user");
-                if (storedUser) setUser(JSON.parse(storedUser));
-                else setUser(null);
-            } catch (err) {
-                setUser(null);
-            }
-        };
-
-        fetchUser();
-        window.addEventListener("storage", fetchUser);
-        return () => window.removeEventListener("storage", fetchUser);
-    }, [location]);
 
     // Auto-detect active link from current URL
     const isActive = (href) => {
@@ -121,20 +105,22 @@ const Navbar = () => {
                         </Link>
 
                         {/* Auth Buttons */}
-                        <div className="flex items-center gap-3 mr-2">
-                            <Link
-                                to="/login"
-                                className="text-sm font-medium text-gray-600 hover:text-[#166534] transition-colors duration-200"
-                            >
-                                Sign In
-                            </Link>
-                            <Link
-                                to="/signup"
-                                className="text-sm font-medium text-[#166534] bg-[#166534]/10 px-4 py-2 rounded-full hover:bg-[#166534]/20 transition-colors duration-200"
-                            >
-                                Sign Up
-                            </Link>
-                        </div>
+                        {!user ? (
+                            <div className="flex items-center gap-3 mr-2">
+                                <Link
+                                    to="/login"
+                                    className="text-sm font-medium text-gray-600 hover:text-[#166534] transition-colors duration-200"
+                                >
+                                    Sign In
+                                </Link>
+                                <Link
+                                    to="/signup"
+                                    className="text-sm font-medium text-[#166534] bg-[#166534]/10 px-4 py-2 rounded-full hover:bg-[#166534]/20 transition-colors duration-200"
+                                >
+                                    Sign Up
+                                </Link>
+                            </div>
+                        ) : null}
 
 
 
@@ -170,7 +156,11 @@ const Navbar = () => {
 
                                     <div className="border-t border-gray-100 mt-1 pt-1">
                                         <button
-                                            onClick={() => setProfileOpen(false)}
+                                            onClick={() => {
+                                                setProfileOpen(false);
+                                                logout();
+                                                navigate("/login");
+                                            }}
                                             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors duration-150"
                                         >
                                             <LogOut className="w-4 h-4" />

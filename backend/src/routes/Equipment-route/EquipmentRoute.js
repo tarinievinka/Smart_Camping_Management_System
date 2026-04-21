@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const equipmentController = require('../../controllers/Equipment-controller/EquipmentController');
 const upload     = require('../../config/upload'); 
+const { protect } = require('../../middleware/authMiddleware');
 
 // Create — now accepts multipart/form-data with optional image
 router.post('/add', upload.single('image'), equipmentController.createEquipment);
@@ -21,6 +22,6 @@ router.delete('/delete/:id', equipmentController.deleteEquipment);
 // Update availability status
 router.patch('/:id/status', equipmentController.updateAvailabilityStatus);
 
-router.patch('/reduce-stock/:id', equipmentController.reduceStock);
+router.patch('/reduce-stock/:id', protect, equipmentController.reduceStock);
 
 module.exports = router;

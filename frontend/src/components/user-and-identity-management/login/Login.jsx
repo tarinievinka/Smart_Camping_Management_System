@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 
 const Login = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -27,9 +28,16 @@ const Login = () => {
             if (response.ok) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('userInfo', JSON.stringify({ ...data.user, token: data.token }));
                 
                 alert('Login successful!');
                 
+                const from = location.state?.from;
+                if (from) {
+                    navigate(from);
+                    return;
+                }
+
                 switch (data.user.role) {
                     case 'camper':
                         navigate('/camper-dashboard');
@@ -165,7 +173,7 @@ const Login = () => {
                     </form>
 
                     <p className="text-center text-xs text-gray-600 mt-8 font-medium">
-                        Don't have an account? <Link to="/signup" className="text-[#10a110] font-bold hover:underline">Sign up</Link>
+                        Don't have an account? <Link to="/signup" state={{ from: location.state?.from }} className="text-[#10a110] font-bold hover:underline">Sign up</Link>
                     </p>
                 </div>
             </main>

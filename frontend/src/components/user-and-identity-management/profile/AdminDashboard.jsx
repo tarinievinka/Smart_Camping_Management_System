@@ -10,15 +10,15 @@ const AdminDashboard = () => {
     const [deactivateError, setDeactivateError] = useState('');
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
+        const stored = localStorage.getItem('userInfo');
 
-        if (!storedUser || !token) { navigate('/login'); return; }
+        if (!stored) { navigate('/login'); return; }
 
-        const parsed = JSON.parse(storedUser);
-        if (parsed.role !== 'admin') { navigate('/login'); return; }
+        const userInfo = JSON.parse(stored);
+        const token = userInfo.token;
+        if (!token || userInfo.role !== 'admin') { navigate('/login'); return; }
 
-        setUser(parsed);
+        setUser(userInfo);
         setLoading(false);
 
         // Refresh profile from backend
@@ -28,8 +28,9 @@ const AdminDashboard = () => {
             .then((r) => r.json())
             .then((fresh) => {
                 if (fresh && !fresh.error) {
-                    setUser(fresh);
-                    localStorage.setItem('user', JSON.stringify(fresh));
+                    const latestUserInfo = { ...userInfo, ...fresh };
+                    setUser(latestUserInfo);
+                    localStorage.setItem('userInfo', JSON.stringify(latestUserInfo));
                 }
             })
             .catch(() => {});
@@ -55,15 +56,15 @@ const AdminDashboard = () => {
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('userInfo');
         navigate('/login');
     };
 
     const handleDeactivate = async () => {
         if (!window.confirm('Are you sure you want to deactivate your admin account?')) return;
         
-        const token = localStorage.getItem('token');
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const token = userInfo.token;
         try {
             const targetId = user?._id || user?.id; // Attempt to use _id or id
             const res = await fetch(`http://localhost:5000/api/${targetId}/status`, {
@@ -79,7 +80,7 @@ const AdminDashboard = () => {
                 setDeactivateMsg('Deactivated successfully');
                 const updatedUser = { ...user, isActive: false };
                 setUser(updatedUser);
-                localStorage.setItem('user', JSON.stringify(updatedUser));
+                localStorage.setItem('userInfo', JSON.stringify(updatedUser));
                 setTimeout(() => setDeactivateMsg(''), 3000);
             } else {
                 const data = await res.json();
@@ -313,7 +314,7 @@ const AdminDashboard = () => {
                                 sub="Oversee guides and assignments"
                                 bg="linear-gradient(135deg,#f59e0b,#d97706)"
                                 glow="rgba(245,158,11,0.35)"
-                                onClick={() => navigate('/admin/guides')}
+                                onClick={() => navigate('/guides/dashboard')}
                             />
                             <ActionButton
                                 icon={

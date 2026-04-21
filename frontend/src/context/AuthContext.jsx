@@ -21,26 +21,30 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (username, password) => {
-    const { data } = await axios.post('/api/auth/login', { username, password });
-    setUser(data);
-    localStorage.setItem('userInfo', JSON.stringify(data));
-    return data;
+    const { data } = await axios.post('/api/login', { username, password });
+    const userInfo = { ...data.user, token: data.token }; // Flatten
+    setUser(userInfo);
+    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+    return userInfo;
   };
 
   const register = async (username, email, password, role = 'user', phone = '') => {
-    const { data } = await axios.post('/api/auth/register', { username, email, password, role, phone });
-    setUser(data);
-    localStorage.setItem('userInfo', JSON.stringify(data));
-    return data;
+    const { data } = await axios.post('/api/register', { username, email, password, role, phone });
+    const userInfo = { ...data.user, token: data.token }; // Flatten
+    setUser(userInfo);
+    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+    return userInfo;
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('userInfo');
+    localStorage.removeItem('equipment_cart_guest');
   };
 
   const value = {
     user,
+    setUser, // Added to allow external sync
     login,
     register,
     logout,

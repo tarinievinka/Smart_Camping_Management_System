@@ -4,8 +4,8 @@ import AddEquipment from './AddEquipment';
 import EditEquipment from './EditEquipment';
 import NotifyRequests from './NotifyRequests';
 
-const API      = process.env.REACT_APP_API_URL + '/api/equipment';
-const NAPI     = process.env.REACT_APP_API_URL + '/api/notify';
+const API      = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
+const NAPI     = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/notify';
 
 const EquipmentDashboard = () => {
   const [equipmentList, setEquipmentList] = useState([]);
