@@ -147,11 +147,12 @@ const GuideSelfProfile = () => {
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {guide.language?.split(", ").map((lang) => (
-                          <span key={lang} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                            {lang}
-                          </span>
-                        ))}
+                        <span className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">
+                          NIC: {guide.nic || "—"}
+                        </span>
+                        <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-sm font-medium">
+                          Age: {guide.age || "—"}
+                        </span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -205,8 +206,8 @@ const GuideSelfProfile = () => {
                         <div className="flex items-center gap-3">
                           <Globe className="w-5 h-5 text-blue-500" />
                           <div>
-                            <div className="font-medium text-gray-900">Languages</div>
-                            <div className="text-sm text-gray-600">{guide.language}</div>
+                            <div className="font-medium text-gray-900">Identification</div>
+                            <div className="text-sm text-gray-600">NIC: {guide.nic || "—"}</div>
                           </div>
                         </div>
                       </div>

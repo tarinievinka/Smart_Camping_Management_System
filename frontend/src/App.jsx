@@ -17,7 +17,7 @@ function AppContent() {
 
   return (
     <div className="app">
-      <Header />
+      {!isAuthPage && <Header />}
       <Routes>
         <Route path="/" element={<Navigate to="/campsites" replace />} />
         <Route path="/login" element={<Login />} />
@@ -29,7 +29,7 @@ function AppContent() {
         <Route path="/owner" element={<CampsiteOwnerDashboard />} />
         <Route path="/my-bookings" element={<MyBookings />} />
       </Routes>
-      <Footer />
+      {!isAuthPage && <Footer />}
     </div>
   );
 }

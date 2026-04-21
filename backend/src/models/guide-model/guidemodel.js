@@ -29,9 +29,22 @@ const guideSchema = new mongoose.Schema(
       min: [0, "Experience cannot be negative"],
     },
 
+    nic: {
+      type: String,
+      required: [true, "NIC is Required"],
+      trim: true,
+    },
+    age: {
+      type: Number,
+      required: [true, "Age is required"],
+      min: [18, "Age must be at least 18"],
+    },
     language: {
       type: String,
-      required: [true, "Language is required"],
+      trim: true,
+    },
+    cv: {
+      type: String,
       trim: true,
     },
 

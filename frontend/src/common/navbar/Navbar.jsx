@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
     { label: "Home", href: "/" },
@@ -13,6 +14,7 @@ const navLinks = [
 const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
     const profileRef = useRef(null);
@@ -92,20 +94,22 @@ const Navbar = () => {
                         </Link>
 
                         {/* Auth Buttons */}
-                        <div className="flex items-center gap-3 mr-2">
-                            <Link
-                                to="/login"
-                                className="text-sm font-medium text-gray-600 hover:text-[#166534] transition-colors duration-200"
-                            >
-                                Sign In
-                            </Link>
-                            <Link
-                                to="/signup"
-                                className="text-sm font-medium text-[#166534] bg-[#166534]/10 px-4 py-2 rounded-full hover:bg-[#166534]/20 transition-colors duration-200"
-                            >
-                                Sign Up
-                            </Link>
-                        </div>
+                        {!user ? (
+                            <div className="flex items-center gap-3 mr-2">
+                                <Link
+                                    to="/login"
+                                    className="text-sm font-medium text-gray-600 hover:text-[#166534] transition-colors duration-200"
+                                >
+                                    Sign In
+                                </Link>
+                                <Link
+                                    to="/signup"
+                                    className="text-sm font-medium text-[#166534] bg-[#166534]/10 px-4 py-2 rounded-full hover:bg-[#166534]/20 transition-colors duration-200"
+                                >
+                                    Sign Up
+                                </Link>
+                            </div>
+                        ) : null}
 
 
 
@@ -126,8 +130,8 @@ const Navbar = () => {
                             {profileOpen && (
                                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
                                     <div className="px-4 py-2.5 border-b border-gray-100">
-                                        <p className="text-sm font-semibold text-gray-900">My Account</p>
-                                        <p className="text-xs text-gray-500">user@smartcamping.com</p>
+                                        <p className="text-sm font-semibold text-gray-900">{user?.username || user?.name || "My Account"}</p>
+                                        <p className="text-xs text-gray-500">{user?.email || "Signed In"}</p>
                                     </div>
 
                                     <button
@@ -151,7 +155,11 @@ const Navbar = () => {
 
                                     <div className="border-t border-gray-100 mt-1 pt-1">
                                         <button
-                                            onClick={() => setProfileOpen(false)}
+                                            onClick={() => {
+                                                setProfileOpen(false);
+                                                logout();
+                                                navigate("/login");
+                                            }}
                                             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors duration-150"
                                         >
                                             <LogOut className="w-4 h-4" />
