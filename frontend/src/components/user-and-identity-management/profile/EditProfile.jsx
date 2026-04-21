@@ -15,12 +15,12 @@ const EditProfile = () => {
 
     // Pre-fill from localStorage
     useEffect(() => {
-        const stored = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
-        if (!stored || !token) { navigate('/login'); return; }
-        const user = JSON.parse(stored);
-        setUserRole(user.role);
-        setForm({ name: user.name || '', email: user.email || '', phone: user.phone || '', password: '', confirmPassword: '' });
+        const stored = localStorage.getItem('userInfo');
+        if (!stored) { navigate('/login'); return; }
+        const userInfo = JSON.parse(stored);
+        if (!userInfo.token) { navigate('/login'); return; }
+        setUserRole(userInfo.role);
+        setForm({ name: userInfo.name || '', email: userInfo.email || '', phone: userInfo.phone || '', password: '', confirmPassword: '' });
     }, [navigate]);
 
     const handleChange = (e) =>
@@ -32,7 +32,8 @@ const EditProfile = () => {
         setSuccess('');
         setIsLoading(true);
 
-        const token = localStorage.getItem('token');
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const token = userInfo.token;
 
         const updateData = { name: form.name.trim(), email: form.email.trim(), phone: form.phone.trim() };
         
@@ -69,9 +70,9 @@ const EditProfile = () => {
             const data = await res.json();
 
             if (res.ok) {
-                const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                const currentUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
                 const updatedUser = { ...currentUser, ...data };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
+                localStorage.setItem('userInfo', JSON.stringify(updatedUser));
                 setUserRole(updatedUser.role);
                 setSuccess('Profile updated successfully! ✓');
                 setTimeout(() => navigate(updatedUser.role === 'admin' ? '/admin-dashboard' : '/camper-dashboard'), 1500);
@@ -90,8 +91,8 @@ const EditProfile = () => {
             return;
         }
 
-        setIsLoading(true);
-        const token = localStorage.getItem('token');
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const token = userInfo.token;
 
         try {
             const res = await fetch('http://localhost:5000/api/profile', {
@@ -103,8 +104,7 @@ const EditProfile = () => {
 
             if (res.ok) {
                 setIsDeleted(true);
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
+                localStorage.removeItem('userInfo');
                 setTimeout(() => {
                     navigate('/login');
                 }, 3000);
