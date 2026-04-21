@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const API_BASE  = process.env.REACT_APP_API_URL;
 const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
@@ -25,6 +26,7 @@ const NoPhoto = ({ size = '72px' }) => (
 const BookingSummary = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { items } = location.state || {};
 
   const today         = new Date();
@@ -90,6 +92,14 @@ const BookingSummary = () => {
 
   const handleProceed = async () => {
     if (activeItems.length === 0) return;
+
+    if (!user || !user.token) {
+      if (window.confirm("Please sign in or create an account to finalize your booking.")) {
+        navigate('/signup', { state: { from: location.pathname } });
+      }
+      return;
+    }
+
     setProcessing(true);
     try {
       const results = await Promise.all(
@@ -97,7 +107,10 @@ const BookingSummary = () => {
           const state = itemStates[key(item)] || { quantity: 1 };
           return fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user.token}`
+            },
             body: JSON.stringify({ quantity: state.quantity, mode: item.mode }),
           }).then(res => res.json());
         })

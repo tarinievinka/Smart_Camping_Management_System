@@ -7,6 +7,7 @@ import { getGuideDailyRate } from "../../../utils/guidePricing";
 import { useToast } from "../../../context/ToastContext";
 import { localTodayYmd } from "../../../utils/dateInputMin";
 import { isGuideDoubleLocked, formatAvailableAgainLabel } from "../../../utils/guideAvailability";
+import { useAuth } from "../../../context/AuthContext";
 
 const NOTIFY_STORAGE_KEY = "guide_notify_interest";
 
@@ -32,6 +33,7 @@ const GuideProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [guide, setGuide] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,7 +59,23 @@ const GuideProfile = () => {
       }
     };
     if (id) fetchGuide();
-  }, [id]);
+
+    if (user && user.token) {
+      try {
+        const stored = localStorage.getItem("pending_guide_booking");
+        if (stored) {
+          const pending = JSON.parse(stored);
+          if (pending.guideId === id) {
+            if (pending.startDate) setStartDate(pending.startDate);
+            if (pending.endDate) setEndDate(pending.endDate);
+            localStorage.removeItem("pending_guide_booking");
+          }
+        }
+      } catch (e) {
+        // ignore JSON parse errors
+      }
+    }
+  }, [id, user]);
 
   if (loading) return <div className="p-6 h-screen flex justify-center items-center">Loading...</div>;
   if (error) return <div className="p-6 h-screen flex justify-center items-center text-red-600">{error}</div>;
@@ -89,6 +107,13 @@ const GuideProfile = () => {
   const totalAmount = totalDays > 0 ? basePrice * totalDays + 12.5 : 0;
 
   const handleBookGuide = async () => {
+    if (!user || !user.token) {
+      showToast("Please sign in or create an account to book a guide.", { variant: "info" });
+      localStorage.setItem("pending_guide_booking", JSON.stringify({ guideId: guide?._id || id, startDate, endDate }));
+      navigate("/signup", { state: { from: window.location.pathname } });
+      return;
+    }
+
     const guideId = guide._id || id;
     if (!guideId) return;
     if (locked) {
@@ -109,11 +134,7 @@ const GuideProfile = () => {
     }
 
     try {
-      const customerName =
-        localStorage.getItem("user_name") ||
-        localStorage.getItem("userName") ||
-        localStorage.getItem("name") ||
-        "Guest";
+      const customerName = user.name || "User";
 
       const payload = {
         guideId,
@@ -124,7 +145,9 @@ const GuideProfile = () => {
         endDate: e,
       };
 
-      await axios.post(`${API_URL}/api/guide-bookings/add`, payload);
+      await axios.post(`${API_URL}/api/guide-bookings/add`, payload, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
       navigate("/guides/bookings");
     } catch (err) {
       console.error("Failed to book guide:", err);
@@ -187,13 +210,20 @@ const GuideProfile = () => {
     if (activeTab === "Locations") {
       return (
         <section>
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-5">Locations & languages</h2>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-5">Guide details</h2>
           <div className="space-y-4 text-[15px] text-gray-600">
             <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4">
               <Globe className="text-green-600 shrink-0" size={20} />
               <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-0.5">Languages</p>
-                <p className="font-semibold text-gray-900">{guide.language || "—"}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-0.5">Identification (NIC)</p>
+                <p className="font-semibold text-gray-900">{guide.nic || "—"}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4">
+              <Star className="text-amber-500 shrink-0" size={20} />
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-0.5">Age</p>
+                <p className="font-semibold text-gray-900">{guide.age || "—"} years old</p>
               </div>
             </div>
             <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4">
