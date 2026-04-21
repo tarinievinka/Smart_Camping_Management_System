@@ -29,7 +29,7 @@ const Login = () => {
             switch (data.role) {
                 case 'admin': navigate('/admin'); break;
                 case 'campsite-owner': navigate('/owner'); break;
-                default: navigate('/campsites'); break;
+                default: navigate('/'); break;
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
