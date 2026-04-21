@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShoppingCart, Star, MessageSquare, Tag, RefreshCw, ShieldCheck } from 'lucide-react';
+import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
 
 const CustomStyles = () => (
   <style>{`
@@ -200,6 +201,19 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
                        <span className="text-[10px] font-bold text-gray-400">{new Date(rev.createdAt).toLocaleDateString()}</span>
                      </div>
                      <p className="text-sm text-gray-600 leading-relaxed italic">"{rev.comment}"</p>
+                     
+                     {Array.isArray(rev.imageUrls) && rev.imageUrls.length > 0 && (
+                       <div className="flex gap-2 overflow-x-auto mt-3 no-scrollbar pb-1">
+                         {rev.imageUrls.map((img, idx) => {
+                           const resolvedUrl = resolveMediaUrl(img);
+                           return (
+                             <a key={idx} href={resolvedUrl} target="_blank" rel="noreferrer" className="shrink-0 h-[60px] w-[80px] rounded-lg overflow-hidden border border-gray-100 block shadow-sm">
+                               <img src={resolvedUrl} alt="Review photo" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                             </a>
+                           );
+                         })}
+                       </div>
+                     )}
                    </div>
                  ))}
                </div>
