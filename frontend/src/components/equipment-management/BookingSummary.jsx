@@ -3,10 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const API_BASE = process.env.REACT_APP_API_URL;
-<<<<<<< HEAD
 const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
-=======
->>>>>>> 0a1f17e363d31c5aceb9e8f6ed12061cc8d953ff
 
 // ── No CATEGORY_IMAGES — only admin-uploaded photos shown ──
 
