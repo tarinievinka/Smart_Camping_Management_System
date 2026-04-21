@@ -65,5 +65,9 @@ export const saveEquipmentBooking = (bookingDraft, options = {}) => {
   };
 
   localStorage.setItem(key, JSON.stringify([booking, ...existing]));
+  
+  // Clear the equipment cart after successful booking
+  localStorage.removeItem(`equipment_cart_${userId}`);
+  
   return booking;
 };
