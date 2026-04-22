@@ -103,7 +103,8 @@ function AppContent() {
                       path.startsWith('/edit-equipment');
 
   const isGuidePath = path.startsWith('/guides') || 
-                      path.startsWith('/guide-');
+                      path.startsWith('/guide-') ||
+                      path === '/safety-analysis';
 
   const shouldHideFooter = hideFooterPaths.includes(path) || isAdminPath || isGuidePath;
 
