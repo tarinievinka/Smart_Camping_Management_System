@@ -248,8 +248,8 @@ const CamperDashboard = () => {
                                             if (activeBookingTab === 'Guide Bookings') return b.type === 'Guide';
                                             return true;
                                         })
-                                        .map(booking => (
-                                            <div key={booking.id} style={styles.bookingCard}>
+                                        .map((booking, index) => (
+                                            <div key={`${booking.type}-${booking.id}-${index}`} style={styles.bookingCard}>
                                                 <div style={styles.bookingImageWrap}>
                                                     <img src={booking.image} alt={booking.name} style={styles.bookingImage} />
                                                 </div>
@@ -332,8 +332,8 @@ const CamperDashboard = () => {
                                     style={{ ...styles.reviewsList, cursor: 'pointer' }}
                                     onClick={() => navigate('/my-reviews')}
                                 >
-                                    {reviews.map(review => (
-                                        <div key={review._id} style={styles.reviewItem}>
+                                    {reviews.map((review, index) => (
+                                        <div key={review._id || index} style={styles.reviewItem}>
                                             <div style={{ display: 'flex', gap: '12px' }}>
                                                 <div style={{ width: '60px', height: '60px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0 }}>
                                                     <img 
