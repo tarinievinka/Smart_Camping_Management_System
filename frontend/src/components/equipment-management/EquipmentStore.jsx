@@ -311,12 +311,7 @@ const EquipmentStore = () => {
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
-<<<<<<< HEAD
   // 1. Migration Logic: If guest cart has items and user just logged in, move them.
-=======
-
-  // Migration Logic: If guest cart has items and user just logged in, move them.
->>>>>>> 6356fa8f7392e9dc86e68507ee06d40959c6d1dc
   useEffect(() => {
     if (user?._id) {
       const guestCartJson = localStorage.getItem('equipment_cart_guest');
