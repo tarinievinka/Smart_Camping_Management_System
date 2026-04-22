@@ -17,6 +17,8 @@ router.delete('/profile', protect, userController.deleteMyProfile);
 // Admin only
 router.get('/', protect, adminOnly, userController.getAllUsers);
 router.patch('/:id/status', protect, adminOnly, userController.setUserStatus);
+router.patch('/:id/approve-owner', protect, adminOnly, userController.approveOwner);
+router.patch('/:id/reject-owner', protect, adminOnly, userController.rejectOwner);
 router.delete('/:id', protect, adminOnly, userController.deleteUser);
 
 module.exports = router;

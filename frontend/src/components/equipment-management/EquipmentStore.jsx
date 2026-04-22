@@ -273,9 +273,11 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
 const EquipmentStore = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Dynamic Key: 'equipment_cart_guest' or 'equipment_cart_USERID'
   const userId = user?._id || 'guest';
-  const cartKey = `equipment_cart_${userId}`;
-  const favKey = `equipment_favorites_${userId}`;
+  const cartKey = useMemo(() => `equipment_cart_${userId}`, [userId]);
+  const favKey = useMemo(() => `equipment_favorites_${userId}`, [userId]);
 
   const [equipment, setEquipment]               = useState([]);
   const [loading, setLoading]                   = useState(true);
@@ -288,24 +290,31 @@ const EquipmentStore = () => {
   const [selectedItem, setSelectedItem]         = useState(null);
 
   const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem(cartKey);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(cartKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
   });
 
   const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem(favKey);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(favKey);
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
   });
+
 
   // Keep storage in sync
   useEffect(() => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
   }, [cart, cartKey]);
 
+  // Sync favorites to localStorage
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
-  // 1. Migration Logic: If guest cart has items and user just logged in, move them.
+  // Migration Logic: If guest cart has items and user just logged in, move them.
+
   useEffect(() => {
     if (user?._id) {
       const guestCartJson = localStorage.getItem('equipment_cart_guest');
@@ -359,7 +368,7 @@ const EquipmentStore = () => {
   };
 
   const filtered = useMemo(() => {
-    return equipment?.filter(item => {
+    return (equipment || []).filter(item => {
       const matchCat    = selectedCategory === 'All Gear' || item.category === selectedCategory;
       const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchFav    = !showFavorites || favorites.includes(item._id);
@@ -375,8 +384,16 @@ const EquipmentStore = () => {
     navigate('/booking-summary', { state: { items: cart } });
   };
 
+  const navItems = [
+    { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
+    { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
+    { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
+    { icon: Heart, label: "Favorites", active: showFavorites, action: () => setShowFavorites(true) },
+  ];
+
+
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {notifyItem && <NotifyModal item={notifyItem} onClose={() => setNotifyItem(null)} />}
       {selectedItem && (
         <EquipmentDetail 
@@ -387,44 +404,55 @@ const EquipmentStore = () => {
         />
       )}
 
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
+      <main className="py-10 px-4 sm:px-6 lg:px-8">
 
-        <nav className="flex-1 space-y-1">
-          {[
-            { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
-            { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
-            { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
-            { icon: Heart, label: "Favorites", active: showFavorites, action: () => setShowFavorites(true) },
-          ].map((item, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                if (item.action) item.action();
-                else if (item.path && item.path !== '#') navigate(item.path);
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                item.active 
-                  ? "text-white bg-[#166534]" 
-                  : item.highlight
-                    ? "text-[#16a34a] bg-[#f0fdf4] hover:bg-[#dcfce7] font-bold"
-                    : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <item.icon size={18} /> {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <button
-          type="button"
-          className="flex items-center gap-3 px-4 py-3 text-red-500 text-sm font-medium hover:bg-red-50 rounded-xl transition-colors mt-auto"
-        >
-          <LogOut size={18} className="rotate-180" /> Sign Out
-        </button>
-      </aside>
-
-      <main className="flex-1 p-8 overflow-auto">
         <div className="max-w-6xl mx-auto">
+          
+          <div className="mb-10">
+            <h1 className="text-5xl font-black text-gray-900 tracking-tight mb-2">Premium Gear Rental</h1>
+            <p className="text-gray-500 font-medium tracking-wide">Professional grade equipment for your wilderness journey.</p>
+          </div>
+
+          {/* Modern Tab Navigation & Search Bar Integrated */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12 p-1.5 bg-gray-200/50 rounded-[24px] w-full">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              {navItems.map((item, idx) => (
+                <button 
+                  key={idx} 
+                  onClick={() => {
+                    if (item.action) item.action();
+                    else if (item.path) navigate(item.path);
+                  }} 
+                  className={`flex items-center gap-2.5 px-6 py-3 rounded-[18px] text-sm font-bold transition-all duration-200 whitespace-nowrap ${
+                    item.active 
+                      ? "bg-white text-[#166534] shadow-sm scale-[1.02]" 
+                      : item.highlight
+                        ? "text-[#16a34a] bg-[#f0fdf4] hover:bg-[#dcfce7]"
+                        : "text-gray-500 hover:text-gray-900 hover:bg-white/50"
+                  }`}
+                >
+                  <item.icon size={18} /> 
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 px-2 shrink-0">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search gear..."
+                  className="pl-12 pr-4 py-2.5 border border-transparent rounded-[18px] text-sm w-full md:w-64 bg-white/80 outline-none focus:bg-white focus:ring-2 focus:ring-[#166534]/20 transition-all"
+                />
+              </div>
+              <button type="button" className="p-2.5 bg-white/80 hover:bg-white rounded-[16px] transition-colors shadow-sm">
+                <SlidersHorizontal size={18} className="text-gray-500" />
+              </button>
+            </div>
+          </div>
           
           {cart.length > 0 && (
              <div className="mb-8 bg-[#f0fdf4] border border-[#bbf7d0] rounded-2xl p-4 lg:hidden flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
@@ -440,37 +468,7 @@ const EquipmentStore = () => {
              </div>
           )}
 
-          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Premium Gear Rental</h1>
-              <p className="text-gray-500 text-sm mt-1">
-                Professional grade equipment for your wilderness journey.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search equipment..."
-                  className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm w-72 bg-white outline-none transition-all"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#166534";
-                    e.target.style.boxShadow = "0 0 0 2px rgba(22,101,52,0.2)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb";
-                    e.target.style.boxShadow = "none";
-                  }}
-                />
-              </div>
-              <button type="button" className="p-2.5 border border-gray-200 rounded-xl hover:bg-white bg-white transition-colors">
-                <SlidersHorizontal size={18} className="text-gray-500" />
-              </button>
-            </div>
-          </header>
+
 
           <div className="flex gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar">
             {CATEGORIES.map((cat) => (

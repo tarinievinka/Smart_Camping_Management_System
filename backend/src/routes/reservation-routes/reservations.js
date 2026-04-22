@@ -43,7 +43,8 @@ router.get('/owner', protect, campsiteOwner, async (req, res) => {
     const ownedSites = await Campsite.find({ ownerId: req.user._id }).select('_id');
     const siteIds = ownedSites.map(s => s._id);
     const reservations = await Reservation.find({ campsite: { $in: siteIds }, status: { $ne: 'cancelled' } })
-      .populate('user', 'username email phone')
+      .populate('user', 'name email phone')
+
       .populate('campsite', 'name location');
     res.json(reservations);
   } catch (error) {

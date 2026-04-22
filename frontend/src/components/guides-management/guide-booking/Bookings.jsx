@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { LayoutGrid, Calendar, Heart, LogOut, Search, Bell, Settings, MapPin, ArrowRight, Plus, Trash2, X } from "lucide-react";
+import { LayoutGrid, Calendar, Heart, Search, Settings, MapPin, ArrowRight, Plus, Trash2, X } from "lucide-react";
 import { resolveMediaUrl } from "../../../utils/resolveMediaUrl";
 import { getGuideDailyRate } from "../../../utils/guidePricing";
 import { useToast } from "../../../context/ToastContext";
@@ -20,11 +20,8 @@ const Bookings = () => {
   const [editingBooking, setEditingBooking] = useState(null);
   const [editStart, setEditStart] = useState("");
   const [editEnd, setEditEnd] = useState("");
-  const [notifications, setNotifications] = useState([]);
-  const [notifOpen, setNotifOpen] = useState(false);
   const hintToastShown = useRef(false);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleEditClick = (guideObj) => {
     setEditingBooking(guideObj);
@@ -83,7 +80,9 @@ const Bookings = () => {
         const guides = Array.isArray(res.data) ? res.data : res.data?.guides || res.data?.data || [];
 
         const merged = parsedBookings.map((b) => {
-          const guide = guides.find((g) => String(g._id) === String(b.guideId));
+          const gid = typeof b.guideId === 'object' ? b.guideId?._id : b.guideId;
+          const guide = (typeof b.guideId === 'object' ? b.guideId : null) || guides.find((g) => String(g._id) === String(gid));
+          
           if (!guide) return null;
           return { ...guide, booking: b };
         }).filter(Boolean);
@@ -100,43 +99,6 @@ const Bookings = () => {
     fetchBookedGuides();
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await axios.get(`${API_URL}/api/guide-bookings/notifications`, {
-          params: { customerName: getCustomerBookingName() },
-        });
-        if (!cancelled) setNotifications(Array.isArray(res.data) ? res.data : []);
-      } catch {
-        if (!cancelled) setNotifications([]);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (hintToastShown.current) return;
-    const unread = notifications.filter((n) => !n.read);
-    if (unread.length === 0) return;
-    hintToastShown.current = true;
-    showToast("You have new booking updates — open the notifications bell.", {
-      variant: "info",
-      duration: 8000,
-    });
-  }, [notifications, showToast]);
-
-  const markNotificationRead = async (id) => {
-    if (!id) return;
-    try {
-      await axios.patch(`${API_URL}/api/guide-bookings/notifications/${id}/read`);
-      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, read: true } : n)));
-    } catch {
-      showToast("Could not mark notification read.", { variant: "error" });
-    }
-  };
 
   const getFirstLanguage = (language) => {
     if (!language) return "Local";
@@ -181,7 +143,6 @@ const Bookings = () => {
 
   const navItems = [
     { icon: LayoutGrid, label: "Browse Guides", path: "/guides" },
-    { icon: Calendar, label: "My Bookings", path: "/guides/bookings" },
     { icon: Heart, label: "Favorites", path: "/guides/favourites" },
   ];
 
@@ -189,81 +150,39 @@ const Bookings = () => {
   const pastMemories = bookedGuides.filter(b => b.booking.status === "completed");
 
   return (
-    <div className="flex min-h-screen bg-[#F4F5F7] font-sans text-gray-900">
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold shrink-0" style={{ backgroundColor: '#166534' }}>W</div>
-          <div><h2 className="text-gray-900 font-bold text-lg">WildGuide</h2><p className="text-gray-500 text-xs">Adventure awaits</p></div>
-        </div>
-        <nav className="flex-1 space-y-1.5">
-          {navItems.map(item => (
-            <button key={item.label} onClick={() => navigate(item.path)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${location.pathname === item.path ? "text-white" : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"}`}
-              style={location.pathname === item.path ? { backgroundColor: '#166534' } : {}}>
-              <item.icon size={20} /> {item.label}
-            </button>
-          ))}
-        </nav>
-        <button onClick={() => { localStorage.removeItem("auth_session"); navigate("/guides"); }} className="flex items-center gap-3 px-4 py-3 text-red-500 text-sm font-semibold hover:bg-red-50 rounded-xl transition-colors mt-auto">
-          <LogOut size={20} className="rotate-180" /> Sign Out
-        </button>
-      </aside>
+    <div className="min-h-screen bg-[#F4F5F7] font-sans text-gray-900">
+      <main className="py-10 px-4 sm:px-6 lg:px-8 overflow-y-auto">
+        <div className="max-w-6xl mx-auto">
+          
+          {/* Modern Tab Navigation & Search Bar Integrated */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12 p-1.5 bg-gray-200/50 rounded-[24px] w-full">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              {navItems.map(item => (
+                <button 
+                  key={item.label} 
+                  onClick={() => navigate(item.path)} 
+                  className={`flex items-center gap-2.5 px-6 py-3 rounded-[18px] text-sm font-bold transition-all duration-200 whitespace-nowrap ${
+                    location.pathname === item.path 
+                      ? "bg-white text-[#166534] shadow-sm scale-[1.02]" 
+                      : "text-gray-500 hover:text-gray-900 hover:bg-white/50"
+                  }`}
+                >
+                  <item.icon size={18} /> 
+                  {item.label}
+                </button>
+              ))}
+            </div>
 
-      <main className="flex-1 p-8 overflow-y-auto">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-12 gap-4">
-            <div className="relative w-full max-w-md flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input type="text" placeholder="Search your expeditions..." className="w-full bg-gray-200/60 border-none rounded-full py-3.5 pl-12 pr-6 text-sm font-medium text-gray-700 placeholder-gray-500 outline-none" style={{ '--tw-ring-color': '#166534' }} onFocus={e => e.target.style.outline = `2px solid #166534`} onBlur={e => e.target.style.outline = 'none'} />
+            <div className="flex items-center gap-2 px-2 shrink-0">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search expeditions..."
+                  className="pl-12 pr-4 py-2.5 border border-transparent rounded-[18px] text-sm w-full md:w-64 bg-white/80 outline-none focus:bg-white focus:ring-2 focus:ring-[#166534]/20 transition-all"
+                />
+              </div>
             </div>
-            <div className="relative shrink-0">
-              <button
-                type="button"
-                onClick={() => setNotifOpen((o) => !o)}
-                className="relative p-3 rounded-full bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-                aria-label="Notifications"
-              >
-                <Bell size={22} />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-[10px] font-bold">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </button>
-              {notifOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[min(100vw-2rem,22rem)] max-h-80 overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-xl z-50 py-2">
-                  {notifications.length === 0 ? (
-                    <p className="px-4 py-6 text-sm text-gray-500 text-center">No updates yet.</p>
-                  ) : (
-                    notifications.map((n) => (
-                      <button
-                        key={n._id}
-                        type="button"
-                        onClick={() => {
-                          if (!n.read) markNotificationRead(n._id);
-                        }}
-                        className={`w-full text-left px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors ${
-                          !n.read ? "bg-emerald-50/60" : ""
-                        }`}
-                      >
-                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
-                          {n.createdAt ? new Date(n.createdAt).toLocaleString() : ""}
-                        </div>
-                        <div className="font-bold text-gray-900 text-sm">{n.title}</div>
-                        {n.body && <p className="text-sm text-gray-600 mt-1 leading-snug">{n.body}</p>}
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <h1 className="text-[40px] font-extrabold text-gray-900 leading-tight mb-1">Your Expeditions</h1>
-              <p className="text-gray-500 font-medium">Manage your upcoming journeys and revisit past memories.</p>
-            </div>
-            <div className="bg-[#E2EAF4] text-[#718DAF] px-4 py-1.5 rounded-full text-xs font-bold uppercase">{bookedGuides.length} Active Trips</div>
           </div>
 
           {loading && <div className="py-20 text-center text-gray-400 font-extrabold text-xl animate-pulse">Loading Bookings...</div>}
@@ -374,7 +293,8 @@ const Bookings = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end shrink-0 pr-2">
-                      <button onClick={(e) => { e.stopPropagation(); navigate('/feedback', { state: { targetType: 'guide', targetName: guide.name } }); }} className="px-6 py-2.5 bg-[#F4F5F7] text-gray-700 font-bold text-sm rounded-xl hover:bg-[#e4e7ed] transition-colors">Add Reviews</button>
+                      <button onClick={(e) => { e.stopPropagation(); navigate('/guide-feedback', { state: { targetType: 'guide', targetId: guide._id, targetName: guide.name } }); }} className="px-6 py-2.5 bg-[#F4F5F7] text-gray-700 font-bold text-sm rounded-xl hover:bg-[#e4e7ed] transition-colors">Add Reviews</button>
+
                       <button onClick={(e) => { e.stopPropagation(); navigate(`/guides/${guide._id}`, { state: { fromBookings: true } }); }} className="px-6 py-2.5 text-[#166534] bg-[#f0fdf4] font-bold text-sm rounded-xl hover:bg-[#dcfce7] transition-all flex items-center gap-1.5 hover:gap-2">View guide profile <ArrowRight size={14} /></button>
                     </div>
                   </div>

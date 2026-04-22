@@ -5,10 +5,12 @@ import Footer from './common/footer/Footer';
 import Login from './components/user-and-identity-management/login/Login';
 import SignUP from './components/user-and-identity-management/sign-up/SignUP';
 import Forgot from './components/user-and-identity-management/login/Forgot';
+import ForgotRequest from './components/user-and-identity-management/login/ForgotRequest';
 import EditProfile from './components/user-and-identity-management/profile/EditProfile';
 import AdminDashboard from './components/user-and-identity-management/profile/AdminDashboard';
 import DeleteUsers from './components/user-and-identity-management/profile/DeleteUsers';
 import CamperDashboard from './components/user-and-identity-management/profile/CamperDashboard';
+import AdminOwnerManagement from './components/admin/AdminOwnerManagement';
 
 // Payment management components
 import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
@@ -16,6 +18,7 @@ import PaymentManagement from './components/payment-management/PaymentManagement
 import SecureCheckout from './components/payment-management/payment-checkout/SecureCheckout';
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
 import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
+import BankSlipAdminDashboard from './components/admin/dashboard/BankSlipAdminDashboard';
 import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';
 import PaymentCard from './components/payment-management/payment-card/PaymentCard';
 
@@ -65,6 +68,10 @@ import GuideLoginRedirect from './components/guides-management/guide-self/GuideL
 import CampingSitesManagement from './components/camping-sites-management/CampingSitesManagement';
 import CampsiteAdminContainer from './components/camping-sites-management/CampsiteAdminContainer';
 import CampsiteOwnerDashboard from './components/camping-sites-management/CampsiteOwnerDashboard';
+import SafetyAnalysis from './components/safety-analysis/SafetyAnalysis';
+import GuideFeedback from './components/feedbck-and-review-management/Guide-review/guide-feedback';
+import EquipmentFeedback from './components/feedbck-and-review-management/Equipment-review/EquipmentFeedback';
+
 
 
 
@@ -81,10 +88,12 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUP />} />
             <Route path="/login/forgot" element={<Forgot />} />
+            <Route path="/login/forgot-request" element={<ForgotRequest />} />
             <Route path="/camper-dashboard" element={<CamperDashboard />} />
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/admin/delete-users" element={<DeleteUsers />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/owner-management" element={<AdminOwnerManagement />} />
             
             {/* Payment management routes */}
             <Route path="/payment-history" element={<PaymentHistory />} />
@@ -93,7 +102,8 @@ function App() {
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-failure" element={<PaymentFailure />} />
             <Route path="/payment-card" element={<PaymentCard />} />
-            <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
+             <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
+            <Route path="/admin/bank-slips" element={<BankSlipAdminDashboard />} />
             
             {/* Feedback Routes */}
             <Route path='/feedback' element={<Feedback />} />
@@ -101,6 +111,9 @@ function App() {
             <Route path='/my-reviews' element={<MyReviews />} />
             <Route path='/admin/feedback' element={<AdminFeedback />} />
             <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
+            <Route path='/guide-feedback' element={<GuideFeedback />} />
+            <Route path='/equipment-feedback' element={<EquipmentFeedback />} />
+
 
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
@@ -129,11 +142,14 @@ function App() {
             <Route path='/guides/ownreviews' element={<GuideSelfReviews />} />
             <Route path='/guides/:id' element={<GuideProfile />} />
             <Route path='/guide-profile' element={<GuideLoginRedirect />} />
+
             
             {/* Campsite Routes */}
             <Route path="/campsites" element={<CampingSitesManagement />} />
             <Route path="/campsites-admin" element={<CampsiteAdminContainer />} />
             <Route path="/owner-profile" element={<CampsiteOwnerDashboard />} />
+            <Route path="/safety-analysis" element={<SafetyAnalysis />} />
+
           </Routes>
         </div>
         <Footer />

@@ -4,14 +4,18 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const connectDB = require('./src/config/db');
+
+// Route Imports
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
 const feedbackRoute = require('./src/routes/feedback-route/feedbackRoute');
 const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
-const notifyRoute = require('./src/routes/Notify-route/NotifyRoute'); 
+const notifyRoute = require('./src/routes/Notify-route/NotifyRoute');
 const userRoute = require('./src/routes/user-routes/userRoutes');
 const guideRoute = require("./src/routes/guide-routes/guideRoute");
 const guideBookingRoute = require("./src/routes/guide-booking-routes/guideBookingRoute");
 const campsiteRoute = require('./src/routes/campsite-route/campsiteRoutes');
+const reservationRoute = require('./src/routes/reservation-routes/reservations');
+const customerNotificationRoute = require('./src/routes/customer-notification-route/CustomerNotificationRoute');
 
 const port = process.env.PORT || 5000;
 
@@ -23,6 +27,7 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Simple error handler for JSON parsing
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return res.status(400).json({ error: 'Invalid JSON: ' + err.message });
@@ -38,24 +43,33 @@ app.get('/', (req, res) => {
 app.use('/api/payment', paymentRoute);
 app.use('/api/feedback', feedbackRoute);
 app.use('/api/equipment', equipmentRouter);
-app.use('/api/notify', notifyRoute); 
+app.use('/api/notify', notifyRoute);
 app.use('/api', userRoute);
 app.use('/api/guides', guideRoute);
 app.use('/api/guide-bookings', guideBookingRoute);
 app.use('/api/campsites', campsiteRoute);
-const start = async () => {
-  await connectDB();
-  const server = app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-  });
+app.use('/api/reservations', reservationRoute);
+app.use('/api/customer-notifications', customerNotificationRoute);
 
-  server.on('error', (err) => {
-    if (err && err.code === 'EADDRINUSE') {
-      console.error(`Port ${port} is already in use. Free the port or set a different PORT in .env`);
+const start = async () => {
+  try {
+    await connectDB();
+    const server = app.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
+
+    server.on('error', (err) => {
+      if (err && err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. Free the port or set a different PORT in .env`);
+        process.exit(1);
+      }
+      console.error('Server error:', err);
       process.exit(1);
-    }
-    console.error('Server error:', err);
+    });
+  } catch (err) {
+    console.error('Database connection failed:', err);
     process.exit(1);
-  });
+  }
 };
+
 start();

@@ -88,9 +88,15 @@ const EditEquipment = ({ item, onSave, onCancel }) => {
 
     setUploading(true);
     const data = new FormData();
-    Object.keys(formData).forEach(key => {
-      if (key !== 'imageUrl' && key !== '__v') data.append(key, formData[key]);
+    
+    // Explicitly append all text fields
+    const fields = ['_id', 'name', 'category', 'condition', 'rentalPrice', 'salePrice', 'stockQuantity', 'availabilityStatus', 'description'];
+    fields.forEach(field => {
+      if (formData[field] !== undefined && formData[field] !== null) {
+        data.append(field, formData[field]);
+      }
     });
+
     if (imageFile) data.append('image', imageFile);
 
     await onSave(data);
@@ -198,6 +204,24 @@ const EditEquipment = ({ item, onSave, onCancel }) => {
             </select>
           </div>
 
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Description
+          </label>
+          <textarea
+            name="description"
+            value={formData.description || ''}
+            onChange={handleChange}
+            className={inputClass('description')}
+            placeholder="Describe the equipment details, features, and durability..."
+            rows="4"
+          ></textarea>
+          {errors.description && (
+            <p className="text-red-500 text-xs mt-1">⚠ {errors.description}</p>
+          )}
         </div>
 
         {/* Image Upload */}

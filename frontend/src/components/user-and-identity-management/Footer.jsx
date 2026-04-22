@@ -7,16 +7,16 @@ import { Globe, Mail, Share2, Send } from "lucide-react";
  */
 const Footer = () => {
     return (
-        <footer className="bg-gray-50 border-t border-gray-200 pt-16 pb-8">
+        <footer className="bg-[#166534] text-white border-t border-green-800 pt-16 pb-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
                     {/* Column 1: Branding */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-2">
-                            <div className="bg-green-700 p-1.5 rounded-lg">
+                            <div className="bg-white p-1.5 rounded-lg">
                                 <svg
-                                    className="w-6 h-6 text-white"
+                                    className="w-6 h-6 text-[#166534]"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
@@ -27,16 +27,16 @@ const Footer = () => {
                                     <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
                                 </svg>
                             </div>
-                            <span className="text-xl font-bold text-gray-900">CAMPTRAIL 360</span>
+                            <span className="text-xl font-bold text-white uppercase tracking-wider">CAMPTRAIL 360</span>
                         </div>
-                        <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
+                        <p className="text-green-100/70 text-sm leading-relaxed max-w-xs">
                             A modern solution for outdoor management. Built with passion for the Great Outdoors.
                         </p>
                         <div className="flex gap-4">
                             {[Globe, Mail, Share2].map((Icon, index) => (
                                 <button
                                     key={index}
-                                    className="p-2.5 rounded-full border border-gray-200 text-gray-400 hover:text-green-700 hover:border-green-200 hover:bg-green-50 transition-all duration-200"
+                                    className="p-2.5 rounded-full border border-green-700/50 text-green-100/70 hover:text-white hover:border-green-400 hover:bg-green-700/50 transition-all duration-200"
                                 >
                                     <Icon size={18} />
                                 </button>
@@ -46,27 +46,27 @@ const Footer = () => {
 
                     {/* Column 2: Contact Us */}
                     <div>
-                        <h3 className="text-gray-900 font-bold mb-6">Contact us</h3>
+                        <h3 className="text-white font-bold mb-6">Contact Us</h3>
                         <ul className="space-y-4 text-sm">
                             <li className="flex gap-2">
-                                <span className="text-gray-600 hover:text-green-700 cursor-pointer transition-colors">facebook</span>
+                                <span className="text-green-100/70 hover:text-white cursor-pointer transition-colors">Facebook</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="text-gray-600 hover:text-green-700 cursor-pointer transition-colors">instagram</span>
+                                <span className="text-green-100/70 hover:text-white cursor-pointer transition-colors">Instagram</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="text-gray-600 hover:text-green-700 cursor-pointer transition-colors">whatsapp</span>
+                                <span className="text-green-100/70 hover:text-white cursor-pointer transition-colors">WhatsApp</span>
                             </li>
                         </ul>
                     </div>
 
                     {/* Column 3: Quick Links */}
                     <div>
-                        <h3 className="text-gray-900 font-bold mb-6">Quick Links</h3>
+                        <h3 className="text-white font-bold mb-6">Quick Links</h3>
                         <ul className="space-y-4 text-sm">
                             {["Find a Campsite", "Equipment Catalog", "Our Guides", "User Dashboard"].map((link) => (
                                 <li key={link}>
-                                    <a href={`/${link.toLowerCase().replace(/\s+/g, '-')}`} className="text-gray-600 hover:text-green-700 transition-colors">
+                                    <a href={`/${link.toLowerCase().replace(/\s+/g, '-')}`} className="text-green-100/70 hover:text-white transition-colors">
                                         {link}
                                     </a>
                                 </li>
@@ -76,17 +76,17 @@ const Footer = () => {
 
                     {/* Column 4: Newsletter */}
                     <div>
-                        <h3 className="text-gray-900 font-bold mb-6">Newsletter</h3>
-                        <p className="text-gray-500 text-sm mb-6">
+                        <h3 className="text-white font-bold mb-6">Newsletter</h3>
+                        <p className="text-green-100/70 text-sm mb-6">
                             Get the latest trail updates and gear reviews.
                         </p>
                         <div className="relative group">
                             <input
                                 type="email"
                                 placeholder="Email"
-                                className="w-full bg-slate-100/50 border-none rounded-xl py-3 pl-4 pr-12 text-sm focus:ring-2 focus:ring-green-500 transition-all outline-none"
+                                className="w-full bg-green-900/40 border border-green-800/50 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder:text-green-200/40 focus:ring-2 focus:ring-green-400 transition-all outline-none"
                             />
-                            <button className="absolute right-1 top-1 bottom-1 bg-green-600 hover:bg-green-700 text-white px-3 rounded-lg flex items-center justify-center transition-colors">
+                            <button className="absolute right-1 top-1 bottom-1 bg-white text-[#166534] hover:bg-green-50 px-3 rounded-lg flex items-center justify-center transition-colors">
                                 <Send size={18} />
                             </button>
                         </div>
@@ -94,9 +94,9 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-gray-100 text-center">
-                    <p className="text-gray-400 text-sm">
-                        © 2024 Smart Camping Management System. All rights reserved.
+                <div className="pt-8 border-t border-green-800/50 text-center">
+                    <p className="text-green-100/40 text-sm">
+                        © 2026 Smart Camping Management System. All rights reserved.
                     </p>
                 </div>
             </div>

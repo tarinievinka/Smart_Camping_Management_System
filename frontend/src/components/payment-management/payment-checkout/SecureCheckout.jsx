@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Shield } from 'lucide-react';
+import { ChevronLeft, Shield, AlertCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PaymentSummary from './payment-summary/PaymentSummary';
 import SimplePaymentForm from './simple-payment/SimplePaymentForm';
@@ -10,14 +10,38 @@ import { saveEquipmentBooking } from '../../../utils/equipmentBookings';
 const SecureCheckout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-    const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems, equipmentBookingDraft } = location.state || {};
+    const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems, equipmentBookingDraft, from } = location.state || {};
+
   
-  const currentBookingId = bookingId || '507f1f77bcf86cd799439012';
-  const currentAmount = amount || 91140.00;
-  const currentBookingType = bookingType || 'CampsiteBooking';
+  const currentBookingId = bookingId || `temp-bk-${Math.random().toString(36).substr(2, 9)}`;
+  const currentAmount = amount || 0.00;
+  const currentBookingType = bookingType || 'EquipmentBooking';
 
   const [paymentMethod, setPaymentMethod] = useState('credit-card');
   const [receiptFile, setReceiptFile] = useState(null);
+  const [alreadyPaid, setAlreadyPaid] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+
+  React.useEffect(() => {
+    const checkPaymentStatus = async () => {
+      try {
+        const { getAllPayments } = await import('../../../services/paymentApi');
+        const payments = await getAllPayments();
+        const existing = payments.find(p => 
+          String(p.bookingId) === String(currentBookingId) && 
+          ['pending', 'success'].includes(p.paymentStatus)
+        );
+        if (existing) {
+          setAlreadyPaid(true);
+        }
+      } catch (err) {
+        console.error("Error checking payment status:", err);
+      } finally {
+        setCheckingStatus(false);
+      }
+    };
+    checkPaymentStatus();
+  }, [currentBookingId]);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -32,9 +56,11 @@ const SecureCheckout = () => {
     }
     
     try {
+      const user = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const userId = user._id || user.id || '507f1f77bcf86cd799439011';
+
       const formData = new FormData();
-      // Use mock IDs for demo/testing that matches current front-end behavior
-      formData.append('userId', '507f1f77bcf86cd799439011'); 
+      formData.append('userId', userId); 
       formData.append('bookingType', currentBookingType);
       formData.append('bookingId', currentBookingId);
       formData.append('amount', currentAmount);
@@ -44,7 +70,16 @@ const SecureCheckout = () => {
       formData.append('receipt', receiptFile);
       
       await createPaymentWithReceipt(formData);
-      navigate('/payment-history', { state: { message: 'Bank deposit payment submitted successfully! Waiting for admin approval.', variant: 'success' } });
+
+      // Clear equipment cart if applicable
+      if (currentBookingType === 'EquipmentBooking') {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userId = user?._id || 'guest';
+        localStorage.removeItem(`equipment_cart_${userId}`);
+      }
+
+      navigate('/payment-success', { state: { message: 'Bank deposit payment submitted successfully! Waiting for admin approval.', variant: 'success' } });
+
     } catch (err) {
       console.error('Payment failed:', err);
       alert('Payment submission failed. Please try again.');
@@ -87,11 +122,19 @@ const SecureCheckout = () => {
           </p>
         </div>
 
+        {alreadyPaid && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3 text-amber-800">
+            <AlertCircle className="w-5 h-5" />
+            <p className="font-medium">A payment for this booking is already in progress or completed. You cannot pay twice.</p>
+          </div>
+        )}
+
         {/* Payment Methods Tabs */}
-        <div className="bg-white rounded-lg p-6 border border-gray-100 mb-8">
+        <div className={`bg-white rounded-lg p-6 border border-gray-100 mb-8 ${alreadyPaid ? 'opacity-50 pointer-events-none' : ''}`}>
           <div className="flex items-center justify-around">
             <button
-              onClick={() => setPaymentMethod('credit-card')}
+              onClick={() => !alreadyPaid && setPaymentMethod('credit-card')}
+              disabled={alreadyPaid}
               className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition ${
                 paymentMethod === 'credit-card'
                   ? 'border-b-2 border-[#166534]'
@@ -107,7 +150,8 @@ const SecureCheckout = () => {
             </button>
 
             <button
-              onClick={() => setPaymentMethod('bank-deposit')}
+              onClick={() => !alreadyPaid && setPaymentMethod('bank-deposit')}
+              disabled={alreadyPaid}
               className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition ${
                 paymentMethod === 'bank-deposit'
                   ? 'border-b-2 border-[#166534]'
@@ -121,7 +165,8 @@ const SecureCheckout = () => {
                 BANK DEPOSIT
               </span>
             </button>            <button
-              onClick={() => setPaymentMethod('google-pay')}
+              onClick={() => !alreadyPaid && setPaymentMethod('google-pay')}
+              disabled={alreadyPaid}
               className={`flex flex-col items-center gap-2 px-6 py-4 rounded-lg transition ${
                 paymentMethod === 'google-pay'
                   ? 'border-b-2 border-[#166534]'
@@ -144,11 +189,15 @@ const SecureCheckout = () => {
           <div className="lg:col-span-2">
             {paymentMethod === 'credit-card' && (
               <SimplePaymentForm 
+                alreadyPaid={alreadyPaid}
+
                 amount={currentAmount} 
                 bookingId={currentBookingId} 
                 bookingType={currentBookingType} 
                 equipmentItems={equipmentItems}
                 equipmentBookingDraft={equipmentBookingDraft}
+                returnPath={from}
+
               />
             )}
             {paymentMethod === 'bank-deposit' && (
@@ -178,7 +227,7 @@ const SecureCheckout = () => {
                         <p className="pl-1">or drag and drop</p>
                       </div>
                       <p className="text-xs text-gray-500">
-                        PNG, JPG, PDF up to 5MB
+                        PNG, JPG, PDF up to 10MB
                       </p>
                     </div>
                   </div>
@@ -197,9 +246,12 @@ const SecureCheckout = () => {
 
                 <button 
                   onClick={handleSubmitReceipt}
-                  className="w-full bg-[#166534] hover:bg-[#14532d] text-white font-bold py-4 px-4 rounded-lg transition shadow-lg"
+                  disabled={alreadyPaid}
+                  className={`w-full font-bold py-4 px-4 rounded-lg transition shadow-lg ${
+                    alreadyPaid ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#166534] hover:bg-[#14532d] text-white'
+                  }`}
                 >
-                  Submit Receipt
+                  {alreadyPaid ? 'Payment Already Submitted' : 'Submit Receipt'}
                 </button>
               </div>
             )}
@@ -248,11 +300,17 @@ const SecureCheckout = () => {
                       if (currentBookingType === 'EquipmentBooking' && equipmentItems && equipmentItems.length > 0) {
                         const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
                         try {
+                          const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
                           await Promise.all(
                             equipmentItems.map(item =>
                               fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
                                 method: 'PATCH',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${storedUser.token}`
+                                },
+
                                 body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
                               }).then(res => res.json())
                             )
@@ -272,7 +330,8 @@ const SecureCheckout = () => {
                         });
                       }
 
-                      navigate('/equipment-bookings', { 
+                      navigate('/payment-success', { 
+
                         state: { 
                           message: 'Google Pay payment completed successfully!', 
                           variant: 'success' 

@@ -38,6 +38,7 @@ const Feedback = () => {
             </div>
           </div>
         )}
+
         <FeedbackForm />
       </div>
     </div>

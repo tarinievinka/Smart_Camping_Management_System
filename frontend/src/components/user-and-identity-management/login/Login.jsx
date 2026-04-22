@@ -22,7 +22,7 @@ const Login = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email: email.trim(), password }),
             });
 
             const data = await response.json();
@@ -43,20 +43,18 @@ const Login = () => {
                 }
 
                 switch (data.user.role) {
-                    case 'camper':
-                        navigate('/');
-                        break;
-                    case 'guide':
-                        navigate('/guide-profile');
-                        break;
-                    case 'campsite_owner':
-                        navigate('/owner-profile');
-                        break;
                     case 'admin':
                         navigate('/admin-dashboard');
                         break;
+
+                    case 'guide':
+                        navigate('/guide-profile');
+                        break;
+                    case 'camper':
+                    case 'campsite_owner':
                     default:
                         navigate('/');
+                        break;
                 }
             } else {
                 setError(data.error || 'Login failed');
@@ -80,19 +78,7 @@ const Login = () => {
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0" />
 
             <header className="w-full relative z-10 p-6">
-                <div
-                    className="flex items-center gap-3 w-fit group cursor-pointer transition-transform duration-500 hover:scale-105"
-                    onClick={() => navigate('/')}
-                >
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-green-500 to-emerald-400 flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.4)] group-hover:shadow-[0_0_40px_rgba(34,197,94,0.8)] group-hover:-translate-y-1 transition-all duration-300">
-                        <svg className="w-6 h-6 text-white animate-pulse group-hover:animate-none group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                    </div>
-                    <span className="text-white font-extrabold text-2xl tracking-tight drop-shadow-2xl group-hover:tracking-wider transition-all duration-500">
-                        CampTrail 360
-                    </span>
-                </div>
+                {/* Brand logo and text removed */}
             </header>
 
             <main className="flex-1 flex items-center justify-center p-4 relative z-10 pb-20">
@@ -147,7 +133,7 @@ const Login = () => {
                         <div>
                             <div className="flex justify-between items-center mb-1">
                                 <label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700">Password</label>
-                                <button type="button" onClick={() => navigate('/login/forgot')} className="text-[11px] text-[#10a110] font-bold hover:underline">Forgot password?</button>
+                                <Link to="/login/forgot-request" className="text-[11px] text-green-600 font-bold hover:underline">Forgot password?</Link>
                             </div>
                             <div className="relative">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">

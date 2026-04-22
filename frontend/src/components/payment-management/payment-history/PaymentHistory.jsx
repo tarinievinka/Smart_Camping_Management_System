@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
 import HistoryCards from './history-card/HistoryCards';
@@ -20,9 +20,11 @@ const PaymentHistory = () => {
     fetchPayments();
   }, []);
 
+  const toastShownRef = useRef(false);
   useEffect(() => {
-    if (location.state?.message) {
+    if (location.state?.message && !toastShownRef.current) {
       showToast(location.state.message, location.state.variant || 'success');
+      toastShownRef.current = true;
       // Clear the message state so it doesn't pop up again on generic refresh
       navigate(location.pathname, { replace: true, state: {} });
     }
@@ -54,21 +56,26 @@ const PaymentHistory = () => {
 
       // Filter to only show payments for the logged-in user
       const storedUser = localStorage.getItem('user');
-      const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+      const storedUserInfo = localStorage.getItem('userInfo');
+      const parsedUser = storedUser ? JSON.parse(storedUser) : (storedUserInfo ? JSON.parse(storedUserInfo) : null);
       
       if (parsedUser) {
-        const userEmail = parsedUser.email?.toLowerCase();
+        const userEmail = (parsedUser.email || parsedUser.user?.email || '').toLowerCase();
         const userId = parsedUser._id || parsedUser.id || parsedUser.userId;
         
+        console.log('Filtering for User:', { userId, userEmail });
+
         normalizedData = normalizedData.filter(payment => {
-          // Check standard fields where email or user ID might be stored
-          const paymentEmail = payment.email?.toLowerCase() || payment.userEmail?.toLowerCase() || payment.billingDetails?.email?.toLowerCase();
-          const pUserId = payment.userId || payment.user?.id || payment.user?._id || payment.user || payment.clientId;
+          const pUserId = payment.userId || (payment.user?._id || payment.user?.id) || payment.user;
+          const pEmail = (payment.email || payment.userEmail || payment.billingDetails?.email || '').toLowerCase();
           
-          return (userEmail && paymentEmail === userEmail) || (userId && pUserId === userId);
+          const matchesId = userId && String(pUserId) === String(userId);
+          const matchesEmail = userEmail && pEmail === userEmail;
+
+          return matchesId || matchesEmail;
         });
       } else {
-        // No user logged in, so show no history
+
         normalizedData = [];
       }
 

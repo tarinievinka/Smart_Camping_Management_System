@@ -5,7 +5,8 @@ import { createPayment } from '../../../../services/paymentApi';
 import CardDetails from '../card-details/CardDetails';
 import { saveEquipmentBooking } from '../../../../utils/equipmentBookings';
 
-const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking", equipmentItems = [], equipmentBookingDraft = null }) => {
+const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking", equipmentItems = [], equipmentBookingDraft = null, returnPath = null }) => {
+
   const navigate = useNavigate();
   const [cardType, setCardType] = useState('visa');
   const [cardData, setCardData] = useState({
@@ -29,6 +30,7 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (alreadyPaid) return;
     setLoading(true);
     setError(null);
 
@@ -54,9 +56,12 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
     }
 
     try {
+      const user = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const userId = user._id || user.id || "507f1f77bcf86cd799439011";
+
       // Prepared payment data with placeholder IDs
       const paymentData = {
-        userId: "507f1f77bcf86cd799439011",
+        userId: userId,
         bookingType: bookingType,
         bookingId: bookingId,
         amount: amount,
@@ -70,11 +75,17 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
       // Reduce stock if this is an equipment booking
       if (bookingType === 'EquipmentBooking' && equipmentItems.length > 0) {
         const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
+        const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
         await Promise.all(
           equipmentItems.map(item =>
             fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
               method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${storedUser.token}`
+              },
+
               body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
             }).then(res => res.json())
           )
@@ -95,13 +106,10 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
 
       // Redirect after 2 seconds
       setTimeout(() => {
-        if (bookingType === 'EquipmentBooking') {
-          navigate('/equipment-bookings', {
-            state: { message: 'Payment successful. Your equipment booking is now available.' },
-          });
-          return;
-        }
-        navigate('/payment-success', { state: { equipmentItems } });
+        navigate('/payment-success', {
+          state: { message: 'Payment successful. Your booking is now available.', variant: 'success' },
+        });
+
       }, 2000);
     } catch (err) {
       console.error('Payment failed:', err);
@@ -140,11 +148,13 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-[#166534] hover:bg-[#14532d] disabled:bg-gray-400 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-lg"
+          disabled={loading || alreadyPaid}
+          className={`w-full font-bold py-4 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-lg ${
+            alreadyPaid ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#166534] hover:bg-[#14532d] text-white'
+          }`}
         >
           <Lock className="w-5 h-5" />
-          {loading ? 'Processing Securely...' : `Pay LKR ${amount.toFixed(2)}`}
+          {loading ? 'Processing Securely...' : alreadyPaid ? 'Payment Already Exists' : `Pay LKR ${amount.toFixed(2)}`}
         </button>
 
         <p className="text-xs text-center text-gray-500">

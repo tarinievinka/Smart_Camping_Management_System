@@ -109,7 +109,7 @@ const StripePayment = ({ amount = 303.80 }) => {
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
         <p className="text-xs font-semibold text-blue-900 mb-2">Test Card Numbers:</p>
         <p className="text-xs text-blue-800 font-mono">✓ 4242 4242 4242 4242 (Visa - Success)</p>
-        <p className="text-xs text-blue-800 font-mono">✗ 4000 0000 0000 0002 (Visa - Decline)</p>
+        <p className="text-xs text-blue-800 font-mono">✗ 5000 0000 0000 0002 (Visa - Decline)</p>
         <p className="text-xs text-blue-800 font-mono">Any future expiry date, any 3-digit CVC</p>
       </div>
     </div>

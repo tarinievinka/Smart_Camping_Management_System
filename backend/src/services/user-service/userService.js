@@ -6,11 +6,13 @@ const { generateUserId } = require('../../utils/userUtils');
 const { sendEmail } = require('../../utils/emailUtils');
 
 const registerUser = async (data) => {
-  console.log(`[USER_SERVICE] Registering user: ${data.email} with role: ${data.role}`);
-  const existing = await User.findOne({ email: data.email });
+  const email = data.email.toLowerCase().trim();
+  console.log(`[USER_SERVICE] Registering user: ${email} with role: ${data.role}`);
+  const existing = await User.findOne({ email });
   if (existing) throw new Error('Email already registered');
 
-  const hashed = await bcrypt.hash(data.password, 10);
+  const passwordToHash = data.password || crypto.randomBytes(8).toString('hex');
+  const hashed = await bcrypt.hash(passwordToHash, 10);
   const userId = generateUserId(data.role || 'camper');
 
   const isActive = !(data.role === 'guide' || data.role === 'campsite_owner');
@@ -20,10 +22,21 @@ const registerUser = async (data) => {
   return savedUser;
 };
 
-const loginUser = async (email, password) => {
+const loginUser = async (emailRaw, password) => {
+  const email = emailRaw.toLowerCase().trim();
   const user = await User.findOne({ email });
   if (!user) throw new Error('User not found');
-  if (!user.isActive) throw new Error('Account is deactivated');
+  if (!user.isActive) {
+    if (user.role === 'guide') {
+      if (user.guideStatus === 'pending') throw new Error('Your guide application is pending admin approval');
+      if (user.guideStatus === 'rejected') throw new Error('Your guide application was rejected');
+    }
+    if (user.role === 'campsite_owner') {
+      if (user.ownerStatus === 'pending') throw new Error('Your campsite owner application is pending admin approval');
+      if (user.ownerStatus === 'rejected') throw new Error('Your campsite owner application was rejected');
+    }
+    throw new Error('Account is deactivated');
+  }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) throw new Error('Invalid credentials');
@@ -59,9 +72,20 @@ const getAllUsers = async () => {
   return await User.find().select('-password');
 };
 
+const Guide = require('../../models/guide-model/guidemodel');
+
 const deleteUser = async (id) => {
   const user = await User.findByIdAndDelete(id);
   if (!user) throw new Error('User not found');
+
+  // Also delete associated Guide profile if any
+  await Guide.findOneAndDelete({ 
+    $or: [
+      { userId: id },
+      { email: user.email }
+    ]
+  });
+
   return user;
 };
 
@@ -83,7 +107,7 @@ const forgotPassword = async (email) => {
   
   await user.save();
 
-  const resetUrl = `${process.env.FRONTEND_URL}/forgot?token=${resetToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/login/forgot?token=${resetToken}`;
   
   const message = `
     <h1>Password Reset Request</h1>
