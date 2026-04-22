@@ -1,6 +1,16 @@
 const Payment = require('../../models/payement-model/PaymentModel');
 
 const createPayment = async (data) => {
+  // Prevent duplicate payments for the same booking
+  const existing = await Payment.findOne({ 
+    bookingId: data.bookingId,
+    paymentStatus: { $in: ['pending', 'success'] }
+  });
+
+  if (existing) {
+    throw new Error("A payment for this booking already exists or is pending approval.");
+  }
+
   const payment = new Payment(data);
   return await payment.save();
 };

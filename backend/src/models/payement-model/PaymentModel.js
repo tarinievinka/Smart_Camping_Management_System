@@ -14,9 +14,9 @@ const paymentSchema = new mongoose.Schema({
   },
 
   bookingId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     required: true,
-    refPath: "bookingType"   // Dynamic reference
+    // Note: refPath still works with Strings in many Mongoose versions for manual lookups
   },
 
   amount: {

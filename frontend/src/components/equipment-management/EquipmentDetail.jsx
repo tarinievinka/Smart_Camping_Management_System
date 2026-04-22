@@ -56,7 +56,7 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
       }
     };
     fetchReviews();
-  }, [item._id]);
+  }, [item._id, item.name]);
 
   const averageRating = reviews.length > 0 
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
