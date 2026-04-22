@@ -9,6 +9,9 @@ router.post("/add", protect, guideBookingController.createBooking);
 // Get all bookings
 router.get("/display", guideBookingController.getAllBookings);
 
+// Get bookings for a specific guide
+router.get("/guide/:guideId", guideBookingController.getBookingsByGuide);
+
 // Customer notifications (after guide confirms booking, etc.)
 router.get("/notifications", guideBookingController.getCustomerNotifications);
 router.patch("/notifications/:id/read", guideBookingController.markCustomerNotificationRead);

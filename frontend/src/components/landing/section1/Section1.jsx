@@ -48,19 +48,11 @@ const Section1 = () => {
 
                 {/* Subtext */}
                 <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto mb-12 font-medium leading-relaxed">
-                    Manage, book, and explore with the <span className="text-white font-bold">Smart Camping Management System</span>.
-                    A professional MERN stack solution for modern adventurers.
+                    Escape the city lights and embrace the wild. Discover premium campsites, 
+                    connect with expert local guides, and <span className="text-white font-bold">plan your perfect outdoor getaway</span> with seamless precision.
                 </p>
 
-                {/* CTAs */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <button className="w-full sm:w-auto px-10 py-4 bg-green-600 hover:bg-green-500 text-white font-black rounded-2xl shadow-[0_10px_30px_-10px_rgba(22,163,74,0.5)] transition-all hover:-translate-y-1 active:scale-95 text-lg">
-                        Start Exploration
-                    </button>
-                    <button className="w-full sm:w-auto px-10 py-4 bg-gray-900/80 hover:bg-gray-900 text-white font-black rounded-2xl border border-white/10 backdrop-blur-sm transition-all hover:-translate-y-1 active:scale-95 text-lg">
-                        View Demo
-                    </button>
-                </div>
+                {/* CTAs removed */}
             </div>
 
             {/* Decorative Gradient Bottom */}

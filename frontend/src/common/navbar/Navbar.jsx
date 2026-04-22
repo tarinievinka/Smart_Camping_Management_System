@@ -123,10 +123,14 @@ const Navbar = () => {
                 return "/admin-dashboard";
             case "guide":
 <<<<<<< HEAD
+<<<<<<< HEAD
                 return "/camper-dashboard";
 =======
                 return "/guides/owndashboard";
 >>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+=======
+                return "/guides/owndashboard";
+>>>>>>> 0314994bf65062d852853dc4a3f58bba40113109
             case "owner":
                 return "/owner-profile";
             default:

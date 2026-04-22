@@ -356,9 +356,9 @@ const CamperDashboard = () => {
                                                             <span style={{ fontWeight: 700, color: '#10a110' }}>{booking.total}</span>
                                                         </div>
                                                         <div style={styles.bookingDetailItem}>
-                                                            <span style={booking.status === 'Confirmed' || booking.status === 'paid' ? styles.pillGreen : styles.pillYellow}>
+                                                            <span style={(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? styles.pillGreen : styles.pillYellow}>
                                                                 <Clock size={12} style={{ marginRight: '4px' }} />
-                                                                {booking.status}
+                                                                {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1).toLowerCase()}
                                                             </span>
                                                         </div>
                                                     </div>

@@ -14,12 +14,20 @@ const guideBookingRoute = require("./src/routes/guide-booking-routes/guideBookin
 const campsiteRoute = require('./src/routes/campsite-route/campsiteRoutes');
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0314994bf65062d852853dc4a3f58bba40113109
 const reservationRoute = require('./src/routes/reservation-routes/reservations');
+<<<<<<< HEAD
 =======
 const customerNotificationRoute = require('./src/routes/customer-notification-route/CustomerNotificationRoute');
+<<<<<<< HEAD
 >>>>>>> 5ad9549d4f343c6385faa99801a01721940c0e37
 =======
 >>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+=======
+>>>>>>> 875b8c7b1d28b08e2375464309804f17e9cb5e8d
+>>>>>>> 0314994bf65062d852853dc4a3f58bba40113109
 
 const port = process.env.PORT || 5000;
 
@@ -53,13 +61,20 @@ app.use('/api/guide-bookings', guideBookingRoute);
 app.use('/api/campsites', campsiteRoute);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0314994bf65062d852853dc4a3f58bba40113109
 app.use('/api/reservations', reservationRoute);
-
+<<<<<<< HEAD
 =======
 app.use('/api/customer-notifications', customerNotificationRoute);
+<<<<<<< HEAD
 >>>>>>> 5ad9549d4f343c6385faa99801a01721940c0e37
 =======
 >>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+=======
+>>>>>>> 875b8c7b1d28b08e2375464309804f17e9cb5e8d
+>>>>>>> 0314994bf65062d852853dc4a3f58bba40113109
 const start = async () => {
   await connectDB();
   const server = app.listen(port, () => {
