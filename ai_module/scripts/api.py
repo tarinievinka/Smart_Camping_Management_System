@@ -1,16 +1,11 @@
 from flask import Flask, request, jsonify
-<<<<<<< HEAD
 from flask_cors import CORS
 from datetime import date
 import traceback
-=======
-from datetime import date
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 from weather_fetcher import get_weather
 from predictor import predict_safety
 
 app = Flask(__name__)
-<<<<<<< HEAD
 CORS(app) # Enable CORS for all routes
 
 @app.route('/forecast', methods=['GET'])
@@ -41,21 +36,3 @@ def forecast():
 
 if __name__ == '__main__':
     app.run(port=5001, debug=True)
-=======
-
-@app.route('/forecast', methods=['GET'])
-def forecast():
-    city        = request.args.get('city')
-    target_date = date.fromisoformat(request.args.get('date'))
-
-    weather    = get_weather(city, target_date)
-    prediction = predict_safety(
-        city         = city,
-        temperature  = weather['temperature'],
-        radiation    = weather['radiation'],
-        precip_hours = weather['precip_hours'],
-        wind_speed   = weather['wind_speed']
-    )
-
-    return jsonify({**weather, **prediction})
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7

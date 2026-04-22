@@ -11,19 +11,11 @@ const createEquipment = async (data) => {
 
 const getAllEquipment = async () => {
   const equipments = await Equipment.find().lean();
-<<<<<<< HEAD
 
   // Aggregate feedback to get average rating per equipment
   const Feedback = require('../../models/feedback-model/FeedbackModel');
   const feedbacks = await Feedback.find({ targetType: 'Equipment' }).lean();
 
-=======
-  
-  // Aggregate feedback to get average rating per equipment
-  const Feedback = require('../../models/feedback-model/FeedbackModel');
-  const feedbacks = await Feedback.find({ targetType: 'Equipment' }).lean();
-  
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
   return equipments.map(eq => {
     // Match exactly like EquipmentDetail.jsx: by targetId OR targetName
     const eqFeedbacks = feedbacks.filter(f => {
@@ -31,25 +23,16 @@ const getAllEquipment = async () => {
       const nameMatch = f.targetName && f.targetName.trim().toLowerCase() === eq.name.trim().toLowerCase();
       return idMatch || nameMatch;
     });
-<<<<<<< HEAD
-
     const reviewCount = eqFeedbacks.length;
     const averageRating = reviewCount > 0
       ? eqFeedbacks.reduce((sum, f) => sum + f.rating, 0) / reviewCount
-=======
-    
-    const reviewCount = eqFeedbacks.length;
-    const averageRating = reviewCount > 0 
-      ? eqFeedbacks.reduce((sum, f) => sum + f.rating, 0) / reviewCount 
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
       : 0;
 
     return {
       ...eq,
-<<<<<<< HEAD
       description: eq.description || "",
-=======
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
       averageRating,
       reviewCount
     };
@@ -63,11 +46,8 @@ const getEquipmentById = async (id) => {
 const updateEquipment = async (id, data) => {
   console.log(`\n[EQUIPMENT_DEBUG] --- Update Started ---`);
   console.log(`[EQUIPMENT_DEBUG] Item ID: ${id}`);
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
   const oldEquipment = await Equipment.findById(id);
   const updated = await Equipment.findByIdAndUpdate(id, data, { new: true });
 
@@ -81,40 +61,22 @@ const updateEquipment = async (id, data) => {
     // Simplified trigger: If it has stock and is available, notify anyone waiting.
     if (newStock > 0 && status === 'Available') {
       console.log(`[EQUIPMENT_DEBUG] Item is available. Searching for Notify requests...`);
-<<<<<<< HEAD
-
       // Try finding by either string ID or ObjectId to be 100% sure
       const requests = await Notify.find({
         itemId: id,
         notified: false
       });
 
-=======
-      
-      // Try finding by either string ID or ObjectId to be 100% sure
-      const requests = await Notify.find({ 
-        itemId: id, 
-        notified: false 
-      });
-      
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
       console.log(`[EQUIPMENT_DEBUG] Found ${requests.length} pending requests in Notify collection.`);
 
       for (const req of requests) {
         try {
           const targetEmail = String(req.email || '').trim().toLowerCase();
           console.log(`[EQUIPMENT_DEBUG] Processing notification for: ${targetEmail}`);
-<<<<<<< HEAD
-
           // 1. Create In-App Notification (Step 3: backend sets restocked: true)
           const newNotif = await CustomerNotification.create({
             customerName: "Camper",
-=======
-          
-          // 1. Create In-App Notification (Step 3: backend sets restocked: true)
-          const newNotif = await CustomerNotification.create({
-            customerName: "Camper", 
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
             customerEmail: targetEmail,
             title: "Equipment Restocked!",
             body: `Good news! "${updated.name}" is now back in stock. Since you requested to be notified, we've updated the stock for you. You can now rent or buy it in the Equipment Store.`,

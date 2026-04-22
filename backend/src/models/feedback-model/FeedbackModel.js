@@ -51,8 +51,6 @@ const feedbackSchema = new mongoose.Schema({
     type: Date
   },
 
-<<<<<<< HEAD
-=======
   sessionDate: {
     type: Date,
     required: true
@@ -62,7 +60,6 @@ const feedbackSchema = new mongoose.Schema({
     type: Date
   },
 
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
   imageUrls: {
     type: [String],
     default: []

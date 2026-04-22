@@ -1,13 +1,4 @@
 import React from "react";
-<<<<<<< HEAD
-import FeedbackForm from "./feedback-form/FeedbackForm";
-
-const Feedback = () => {
-  return (
-    <div className="min-h-screen bg-white flex">
-      <div className="flex-1 h-screen overflow-y-auto">
-
-=======
 import { useNavigate, useLocation } from "react-router-dom";
 import { PenSquare, User } from "lucide-react";
 import FeedbackForm from "./feedback-form/FeedbackForm";
@@ -47,7 +38,7 @@ const Feedback = () => {
             </div>
           </div>
         )}
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
         <FeedbackForm />
       </div>
     </div>

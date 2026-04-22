@@ -62,11 +62,8 @@ const AdminDashboard = () => {
 
     const handleDeactivate = async () => {
         if (!window.confirm('Are you sure you want to deactivate your admin account?')) return;
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
         const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
         const token = userInfo.token;
         try {
@@ -264,9 +261,7 @@ const AdminDashboard = () => {
                                 bg="linear-gradient(135deg,#0d9488,#0f766e)"
                                 glow="rgba(13,148,136,0.35)"
                                 onClick={() => navigate('/campsites-admin')}
-<<<<<<< HEAD
-=======
-                            />
+                             />
                             <ActionButton
                                 icon={
                                     <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -281,7 +276,7 @@ const AdminDashboard = () => {
                                 bg="linear-gradient(135deg,#3b82f6,#1d4ed8)"
                                 glow="rgba(59,130,246,0.35)"
                                 onClick={() => navigate('/admin/owner-management')}
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                             />
                             <ActionButton
                                 icon={

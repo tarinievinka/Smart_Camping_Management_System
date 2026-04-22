@@ -4,12 +4,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-<<<<<<< HEAD
 import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon, ChevronDown, PenSquare, ShoppingBag } from "lucide-react";
 import { getEquipmentBookings } from "../../../utils/equipmentBookings";
-=======
-import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon } from "lucide-react";
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
 
 const starLabels = ["Terrible", "Bad", "Okay", "Good", "Very Good"];
 
@@ -43,21 +40,16 @@ const FeedbackForm = () => {
     const [selectedTargetId, setSelectedTargetId] = useState(location.state?.targetId || "");
     const [userName, setUserName] = useState(getDisplayName(resolvedUser));
     const [locationName, setLocationName] = useState(location.state?.targetName || "");
-<<<<<<< HEAD
     const [itemsList, setItemsList] = useState([]);
     const [fetchingItems, setFetchingItems] = useState(false);
     const isEditingSpecificItem = !!location.state?.targetName;
-=======
-    const [bookedGuides, setBookedGuides] = useState([]);
-    const isEditingSpecificGuide = !!location.state?.targetName && location.state?.targetType === "guide";
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
 
     useEffect(() => {
         setUserName(getDisplayName(resolvedUser));
     }, [user]);
 
     useEffect(() => {
-<<<<<<< HEAD
         const fetchItems = async () => {
             if (isEditingSpecificItem) return;
 
@@ -147,43 +139,6 @@ const FeedbackForm = () => {
         fetchItems();
     }, [selectedReview, isEditingSpecificItem, resolvedUser]);
 
-=======
-        const fetchBookedGuides = async () => {
-            try {
-                const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
-                const bookingsRes = await axios.get(`${apiUrl}/api/guide-bookings/display`);
-                const parsedBookings = bookingsRes.data || [];
-                const res = await axios.get(`${apiUrl}/api/guides/display`);
-                const guides = Array.isArray(res.data) ? res.data : res.data?.guides || res.data?.data || [];
-                const merged = parsedBookings.map((b) => {
-                    const guide = guides.find((g) => String(g._id) === String(b.guideId));
-                    if (!guide) return null;
-                    return { ...guide, booking: b };
-                }).filter(Boolean);
-
-                merged.sort((a,b) => new Date(b.booking?.startDate || b.booking?.bookedAt || 0) - new Date(a.booking?.startDate || a.booking?.bookedAt || 0));
-                
-                const uniqueGuides = [];
-                const map = new Map();
-                for (const item of merged) {
-                     if(!map.has(item._id)){
-                         map.set(item._id, true);
-                         uniqueGuides.push(item);
-                     }
-                }
-                setBookedGuides(uniqueGuides);
-                if (uniqueGuides.length > 0 && !location.state?.targetName) {
-                    setLocationName(uniqueGuides[0].name);
-                }
-            } catch (err) {
-                console.error("Failed to load booked guides", err);
-            }
-        };
-        fetchBookedGuides();
-    }, []);
-    const [sessionStartDate, setSessionStartDate] = useState("");
-    const [sessionEndDate, setSessionEndDate] = useState("");
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
     const [rating, setRating] = useState(4);
     const [hover, setHover] = useState(null);
     const [reviewText, setReviewText] = useState("");
@@ -209,32 +164,8 @@ const FeedbackForm = () => {
             newErrors.locationName = "Location or item name is required.";
         }
 
-<<<<<<< HEAD
 
-=======
-        if (!sessionStartDate) {
-            newErrors.sessionStartDate = "Please select the start date of your session.";
-        }
 
-        if (!sessionEndDate) {
-            newErrors.sessionEndDate = "Please select the end date of your session.";
-        }
-
-        if (sessionStartDate && sessionEndDate) {
-            const startDate = new Date(sessionStartDate);
-            const endDate = new Date(sessionEndDate);
-            const today = new Date();
-            if (startDate > today) {
-                newErrors.sessionStartDate = "Session start date cannot be in the future.";
-            }
-            if (endDate > today) {
-                newErrors.sessionEndDate = "Session end date cannot be in the future.";
-            }
-            if (endDate < startDate) {
-                newErrors.sessionEndDate = "Session end date cannot be before start date.";
-            }
-        }
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 
         if (!reviewText.trim()) {
             newErrors.reviewText = "Review text is required.";
@@ -253,22 +184,10 @@ const FeedbackForm = () => {
         formData.append("userId", resolvedUser?._id || resolvedUser?.id || "507f1f77bcf86cd799439011");
         formData.append("userName", userName.trim());
         formData.append("targetType", selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1));
-<<<<<<< HEAD
         formData.append("targetId", selectedTargetId || "507f1f77bcf86cd799439012");
         formData.append("targetName", locationName.trim());
         formData.append("title", `${selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1)} Review`);
 
-=======
-        const resolvedTargetId =
-            selectedReview === "equipment"
-                ? selectedTargetId || location.state?.targetId || "507f1f77bcf86cd799439012"
-                : "507f1f77bcf86cd799439012";
-        formData.append("targetId", resolvedTargetId);
-        formData.append("targetName", locationName.trim());
-        formData.append("title", `${selectedReview.charAt(0).toUpperCase() + selectedReview.slice(1)} Review`);
-        formData.append("sessionDate", sessionStartDate);
-        formData.append("sessionEndDate", sessionEndDate);
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
         formData.append("rating", rating);
         formData.append("comment", reviewText);
 
@@ -290,12 +209,8 @@ const FeedbackForm = () => {
             setUserName(getDisplayName(resolvedUser) || "Nethmi User");
             setLocationName("");
             setSelectedTargetId("");
-<<<<<<< HEAD
 
-=======
-            setSessionStartDate("");
-            setSessionEndDate("");
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
             setRating(4);
             setReviewText("");
             setImageFiles([]);
@@ -328,7 +243,6 @@ const FeedbackForm = () => {
     return (
         <div className="w-full py-10 px-4 sm:px-6 lg:px-8 flex flex-col items-center font-sans bg-white">
             <div className="w-full max-w-3xl">
-<<<<<<< HEAD
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 w-full">
                     <div className="pl-1">
                         <h2 className="text-[40px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
@@ -352,11 +266,7 @@ const FeedbackForm = () => {
                             My Reviews
                         </button>
                     </div>
-=======
-                <div className="mb-6 pl-1">
-                    <h2 className="text-[40px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
-                    <p className="text-slate-500 font-medium text-sm">Share your experience to help fellow campers</p>
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -378,7 +288,6 @@ const FeedbackForm = () => {
                             </div>
                         </div>
 
-<<<<<<< HEAD
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="text-sm font-semibold text-slate-900 mb-1 block">
@@ -453,39 +362,7 @@ const FeedbackForm = () => {
                                     </div>
                                 )}
                             </div>
-=======
-                        <div>
-                            <label className="text-sm font-semibold text-slate-900 mb-1 block">
-                                {activeNameField.label} <span className="text-red-500">*</span>
-                            </label>
-                            {selectedReview === "guide" ? (
-                                <input
-                                    type="text"
-                                    value={locationName}
-                                    readOnly
-                                    disabled
-                                    placeholder={locationName ? activeNameField.placeholder : "Please navigate here from your Bookings to review a specific Guide."}
-                                    className="w-full bg-slate-100 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-500 cursor-not-allowed"
-                                />
-                            ) : (
-                                <input
-                                    type="text"
-                                    value={locationName}
-                                    onChange={(e) => {
-                                        setLocationName(e.target.value);
-                                        if (errors.locationName) setErrors({ ...errors, locationName: "" });
-                                    }}
-                                    placeholder={activeNameField.placeholder}
-                                    className={`w-full bg-slate-50 border ${errors.locationName ? "border-red-400" : "border-slate-200"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400`}
-                                />
-                            )}
-                            {errors.locationName && (
-                                <div className="text-red-500 text-sm mt-1 font-medium flex items-center gap-1.5">
-                                    <AlertCircle size={14} />
-                                    {errors.locationName}
-                                </div>
-                            )}
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                         </div>
 
                         <div>
@@ -541,11 +418,8 @@ const FeedbackForm = () => {
                                 Add Photos (Optional)
                             </label>
                             <p className="text-xs text-slate-500 mb-3">Include up to 5 photos to help others see your experience</p>
-<<<<<<< HEAD
 
-=======
-                            
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                             {imagePreviews.length === 0 ? (
                                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -553,15 +427,10 @@ const FeedbackForm = () => {
                                         <p className="mb-1 text-sm text-slate-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
                                         <p className="text-xs text-slate-400">SVG, PNG, JPG or GIF (MAX. 5MB)</p>
                                     </div>
-<<<<<<< HEAD
                                     <input
                                         type="file"
                                         className="hidden"
-=======
-                                    <input 
-                                        type="file" 
-                                        className="hidden" 
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                                         accept="image/*"
                                         multiple
                                         onChange={(e) => {
@@ -585,11 +454,8 @@ const FeedbackForm = () => {
                                                         const newFiles = [...imageFiles];
                                                         newFiles.splice(idx, 1);
                                                         setImageFiles(newFiles);
-<<<<<<< HEAD
 
-=======
-                                                        
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                                                         const newPreviews = [...imagePreviews];
                                                         newPreviews.splice(idx, 1);
                                                         setImagePreviews(newPreviews);
@@ -600,8 +466,6 @@ const FeedbackForm = () => {
                                                 </button>
                                             </div>
                                         ))}
-<<<<<<< HEAD
-
                                         {imagePreviews.length < 5 && (
                                             <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
                                                 <Upload className="w-6 h-6 mb-1 text-slate-400" />
@@ -609,16 +473,7 @@ const FeedbackForm = () => {
                                                 <input
                                                     type="file"
                                                     className="hidden"
-=======
-                                        
-                                        {imagePreviews.length < 5 && (
-                                            <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
-                                                <Upload className="w-6 h-6 mb-1 text-slate-400" />
-                                                <span className="text-xs text-slate-500 font-semibold text-center leading-tight">Add<br/>More</span>
-                                                <input 
-                                                    type="file" 
-                                                    className="hidden" 
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                                                     accept="image/*"
                                                     multiple
                                                     onChange={(e) => {
@@ -639,47 +494,8 @@ const FeedbackForm = () => {
                             )}
                         </div>
 
-<<<<<<< HEAD
 
-=======
-                        <div>
-                            <label className="text-sm font-semibold text-slate-900 mb-1 block">Session Duration Dates</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <input
-                                    type="date"
-                                    value={sessionStartDate}
-                                    onChange={(e) => {
-                                        setSessionStartDate(e.target.value);
-                                        if (errors.sessionStartDate) setErrors({ ...errors, sessionStartDate: "" });
-                                    }}
-                                    max={new Date().toISOString().split("T")[0]}
-                                    className={`w-full appearance-none bg-slate-50 border ${errors.sessionStartDate ? "border-red-400" : "border-slate-200"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400`}
-                                />
-                                <input
-                                    type="date"
-                                    value={sessionEndDate}
-                                    onChange={(e) => {
-                                        setSessionEndDate(e.target.value);
-                                        if (errors.sessionEndDate) setErrors({ ...errors, sessionEndDate: "" });
-                                    }}
-                                    max={new Date().toISOString().split("T")[0]}
-                                    className={`w-full appearance-none bg-slate-50 border ${errors.sessionEndDate ? "border-red-400" : "border-slate-200"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400`}
-                                />
-                            </div>
-                            {errors.sessionStartDate && (
-                                <div className="text-red-500 text-sm mt-1 font-medium flex items-center gap-1.5">
-                                    <AlertCircle size={14} />
-                                    {errors.sessionStartDate}
-                                </div>
-                            )}
-                            {errors.sessionEndDate && (
-                                <div className="text-red-500 text-sm mt-1 font-medium flex items-center gap-1.5">
-                                    <AlertCircle size={14} />
-                                    {errors.sessionEndDate}
-                                </div>
-                            )}
-                        </div>
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -694,12 +510,8 @@ const FeedbackForm = () => {
                                 if (location.state) {
                                     window.history.replaceState({}, document.title)
                                 }
-<<<<<<< HEAD
 
-=======
-                                setSessionStartDate("");
-                                setSessionEndDate("");
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                                 setRating(4);
                                 setReviewText("");
                                 setImageFiles([]);

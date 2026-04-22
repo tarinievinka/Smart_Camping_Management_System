@@ -1,9 +1,6 @@
 const jwt = require('jsonwebtoken');
-<<<<<<< HEAD
 const User = require('../models/user-model/userModel');
-=======
-const User = require('../models/user-models/User');
->>>>>>> 0314994bf65062d852853dc4a3f58bba40113109
+
 
 const protect = async (req, res, next) => {
   let token;
@@ -30,11 +27,8 @@ const admin = (req, res, next) => {
 };
 
 const campsiteOwner = (req, res, next) => {
-<<<<<<< HEAD
-  if (req.user && (req.user.role === 'campsite_owner' || req.user.role === 'admin')) {
-=======
-  if (req.user && (req.user.role === 'campsite-owner' || req.user.role === 'admin')) {
->>>>>>> 0314994bf65062d852853dc4a3f58bba40113109
+  if (req.user && (req.user.role === 'campsite_owner' || req.user.role === 'campsite-owner' || req.user.role === 'admin')) {
+
     next();
   } else {
     res.status(401).json({ message: 'Not authorized as a campsite owner' });

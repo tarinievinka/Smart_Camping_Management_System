@@ -1,10 +1,7 @@
 import React, { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-<<<<<<< HEAD
 import { Heart, LayoutGrid, ShoppingCart, Star } from "lucide-react";
-=======
-import { Calendar, Heart, LayoutGrid, ShoppingCart, Star } from "lucide-react";
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
 import { getEquipmentBookings } from "../../utils/equipmentBookings";
 
 const EquipmentBookings = () => {
@@ -20,15 +17,11 @@ const EquipmentBookings = () => {
   const navItems = [
     { icon: LayoutGrid, label: "Browse Gear", path: "/equipment-store" },
     { icon: ShoppingCart, label: "My Cart", path: "/equipment-store" },
-<<<<<<< HEAD
-=======
-    { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
     { icon: Heart, label: "Favorites", path: "/equipment-store" },
   ];
 
   return (
-<<<<<<< HEAD
     <div className="min-h-screen bg-gray-50">
       <main className="py-10 px-4 sm:px-6 lg:px-8 overflow-auto">
         <div className="max-w-6xl mx-auto">
@@ -56,45 +49,11 @@ const EquipmentBookings = () => {
               </button>
             ))}
           </div>
-=======
-    <div className="flex min-h-screen bg-gray-100">
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
-        <nav className="flex-1 space-y-1">
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                location.pathname === item.path
-                  ? "text-white bg-[#166534]"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <item.icon size={18} />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
-
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">My Equipment Bookings</h1>
-            <p className="text-gray-500 mt-2 text-sm">
-              Paid equipment appears here. You can review each booked item.
-            </p>
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
             <div className="mt-4 inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-700">
               {bookings.length} booking{bookings.length !== 1 ? "s" : ""} • {totalBookedItems} item
               {totalBookedItems !== 1 ? "s" : ""}
             </div>
-<<<<<<< HEAD
 
-=======
-          </div>
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 
           {bookings.length === 0 ? (
             <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center">
@@ -109,13 +68,9 @@ const EquipmentBookings = () => {
             </div>
           ) : (
             <div className="space-y-5">
-<<<<<<< HEAD
               {bookings.map((booking, index) => (
                 <div key={`${booking.bookingId}-${index}`} className="bg-white border border-gray-200 rounded-2xl p-5">
-=======
-              {bookings.map((booking) => (
-                <div key={booking.bookingId} className="bg-white border border-gray-200 rounded-2xl p-5">
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                     <div>
                       <p className="font-bold text-gray-900 text-sm">Booking #{booking.bookingId}</p>
@@ -143,11 +98,8 @@ const EquipmentBookings = () => {
                         <button
                           type="button"
                           onClick={() =>
-<<<<<<< HEAD
                             navigate("/equipment-feedback", {
-=======
-                            navigate("/feedbackreview", {
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                               state: {
                                 targetType: "equipment",
                                 targetName: item.name,

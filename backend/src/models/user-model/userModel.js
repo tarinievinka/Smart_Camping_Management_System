@@ -41,8 +41,6 @@ const userSchema = new mongoose.Schema({
     languages: { type: [String], default: [] },
     cv: { type: String, trim: true },
   },
-<<<<<<< HEAD
-=======
   ownerStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
@@ -56,7 +54,7 @@ const userSchema = new mongoose.Schema({
     description: { type: String, trim: true },
     experience: { type: Number, min: 0 },
   },
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
   isActive: { type: Boolean, default: true },
   resetPasswordToken: String,
   resetPasswordExpire: Date,

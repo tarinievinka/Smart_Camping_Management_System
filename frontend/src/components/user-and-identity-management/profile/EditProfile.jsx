@@ -19,11 +19,8 @@ const EditProfile = () => {
         const userInfo = JSON.parse(stored);
         if (!userInfo.token) { navigate('/login'); return; }
         setUserRole(userInfo.role);
-<<<<<<< HEAD
         setForm({ name: userInfo.name || '', email: userInfo.email || '', phone: userInfo.phone || '' });
-=======
-        setForm({ name: userInfo.name || '', email: userInfo.email || '', phone: userInfo.phone || '', password: '', confirmPassword: '' });
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
     }, [navigate]);
 
     const handleChange = (e) =>

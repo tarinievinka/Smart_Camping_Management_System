@@ -43,14 +43,10 @@ const Login = () => {
                 }
 
                 switch (data.user.role) {
-<<<<<<< HEAD
                     case 'admin':
                         navigate('/admin-dashboard');
-=======
-                    case 'camper':
-                        navigate('/');
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
                         break;
+
                     case 'guide':
                         navigate('/guide-profile');
                         break;

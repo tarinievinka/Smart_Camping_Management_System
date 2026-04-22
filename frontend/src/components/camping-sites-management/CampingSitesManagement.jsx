@@ -11,11 +11,8 @@ const CampingSitesManagement = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-<<<<<<< HEAD
     fetch(`${API}/display?status=approved`)
-=======
-    fetch(`${API}/display`)
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
       .then(res => res.json())
       .then(data => setCampsites(data.data || []))
       .catch(console.error);
@@ -59,11 +56,8 @@ const CampingSitesManagement = () => {
               <div className="p-5">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{site.name}</h3>
                 <div className="flex items-center text-sm text-gray-600 mb-4 gap-4">
-<<<<<<< HEAD
-                  <div className="flex items-center"><MapPin className="w-4 h-4 mr-1 text-gray-400" /> {site.location}</div>
-=======
-                  <div className="flex items-center"><MapPin className="w-4 h-4 mr-1 text-gray-400" /> {site.location.split(', ')[0]}, {site.location.split(', ')[1]}</div>
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+                  <div className="flex items-center"><MapPin className="w-4 h-4 mr-1 text-gray-400" /> {site.location.split(', ')[0] || site.location}, {site.location.split(', ')[1] || ''}</div>
+
                   <div className="flex items-center"><Users className="w-4 h-4 mr-1 text-gray-400" /> Up to {site.capacity}</div>
                 </div>
                 {site.amenities && site.amenities.length > 0 && (

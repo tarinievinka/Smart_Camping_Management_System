@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-<<<<<<< HEAD
-import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, ChevronDown, Star } from "lucide-react";
-import EquipmentDetail from './EquipmentDetail';
-import axios from "axios";
-=======
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
+import axios from "axios";
 
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
 const CATEGORIES = ['All Gear', 'Tents', 'Sleeping Bags', 'Backpacks', 'Cooking Gear', 'Lighting', 'Other'];
@@ -308,10 +303,7 @@ const EquipmentStore = () => {
     } catch { return []; }
   });
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
   // Keep storage in sync
   useEffect(() => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
@@ -321,12 +313,8 @@ const EquipmentStore = () => {
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
-<<<<<<< HEAD
-
   // Migration Logic: If guest cart has items and user just logged in, move them.
-=======
-  // 1. Migration Logic: If guest cart has items and user just logged in, move them.
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
   useEffect(() => {
     if (user?._id) {
       const guestCartJson = localStorage.getItem('equipment_cart_guest');
@@ -399,8 +387,10 @@ const EquipmentStore = () => {
   const navItems = [
     { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
     { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
+    { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
     { icon: Heart, label: "Favorites", active: showFavorites, action: () => setShowFavorites(true) },
   ];
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -414,47 +404,8 @@ const EquipmentStore = () => {
         />
       )}
 
-<<<<<<< HEAD
       <main className="py-10 px-4 sm:px-6 lg:px-8">
-=======
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
-        <nav className="flex-1 space-y-1">
-          {[
-            { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
-            { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
-            { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
-            { icon: Heart, label: "Favorites", active: showFavorites, action: () => setShowFavorites(true) },
-          ].map((item, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                if (item.action) item.action();
-                else if (item.path) navigate(item.path);
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                item.active 
-                  ? "text-white bg-[#166534]" 
-                  : item.highlight
-                    ? "text-[#16a34a] bg-[#f0fdf4] hover:bg-[#dcfce7] font-bold"
-                    : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <item.icon size={18} /> {item.label}
-            </button>
-          ))}
-        </nav>
 
-        <button
-          type="button"
-          onClick={() => { localStorage.removeItem('user'); window.location.reload(); }}
-          className="flex items-center gap-3 px-4 py-3 text-red-500 text-sm font-medium hover:bg-red-50 rounded-xl transition-colors mt-auto"
-        >
-          <LogOut size={18} className="rotate-180" /> Sign Out
-        </button>
-      </aside>
-
-      <main className="flex-1 p-8 overflow-auto">
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
         <div className="max-w-6xl mx-auto">
           
           <div className="mb-10">
@@ -517,32 +468,7 @@ const EquipmentStore = () => {
              </div>
           )}
 
-<<<<<<< HEAD
-=======
-          <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Premium Gear Rental</h1>
-              <p className="text-gray-500 text-sm mt-1">
-                Professional grade equipment for your wilderness journey.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search equipment..."
-                  className="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm w-72 bg-white outline-none transition-all"
-                />
-              </div>
-              <button type="button" className="p-2.5 border border-gray-200 rounded-xl hover:bg-white bg-white transition-colors">
-                <SlidersHorizontal size={18} className="text-gray-500" />
-              </button>
-            </div>
-          </header>
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
 
           <div className="flex gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar">
             {CATEGORIES.map((cat) => (

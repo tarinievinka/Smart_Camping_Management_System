@@ -39,11 +39,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('userInfo');
-<<<<<<< HEAD
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-=======
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
     localStorage.removeItem('equipment_cart_guest');
   };
 

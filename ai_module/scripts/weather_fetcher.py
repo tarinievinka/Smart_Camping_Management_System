@@ -37,7 +37,6 @@ CITY_COORDINATES = {
     # add all cities in your dataset
 
 
-<<<<<<< HEAD
 import os
 
 # Use absolute path relative to this script's location
@@ -47,13 +46,7 @@ CSV_PATH = os.path.join(BASE_DIR, '..', 'data', 'weather_cleaned_phase1.csv')
 def get_weather(city: str, target_date: date) -> dict:
     days_away = (target_date - date.today()).days
     if 0 <= days_away <= 14:
-=======
-CSV_PATH = '../data/weather_cleaned_phase1.csv'  # has raw values before scaling
 
-def get_weather(city: str, target_date: date) -> dict:
-    days_away = (target_date - date.today()).days
-    if days_away <= 14:
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
         return _from_api(city, target_date)
     else:
         return _from_csv(city, target_date)

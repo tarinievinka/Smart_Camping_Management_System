@@ -1,13 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-<<<<<<< HEAD
 import { User, CreditCard, LogOut, ChevronDown, Trash2, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getCustomerBookingName } from "../../utils/customerIdentity";
-=======
-import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
 
 const navLinks = [
     { label: "Home", href: "/" },
@@ -122,15 +118,9 @@ const Navbar = () => {
             case "admin":
                 return "/admin-dashboard";
             case "guide":
-<<<<<<< HEAD
-<<<<<<< HEAD
-                return "/camper-dashboard";
-=======
+            case "guide":
                 return "/guides/owndashboard";
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
-=======
-                return "/guides/owndashboard";
->>>>>>> 0314994bf65062d852853dc4a3f58bba40113109
+
             case "owner":
                 return "/owner-profile";
             default:
@@ -138,11 +128,8 @@ const Navbar = () => {
         }
     };
 
-<<<<<<< HEAD
-=======
-
     const isOwnerDashboard = location.pathname === "/owner-profile";
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
 
     return (
         <nav className="w-full bg-gradient-to-r from-white/75 via-white/35 to-white/75 backdrop-blur-xl border-b border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.08)] sticky top-0 z-50 transition-all duration-300">
@@ -342,9 +329,6 @@ const Navbar = () => {
                                     </div>
 
                                     <button
-<<<<<<< HEAD
-                                        onClick={() => { setProfileOpen(false); navigate(getDashboardPath()); }}
-=======
                                         onClick={() => { 
                                             setProfileOpen(false); 
                                             const path = getDashboardPath();
@@ -352,7 +336,7 @@ const Navbar = () => {
                                             const target = user?.role === 'owner' ? `${path}?profile=open` : path;
                                             navigate(target); 
                                         }}
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
                                     >
                                         <User className="w-4 h-4" />
@@ -484,7 +468,6 @@ const Navbar = () => {
                                 Profile
                             </Link>
 
-<<<<<<< HEAD
                             {(user?.role === "camper" || user?.role === "guide") && (
                                 <button
                                     onClick={() => {
@@ -500,8 +483,6 @@ const Navbar = () => {
                                 </button>
                             )}
 
-=======
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
                         </div>
 
 

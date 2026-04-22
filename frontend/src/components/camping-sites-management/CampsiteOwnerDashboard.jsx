@@ -1,103 +1,4 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
-import AddCampsite from './AddCampsite';
-
-const CampsiteOwnerDashboard = () => {
-  const [campsites, setCampsites] = useState([]);
-  const [currentView, setCurrentView] = useState('list');
-  const [user, setUser] = useState(null);
-
-  const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/campsites';
-
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedUser) {
-      setUser(storedUser);
-      fetch(`${API}/owner/${storedUser._id || storedUser.userId}`)
-        .then(res => res.json())
-        .then(data => setCampsites(data.data || []))
-        .catch(console.error);
-    }
-  }, []);
-
-  const handleAdd = async (formData) => {
-    formData.append('ownerId', user._id || user.userId);
-    try {
-      const res = await fetch(`${API}/add`, { method: 'POST', body: formData });
-      const saved = await res.json();
-      if (!res.ok) return alert(saved.error);
-      setCampsites(prev => [...prev, saved.data]);
-      setCurrentView('list');
-    } catch { alert('Add failed'); }
-  };
-
-  if (!user) return <div className="p-8 text-center text-gray-500">Please sign in as a Campsite Owner.</div>;
-
-  return (
-    <div className="min-h-screen bg-gray-50 py-10">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Campsites Dashboard</h1>
-          {currentView === 'list' && (
-            <button
-              onClick={() => setCurrentView('add')}
-              className="bg-[#15803d] hover:bg-[#166534] text-white font-semibold py-2 px-4 rounded-md transition shadow-md"
-            >
-              + Register New Campsite
-            </button>
-          )}
-        </div>
-
-        {currentView === 'add' && (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold mb-4">Registration Form</h2>
-            <p className="text-sm text-gray-500 mb-6">Your campsite will be sent to the admin for verification before it goes live.</p>
-            <AddCampsite onSave={handleAdd} onCancel={() => setCurrentView('list')} />
-          </div>
-        )}
-
-        {currentView === 'list' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-left">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100 text-sm font-semibold text-gray-600">
-                  <th className="p-4">Name</th>
-                  <th className="p-4">Location</th>
-                  <th className="p-4">Price / Night</th>
-                  <th className="p-4 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {campsites.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="text-center py-10 text-gray-500">You haven't registered any campsites yet.</td>
-                  </tr>
-                ) : (
-                  campsites.map(item => (
-                    <tr key={item._id} className="border-b border-gray-50 hover:bg-gray-50 transition">
-                      <td className="p-4 font-semibold text-gray-800">{item.name}</td>
-                      <td className="p-4 text-gray-600">{item.location}</td>
-                      <td className="p-4 text-[#15803d] font-bold">Rs {item.pricePerNight}</td>
-                      <td className="p-4 text-center">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                          item.status === 'approved' ? 'bg-green-100 text-green-700 border border-green-200' :
-                          item.status === 'rejected' ? 'bg-red-100 text-red-700 border border-red-200' :
-                          'bg-yellow-100 text-yellow-700 border border-yellow-200'
-                        }`}>
-                          {item.status || 'pending'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-=======
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -159,8 +60,6 @@ const CampsiteOwnerDashboard = () => {
         const token = getAuthToken();
         const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
         if (!token || userInfo.role !== 'owner') {
-            // Note: The role check in previous session was 'campsite_owner', 
-            // but Navbar uses 'owner'. Let's ensure consistency or allow both.
             if (userInfo.role !== 'campsite_owner' && userInfo.role !== 'owner') {
                 navigate('/login');
                 return;
@@ -174,39 +73,26 @@ const CampsiteOwnerDashboard = () => {
         const params = new URLSearchParams(location.search);
         if (params.get('profile') === 'open') {
             setShowProfileModal(true);
-            // Clean up URL to prevent re-opening on manual refresh if desired
-            // window.history.replaceState({}, '', location.pathname);
         }
     }, [location.search]);
-
-    // Debugging: Log state changes
-    useEffect(() => {
-        console.log('[DASHBOARD] Campsites state updated:', campsites);
-    }, [campsites]);
-
-    useEffect(() => {
-        console.log('[DASHBOARD] Bookings state updated:', bookings);
-    }, [bookings]);
 
     const fetchDashboardData = async () => {
         setLoading(true);
         const token = getAuthToken();
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
-        // Fetch Campsites (Isolated)
+        // Fetch Campsites
         try {
             const sitesRes = await axios.get(`${API_URL}/api/campsites/mine`, config);
-            console.log('[DASHBOARD] Sites Received:', sitesRes.data);
             const sitesArray = sitesRes.data.data || sitesRes.data.campsites || (Array.isArray(sitesRes.data) ? sitesRes.data : []);
             setCampsites(sitesArray);
         } catch (error) {
             console.error('[DASHBOARD] Campsite fetch failed:', error);
         }
 
-        // Fetch Bookings (Isolated)
+        // Fetch Bookings
         try {
             const bookingsRes = await axios.get(`${API_URL}/api/reservations/owner`, config);
-            console.log('[DASHBOARD] Bookings Received:', bookingsRes.data);
             const bookingsArray = bookingsRes.data.data || (Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
             setBookings(bookingsArray);
         } catch (error) {
@@ -261,7 +147,6 @@ const CampsiteOwnerDashboard = () => {
             localStorage.setItem('userInfo', JSON.stringify(userInfo));
             
             alert('Profile updated successfully!');
-            // Optional: Re-fetch to confirm
             fetchDashboardData();
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -271,7 +156,6 @@ const CampsiteOwnerDashboard = () => {
         }
     };
 
-    // Form Handling
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -291,7 +175,6 @@ const CampsiteOwnerDashboard = () => {
         formData.append('pricePerNight', form.pricePerNight);
         formData.append('capacity', form.capacity);
         
-        // Parse amenities from comma separated list
         const amenitiesArray = form.amenities.split(',').map(a => a.trim()).filter(Boolean);
         formData.append('amenities', JSON.stringify(amenitiesArray));
         
@@ -344,7 +227,7 @@ const CampsiteOwnerDashboard = () => {
             capacity: site.capacity,
             amenities: site.amenities ? site.amenities.join(', ') : '',
             description: site.description,
-            image: null // File inputs can't be pre-filled, so we keep it null
+            image: null
         });
         setImagePreview(site.image ? `${API_URL}${site.image}` : null);
         setShowForm(true);
@@ -359,7 +242,6 @@ const CampsiteOwnerDashboard = () => {
         setImagePreview(null);
     };
 
-    // Calculate aggregated metrics
     const totalEarnings = bookings
         .filter(b => b.status === 'confirmed')
         .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
@@ -377,7 +259,6 @@ const CampsiteOwnerDashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50/50 flex">
-            {/* Premium Sidebar */}
             <aside className="w-72 bg-gradient-to-b from-green-900 to-emerald-900 text-white flex flex-col shadow-2xl">
                 <div className="p-8 border-b border-white/10">
                     <h2 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-green-200 to-emerald-100 drop-shadow-sm">
@@ -434,7 +315,6 @@ const CampsiteOwnerDashboard = () => {
                 </nav>
             </aside>
 
-            {/* Main Content Area */}
             <main className="flex-1 p-10 overflow-y-auto">
                 <header className="mb-10 flex justify-between items-center">
                     <div>
@@ -449,12 +329,10 @@ const CampsiteOwnerDashboard = () => {
                              'Here is what is happening with your campsites today.'}
                         </p>
                     </div>
-                    {/* Data Status Badge - Temporarily added for verification */}
                     <div className="flex items-center gap-2 bg-black/5 px-4 py-2 rounded-xl text-xs font-bold text-gray-600">
                         <div className={`w-2 h-2 rounded-full ${campsites.length > 0 ? 'bg-green-500' : 'bg-red-400'}`}></div>
                         Sync: {campsites.length} Sites Loaded
                     </div>
-                    {/* User Profile Mini - Now Clickable */}
                     <button 
                         onClick={() => setShowProfileModal(true)}
                         className="flex items-center gap-4 bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-gray-100 hover:border-green-300 transition-all group"
@@ -469,12 +347,9 @@ const CampsiteOwnerDashboard = () => {
                     </button>
                 </header>
 
-                {/* --- DASHBOARD TAB --- */}
                 {activeTab === 'dashboard' && !showForm && (
                     <div className="space-y-8 animate-fade-in-up">
-                        {/* Stats Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 mt-4 xl:grid-cols-4 gap-6">
-                            {/* Stat Card 1 */}
                             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:shadow-md transition-shadow">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                                 <div className="relative">
@@ -486,7 +361,6 @@ const CampsiteOwnerDashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Stat Card 2 */}
                             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:shadow-md transition-shadow">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                                 <div className="relative">
@@ -498,7 +372,6 @@ const CampsiteOwnerDashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Stat Card 3 */}
                             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:shadow-md transition-shadow">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                                 <div className="relative">
@@ -510,7 +383,6 @@ const CampsiteOwnerDashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Stat Card 4 */}
                             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:shadow-md transition-shadow">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                                 <div className="relative">
@@ -523,7 +395,6 @@ const CampsiteOwnerDashboard = () => {
                             </div>
                         </div>
 
-                        {/* Recent Bookings Snapshot */}
                         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                                 <h3 className="text-lg font-bold text-gray-800">Recent Bookings</h3>
@@ -568,7 +439,6 @@ const CampsiteOwnerDashboard = () => {
                     </div>
                 )}
 
-                {/* --- MY CAMPSITES TAB --- */}
                 {activeTab === 'my-campsites' && !showForm && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
                         {campsites.map(site => (
@@ -578,11 +448,10 @@ const CampsiteOwnerDashboard = () => {
                                         <img src={`${API_URL}${site.image}`} alt={site.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     ) : (
                                         <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-100">
-                                            <svg className="w-10 h-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            <svg className="w-10 h-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 00-2 2z" /></svg>
                                             <span className="text-xs font-semibold uppercase tracking-wider">No Image</span>
                                         </div>
                                     )}
-                                    {/* Status Badge Over Image */}
                                     <div className="absolute top-4 right-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md ${
                                             site.status === 'approved' ? 'bg-emerald-500/90 text-white' : 
@@ -600,7 +469,7 @@ const CampsiteOwnerDashboard = () => {
                                     </div>
                                     <p className="text-sm font-medium text-gray-500 flex items-center mb-4">
                                         <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                        {site.location.split(', ')[0]}, {site.location.split(', ')[1]}
+                                        {site.location.split(', ')[0] || site.location}, {site.location.split(', ')[1] || ''}
                                     </p>
                                     
                                     <div className="flex items-center gap-2 mb-6 text-sm">
@@ -626,7 +495,6 @@ const CampsiteOwnerDashboard = () => {
                     </div>
                 )}
 
-                {/* --- ADD / EDIT FORM --- */}
                 {showForm && (
                     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 max-w-4xl animate-fade-in-up">
                         <form onSubmit={handleSaveCampsite} className="space-y-6">
@@ -707,7 +575,6 @@ const CampsiteOwnerDashboard = () => {
                     </div>
                 )}
 
-                {/* --- BOOKING HISTORY TAB --- */}
                 {activeTab === 'bookings' && !showForm && (
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
                         <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
@@ -776,18 +643,14 @@ const CampsiteOwnerDashboard = () => {
 
             </main>
 
-            {/* --- PROFILE MODAL --- */}
             {showProfileModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 lg:p-8">
-                    {/* Backdrop */}
                     <div 
                         className="absolute inset-0 bg-black/40 backdrop-blur-md transition-opacity animate-fade-in"
                         onClick={() => setShowProfileModal(false)}
                     ></div>
 
-                    {/* Modal Container */}
                     <div className="relative w-full max-w-5xl max-h-[90vh] bg-gray-50 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-scale-in">
-                        {/* Modal Header */}
                         <div className="px-8 py-6 bg-white border-b border-gray-100 flex items-center justify-between shrink-0">
                             <div>
                                 <h2 className="text-2xl font-black text-gray-800 tracking-tight">Campsite Owner Profile</h2>
@@ -802,10 +665,8 @@ const CampsiteOwnerDashboard = () => {
                             </button>
                         </div>
 
-                        {/* Modal Body (Scrollable) */}
                         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                {/* Left Column: Brief Summary */}
                                 <div className="lg:col-span-1 space-y-6">
                                     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center">
                                         <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-green-500 to-emerald-500 mx-auto flex items-center justify-center text-4xl text-white font-black shadow-xl mb-4">
@@ -842,10 +703,8 @@ const CampsiteOwnerDashboard = () => {
                                     </div>
                                 </div>
 
-                                {/* Right Column: Edit Form */}
                                 <div className="lg:col-span-2">
                                     <form onSubmit={handleUpdateProfile} className="space-y-8 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm transition-all duration-300">
-                                        {/* Personal Section */}
                                         <section>
                                             <h4 className="text-xs font-black text-green-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                                                 <span className="w-8 h-[2px] bg-green-600"></span>
@@ -870,7 +729,6 @@ const CampsiteOwnerDashboard = () => {
                                             </div>
                                         </section>
 
-                                        {/* Business Section */}
                                         <section>
                                             <h4 className="text-xs font-black text-green-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2 pt-4">
                                                 <span className="w-8 h-[2px] bg-green-600"></span>
@@ -922,7 +780,6 @@ const CampsiteOwnerDashboard = () => {
             )}
         </div>
     );
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 };
 
 export default CampsiteOwnerDashboard;

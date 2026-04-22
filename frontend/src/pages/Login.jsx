@@ -27,7 +27,6 @@ const Login = () => {
                 return;
             }
 
-<<<<<<< HEAD
             if (data.role === 'guide') {
                 await syncGuideSession(data.token);
             }
@@ -38,17 +37,15 @@ const Login = () => {
                     break;
                 case 'camper':
                 case 'guide':
+                    navigate('/');
+                    break;
                 case 'campsite-owner':
                 case 'campsite_owner':
+                    navigate('/owner-profile');
+                    break;
                 default:
                     navigate('/');
                     break;
-=======
-            switch (data.role) {
-                case 'admin': navigate('/admin'); break;
-                case 'campsite-owner': navigate('/owner'); break;
-                default: navigate('/'); break;
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid email or password. Please try again.');

@@ -10,11 +10,8 @@ import { saveEquipmentBooking } from '../../../utils/equipmentBookings';
 const SecureCheckout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-<<<<<<< HEAD
     const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems, equipmentBookingDraft, from } = location.state || {};
-=======
-    const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems, equipmentBookingDraft } = location.state || {};
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
   
   const currentBookingId = bookingId || `temp-bk-${Math.random().toString(36).substr(2, 9)}`;
   const currentAmount = amount || 0.00;
@@ -81,11 +78,8 @@ const SecureCheckout = () => {
         localStorage.removeItem(`equipment_cart_${userId}`);
       }
 
-<<<<<<< HEAD
       navigate('/payment-success', { state: { message: 'Bank deposit payment submitted successfully! Waiting for admin approval.', variant: 'success' } });
-=======
-      navigate('/payment-history', { state: { message: 'Bank deposit payment submitted successfully! Waiting for admin approval.', variant: 'success' } });
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
     } catch (err) {
       console.error('Payment failed:', err);
       alert('Payment submission failed. Please try again.');
@@ -195,19 +189,15 @@ const SecureCheckout = () => {
           <div className="lg:col-span-2">
             {paymentMethod === 'credit-card' && (
               <SimplePaymentForm 
-<<<<<<< HEAD
                 alreadyPaid={alreadyPaid}
-=======
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                 amount={currentAmount} 
                 bookingId={currentBookingId} 
                 bookingType={currentBookingType} 
                 equipmentItems={equipmentItems}
                 equipmentBookingDraft={equipmentBookingDraft}
-<<<<<<< HEAD
                 returnPath={from}
-=======
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
               />
             )}
             {paymentMethod === 'bank-deposit' && (
@@ -310,22 +300,17 @@ const SecureCheckout = () => {
                       if (currentBookingType === 'EquipmentBooking' && equipmentItems && equipmentItems.length > 0) {
                         const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
                         try {
-<<<<<<< HEAD
                           const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
-=======
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                           await Promise.all(
                             equipmentItems.map(item =>
                               fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
                                 method: 'PATCH',
-<<<<<<< HEAD
                                 headers: { 
                                   'Content-Type': 'application/json',
                                   'Authorization': `Bearer ${storedUser.token}`
                                 },
-=======
-                                headers: { 'Content-Type': 'application/json' },
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                                 body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
                               }).then(res => res.json())
                             )
@@ -345,11 +330,8 @@ const SecureCheckout = () => {
                         });
                       }
 
-<<<<<<< HEAD
                       navigate('/payment-success', { 
-=======
-                      navigate('/equipment-bookings', { 
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
                         state: { 
                           message: 'Google Pay payment completed successfully!', 
                           variant: 'success' 

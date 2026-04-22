@@ -1,11 +1,9 @@
 const Guide = require("../../models/guide-model/guidemodel");
 const User = require("../../models/user-model/userModel");
-<<<<<<< HEAD
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { sendEmail } = require("../../utils/emailUtils");
-=======
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
 
 // Create a new guide
 exports.createGuide = async (req, res) => {
@@ -92,7 +90,6 @@ exports.approveGuide = async (req, res) => {
       return res.status(400).json({ message: "User is not a guide applicant" });
     }
 
-<<<<<<< HEAD
     // 1. Generate a random temporary password
     const tempPassword = crypto.randomBytes(4).toString('hex'); // 8 characters
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
@@ -148,43 +145,28 @@ exports.approveGuide = async (req, res) => {
       console.error("Email notification failed:", emailErr);
       // We continue since the user is already approved in the DB
     }
-=======
-    // Update user approval status using the correct schema field
-    user.guideStatus = 'approved';
-    user.isActive = true;
-    await user.save();
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
 
     // Prevent duplicate guide documents
     const existingGuide = await Guide.findOne({ email: user.email });
     if (existingGuide) {
-<<<<<<< HEAD
+
+      // Already approved — just return the existing guide
       return res.status(200).json({ message: "Guide approved successfully (Profile existed)", guide: existingGuide });
     }
 
     // Create a new Guide document using the application data
-=======
-      // Already approved — just return the existing guide
-      return res.status(200).json({ message: "Guide already approved", guide: existingGuide });
-    }
-
-    // Create a new Guide document using the application data
     // NOTE: nic and age are required by the Guide schema — must be included
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
     const app = user.guideApplication || {};
     const guideData = {
       name:        app.fullName || user.name,
       email:       user.email,
       phone:       user.phone || '',
-<<<<<<< HEAD
-      experience:  Number(app.experience) || 0,
-      nic:         app.nic || '',
-      age:         Number(app.age) || 18,
-=======
       experience:  Number(app.experience) || 0,   // Guide schema expects Number
       nic:         app.nic || '',                  // required field
       age:         Number(app.age) || 18,          // required field
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
+
       description: app.description || '',
       language:    app.languages ? app.languages.join(', ') : '',
       cv:          app.cv || '',
@@ -194,7 +176,6 @@ exports.approveGuide = async (req, res) => {
     const newGuide = new Guide(guideData);
     await newGuide.save();
 
-<<<<<<< HEAD
     res.status(200).json({ message: "Guide approved and notified successfully", guide: newGuide });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -212,10 +193,7 @@ exports.getMyGuideProfile = async (req, res) => {
     });
     if (!guide) return res.status(404).json({ message: "Guide profile not found" });
     res.json(guide);
-=======
-    res.status(200).json({ message: "Guide approved successfully", guide: newGuide });
->>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+};
