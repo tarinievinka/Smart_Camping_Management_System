@@ -5,6 +5,7 @@ import Footer from './common/footer/Footer';
 import Login from './components/user-and-identity-management/login/Login';
 import SignUP from './components/user-and-identity-management/sign-up/SignUP';
 import Forgot from './components/user-and-identity-management/login/Forgot';
+import ForgotRequest from './components/user-and-identity-management/login/ForgotRequest';
 import EditProfile from './components/user-and-identity-management/profile/EditProfile';
 import AdminDashboard from './components/user-and-identity-management/profile/AdminDashboard';
 import DeleteUsers from './components/user-and-identity-management/profile/DeleteUsers';
@@ -78,6 +79,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUP />} />
             <Route path="/login/forgot" element={<Forgot />} />
+            <Route path="/login/forgot-request" element={<ForgotRequest />} />
             <Route path="/camper-dashboard" element={<CamperDashboard />} />
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/admin/delete-users" element={<DeleteUsers />} />

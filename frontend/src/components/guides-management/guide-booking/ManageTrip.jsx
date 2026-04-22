@@ -31,8 +31,13 @@ const ManageTrip = () => {
                     return;
                 }
 
-                const guidesRes = await axios.get(`${API_URL}/api/guides/update/${myBooking.guideId}`);
-                const guide = guidesRes.data;
+                const gid = typeof myBooking.guideId === 'object' ? myBooking.guideId?._id : myBooking.guideId;
+                let guide = typeof myBooking.guideId === 'object' ? myBooking.guideId : null;
+
+                if (!guide && gid) {
+                    const guidesRes = await axios.get(`${API_URL}/api/guides/update/${gid}`);
+                    guide = guidesRes.data;
+                }
 
                 const s = new Date(myBooking.startDate || myBooking.bookedAt);
                 const e = myBooking.endDate ? new Date(myBooking.endDate) : s;

@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: {
     type: String,
-    enum: ['camper', 'guide', 'campsite_owner', 'admin'],
+    enum: ['camper', 'guide', 'campsite_owner', 'admin', 'user', 'campsite-owner'],
     default: 'camper',
   },
   phone: { 

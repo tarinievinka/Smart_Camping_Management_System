@@ -165,7 +165,9 @@ const GuideProfile = () => {
 
       const payload = {
         guideId,
+        guideName: guide.name,
         customerName,
+        userId: user._id || user.id,
         status: "pending",
         amount: totalAmount,
         startDate: s,

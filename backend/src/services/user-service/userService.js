@@ -59,9 +59,20 @@ const getAllUsers = async () => {
   return await User.find().select('-password');
 };
 
+const Guide = require('../../models/guide-model/guidemodel');
+
 const deleteUser = async (id) => {
   const user = await User.findByIdAndDelete(id);
   if (!user) throw new Error('User not found');
+
+  // Also delete associated Guide profile if any
+  await Guide.findOneAndDelete({ 
+    $or: [
+      { userId: id },
+      { email: user.email }
+    ]
+  });
+
   return user;
 };
 
@@ -83,7 +94,7 @@ const forgotPassword = async (email) => {
   
   await user.save();
 
-  const resetUrl = `${process.env.FRONTEND_URL}/forgot?token=${resetToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/login/forgot?token=${resetToken}`;
   
   const message = `
     <h1>Password Reset Request</h1>

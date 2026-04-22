@@ -205,14 +205,15 @@ const SignUP = () => {
 				}
 
 				switch (role) {
-					case 'camper':
-						navigate('/');
-						break;
 					case 'admin':
 						navigate('/admin-dashboard');
 						break;
+					case 'camper':
+					case 'guide':
+					case 'campsite_owner':
 					default:
 						navigate('/');
+						break;
 				}
 			} else {
 				setError(data.error || 'Registration failed');
