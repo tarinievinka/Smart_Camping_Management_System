@@ -57,8 +57,8 @@ const AdminFeedback = () => {
   const fetchData = () => {
     setLoading(true);
     const feedbackUrl = process.env.REACT_APP_FEEDBACK_API_URL || "http://localhost:5000/api/feedback/display";
-    const guidesUrl = process.env.REACT_APP_GUIDES_API_URL || "http://localhost:5001/api/guides/display";
-    const equipmentUrl = process.env.REACT_APP_EQUIPMENT_API_URL || "http://localhost:5002/api/equipment/display";
+    const guidesUrl = process.env.REACT_APP_GUIDES_API_URL || "http://localhost:5000/api/guides/display";
+    const equipmentUrl = process.env.REACT_APP_EQUIPMENT_API_URL || "http://localhost:5000/api/equipment/display";
 
     let fetchedCount = 0;
     const checkDone = () => {
