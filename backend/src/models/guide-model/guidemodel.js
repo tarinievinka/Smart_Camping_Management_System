@@ -77,6 +77,7 @@ const guideSchema = new mongoose.Schema(
     isPaused: { type: Boolean, default: false },
     /** Optional: when guide expects to accept bookings again (shown when paused + admin unavailable) */
     availableAgainAt: { type: Date, default: null },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   {
     timestamps: true, // creates createdAt & updatedAt automatically

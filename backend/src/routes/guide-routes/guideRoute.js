@@ -30,8 +30,13 @@ router.post("/upload-cv", (req, res, next) => {
   });
 }, cvUploadController.uploadGuideCV);
 
+const { protect } = require("../../middleware/authMiddleware");
+
 // Get guides
 router.get("/display", guideController.getAllGuides);
+
+// Get my guide profile
+router.get("/me", protect, guideController.getMyGuideProfile);
 
 // Get  by ID
 router.get("/update/:id", guideController.getGuideById);

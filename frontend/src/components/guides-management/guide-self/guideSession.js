@@ -19,6 +19,7 @@
  *   REACT_APP_GUIDE_DEV_ID=<id>                             (optional override)
  * Guide self-dashboard URL: /guides/owndashboard (navigate there explicitly or after login).
  */
+import axios from "axios";
 
 export const GUIDE_SELF_DASHBOARD_PATH = "/guides/owndashboard";
 
@@ -60,6 +61,23 @@ function notifyGuideSessionChanged() {
  * Call from user-management after guide login. Optionally merge fields into auth_session.
  * @param {{ guideId: string, role?: string, authSessionPatch?: Record<string, unknown> }} params
  */
+const API_URL = "http://localhost:5000";
+
+export async function syncGuideSession(token) {
+  try {
+    const res = await axios.get(`${API_URL}/api/guides/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.data && res.data._id) {
+      setGuideSessionAfterLogin({ guideId: res.data._id });
+      return res.data._id;
+    }
+  } catch (err) {
+    console.error("Failed to sync guide session:", err);
+  }
+  return null;
+}
+
 export function setGuideSessionAfterLogin({ guideId, role = "guide", authSessionPatch }) {
   if (guideId == null || String(guideId).trim() === "") return;
   const id = String(guideId).trim();

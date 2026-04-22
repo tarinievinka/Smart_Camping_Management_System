@@ -60,6 +60,12 @@ const equipmentSchema = new mongoose.Schema({
     default: "",
   },
 
+  description: {
+    type: String,
+    trim: true,
+    maxlength: [1000, "Description cannot exceed 1000 characters"],
+  },
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("Equipment", equipmentSchema);

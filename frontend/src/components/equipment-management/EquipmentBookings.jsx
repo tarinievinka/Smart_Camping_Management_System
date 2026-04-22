@@ -68,8 +68,8 @@ const EquipmentBookings = () => {
             </div>
           ) : (
             <div className="space-y-5">
-              {bookings.map((booking) => (
-                <div key={booking.bookingId} className="bg-white border border-gray-200 rounded-2xl p-5">
+              {bookings.map((booking, index) => (
+                <div key={`${booking.bookingId}-${index}`} className="bg-white border border-gray-200 rounded-2xl p-5">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                     <div>
                       <p className="font-bold text-gray-900 text-sm">Booking #{booking.bookingId}</p>
@@ -97,7 +97,7 @@ const EquipmentBookings = () => {
                         <button
                           type="button"
                           onClick={() =>
-                            navigate("/feedbackreview", {
+                            navigate("/equipment-feedback", {
                               state: {
                                 targetType: "equipment",
                                 targetName: item.name,
