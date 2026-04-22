@@ -11,6 +11,7 @@ const navLinks = [
     { label: "Blogs", href: "/blogs" },
 ];
 
+
 const Header = () => {
     const location = useLocation();
     const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
+import { User, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
@@ -10,6 +10,7 @@ const navLinks = [
     { label: "Guides", href: "/guides" },
     { label: "Blogs", href: "/blogs" },
 ];
+
 
 const Navbar = () => {
     const location = useLocation();

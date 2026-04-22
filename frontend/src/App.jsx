@@ -10,6 +10,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import CampsiteOwnerDashboard from './pages/CampsiteOwnerDashboard';
 import MyBookings from './pages/MyBookings';
 
+
 function AppContent() {
   const location = useLocation();
   const authPaths = ['/login', '/login/forgot', '/register'];

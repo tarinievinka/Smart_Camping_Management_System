@@ -94,7 +94,6 @@ export default function SidebarBooking({ campsite, checkInDate, checkOutDate, se
           <span>${total}</span>
         </div>
       </div>
-
       <div className="safety-badge">
         <div className="safety-icon">✓</div>
         <span>Protecting Sanctuary Care</span>
