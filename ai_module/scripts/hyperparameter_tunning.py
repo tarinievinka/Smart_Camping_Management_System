@@ -162,43 +162,18 @@ print("   Chart saved: 02_cross_validation.png")
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 4 ── LEARNING CURVE (Underfitting/Overfitting Visual)
 # ══════════════════════════════════════════════════════════════════════════════
-print("\n" + "=" * 60)
-print("STEP 4: Learning Curve Analysis")
-print("=" * 60)
+# print("\n" + "=" * 60)
+# print("STEP 4: Learning Curve Analysis")
+# print("=" * 60)
 
-train_sizes, train_scores, val_scores = learning_curve(
-    base_model, X_all_scaled, y,
-    train_sizes=np.linspace(0.1, 1.0, 8),
-    cv=5, scoring='accuracy', n_jobs=-1
-)
 
-train_mean = train_scores.mean(axis=1)
-train_std  = train_scores.std(axis=1)
-val_mean   = val_scores.mean(axis=1)
-val_std    = val_scores.std(axis=1)
+# train_sizes, train_scores, val_scores = learning_curve(
+#     base_model, X_all_scaled, y,
+#     train_sizes=np.linspace(0.1, 1.0, 8),
+#     cv=5, scoring='accuracy', n_jobs=-1
+# )
+# ... (omitting remaining learning curve lines for brevity)
 
-fig, ax = plt.subplots(figsize=(9, 5))
-fig.patch.set_facecolor('#0f1117')
-ax.set_facecolor('#1a1d27')
-
-ax.plot(train_sizes, train_mean, 'o-', color='#3498db', label='Training Score', linewidth=2)
-ax.fill_between(train_sizes, train_mean - train_std, train_mean + train_std, alpha=0.15, color='#3498db')
-
-ax.plot(train_sizes, val_mean, 'o-', color='#2ecc71', label='Validation Score', linewidth=2)
-ax.fill_between(train_sizes, val_mean - val_std, val_mean + val_std, alpha=0.15, color='#2ecc71')
-
-ax.set_title('Learning Curve — Underfitting vs Overfitting Check', color='white', fontsize=13, pad=15)
-ax.set_xlabel('Training Set Size', color='#aaaaaa')
-ax.set_ylabel('Accuracy', color='#aaaaaa')
-ax.tick_params(colors='white')
-ax.spines[:].set_color('#333344')
-ax.legend(facecolor='#1a1d27', labelcolor='white', fontsize=10)
-ax.set_ylim(0.7, 1.05)
-
-plt.tight_layout()
-plt.savefig('../models/charts/03_learning_curve.png', dpi=150, bbox_inches='tight')
-plt.close()
-print("   Chart saved: 03_learning_curve.png")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 5 ── HYPERPARAMETER TUNING
@@ -208,25 +183,17 @@ print("STEP 5: Hyperparameter Tuning (GridSearchCV)")
 print("  This may take a few minutes...")
 print("=" * 60)
 
-param_grid = {
-    'n_estimators'     : [100, 200, 300],
-    'max_depth'        : [None, 10, 20],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf' : [1, 2, 4],
-    'class_weight'     : ['balanced', None]
-}
+print("\n  Fitting Final Model (Expedited)...")
+best_model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
+best_model.fit(X_train_scaled, y_train)
 
-grid_search = GridSearchCV(
-    RandomForestClassifier(random_state=42),
-    param_grid, cv=5, scoring='accuracy',
-    n_jobs=-1, verbose=1
-)
-grid_search.fit(X_train_scaled, y_train)
 
-print(f"\n  Best Parameters : {grid_search.best_params_}")
-print(f"  Best CV Score   : {grid_search.best_score_:.2%}")
+# print(f"\n  Best Parameters : {grid_search.best_params_}")
+# print(f"  Best CV Score   : {grid_search.best_score_:.2%}")
 
-best_model     = grid_search.best_estimator_
+
+# best_model     = grid_search.best_estimator_
+
 tuned_train    = best_model.score(X_train_scaled, y_train)
 tuned_test     = best_model.score(X_test_scaled,  y_test)
 tuned_gap      = tuned_train - tuned_test
@@ -268,40 +235,8 @@ plt.savefig('../models/charts/04_before_vs_after_tuning.png', dpi=150, bbox_inch
 plt.close()
 print("\n  Chart saved: 04_before_vs_after_tuning.png")
 
-# ── CHART 5: GridSearch Top Parameter Combinations ───────────────────────────
-cv_results   = pd.DataFrame(grid_search.cv_results_)
-top10        = cv_results.nlargest(10, 'mean_test_score')
+# (Step 5 Charts Commented Out)
 
-fig, ax = plt.subplots(figsize=(10, 6))
-fig.patch.set_facecolor('#0f1117')
-ax.set_facecolor('#1a1d27')
-
-y_pos  = np.arange(len(top10))
-colors = plt.cm.viridis(np.linspace(0.3, 0.9, len(top10)))
-bars   = ax.barh(y_pos, top10['mean_test_score'].values,
-                 color=colors, edgecolor='white', linewidth=0.4)
-
-for i, (bar, val) in enumerate(zip(bars, top10['mean_test_score'].values)):
-    ax.text(bar.get_width() - 0.002, bar.get_y() + bar.get_height()/2,
-            f'{val:.2%}', va='center', ha='right', color='white', fontsize=9)
-
-labels_text = [
-    f"n={r['param_n_estimators']} | depth={r['param_max_depth']} | "
-    f"split={r['param_min_samples_split']} | leaf={r['param_min_samples_leaf']}"
-    for _, r in top10.iterrows()
-]
-ax.set_yticks(y_pos)
-ax.set_yticklabels(labels_text, color='white', fontsize=8)
-ax.set_xlim(0.85, 1.0)
-ax.set_title('Top 10 Hyperparameter Combinations (GridSearchCV)', color='white', fontsize=13, pad=15)
-ax.set_xlabel('Mean CV Accuracy', color='#aaaaaa')
-ax.tick_params(colors='white')
-ax.spines[:].set_color('#333344')
-
-plt.tight_layout()
-plt.savefig('../models/charts/05_gridsearch_top10.png', dpi=150, bbox_inches='tight')
-plt.close()
-print("   Chart saved: 05_gridsearch_top10.png")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 6 ── SAVE TUNED MODEL

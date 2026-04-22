@@ -118,10 +118,10 @@ const Navbar = () => {
             case "admin":
                 return "/admin-dashboard";
             case "guide":
-            case "guide":
                 return "/guides/owndashboard";
-
             case "owner":
+            case "campsite_owner":
+            case "campsite-owner":
                 return "/owner-profile";
             default:
                 return "/camper-dashboard";
@@ -165,6 +165,17 @@ const Navbar = () => {
                                     {link.label}
                                 </Link>
                             ))}
+                            {(user?.role === "owner" || user?.role === "campsite_owner" || user?.role === "campsite-owner") && (
+                                <Link
+                                    to="/owner-profile"
+                                    className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/owner-profile")
+                                            ? "text-[#166534] border-b-2 border-[#166534]"
+                                            : "text-gray-600 hover:text-[#166534]"
+                                        }`}
+                                >
+                                    Profile
+                                </Link>
+                            )}
                             {user?.role === "camper" && (
                                 <Link
                                     to="/payment-history"
