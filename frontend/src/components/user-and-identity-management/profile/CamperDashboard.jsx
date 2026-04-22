@@ -199,7 +199,7 @@ const CamperDashboard = () => {
             status: b.status || 'Confirmed',
             total: `LKR ${b.totalPrice || 0}`,
             rawDate: b.checkInDate || b.checkIn,
-            image: b.campsite?.images?.[0] || "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80&w=1000",
+            image: b.campsite?.image ? `http://localhost:5000${b.campsite.image}` : "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80&w=1000",
             targetId: b.campsite?._id
         }));
         return [...eq, ...gd, ...cs].sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
@@ -283,10 +283,6 @@ const CamperDashboard = () => {
                         {/* Summary Cards */}
                         <div style={styles.statsRow}>
                             <StatBox label="Upcoming Trips" value={stats.upcoming} icon={<Calendar size={24} />} color="#f0fdf4" iconColor="#10a110" />
-<<<<<<< HEAD
-                            <StatBox label="Total Spent" value={stats.spent} icon={<CreditCard size={24} />} color="#f0fff4" iconColor="#10a110" />
-                            <StatBox label="Active Bookings" value={stats.active} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
-=======
                             <StatBox 
                                 label="Total Spent" 
                                 value={stats.spent} 
@@ -295,8 +291,7 @@ const CamperDashboard = () => {
                                 iconColor="#10a110" 
                                 onClick={() => navigate('/payment-history')}
                             />
-                            <StatBox label="Active Rentals" value={stats.rentals} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
->>>>>>> e7d274c7705d604c5f134a70bd6ca6f46fffd1db
+                            <StatBox label="Active Bookings" value={stats.active} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
                         </div>
 
                         {/* Main Grid: Bookings + Reviews */}
@@ -338,42 +333,30 @@ const CamperDashboard = () => {
                                                         <div style={styles.bookingMeta}>
                                                             <span style={{ 
                                                                 ...styles.bookingTypeBadge,
-                                                                background: '#f0fdf4',
-                                                                color: '#10a110',
-                                                                border: '1px solid #dcfce7'
+                                                                background: booking.type === 'Equipment' ? '#fdf2f8' : booking.type === 'Guide' ? '#f0f9ff' : '#f0fdf4',
+                                                                color: booking.type === 'Equipment' ? '#db2777' : booking.type === 'Guide' ? '#0284c7' : '#10a110',
+                                                                border: `1px solid ${booking.type === 'Equipment' ? '#fbcfe8' : booking.type === 'Guide' ? '#bae6fd' : '#dcfce7'}`
                                                             }}>
                                                                 {booking.type === 'Equipment' ? <Package size={12} /> : (booking.type === 'Guide' ? <Compass size={12} /> : <MapPin size={12} />)}
                                                                 {booking.type.toUpperCase()}
                                                             </span>
                                                             <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>#{booking.id?.slice(-6) || 'N/A'}</span>
                                                         </div>
-                                                        <button 
-                                                            style={{
-                                                                ...styles.viewDetailsBtn,
-                                                                ...(booking.status?.toLowerCase() === 'pending' ? { opacity: 0.7, cursor: booking.type === 'Campsite' ? 'not-allowed' : 'pointer' } : {})
-                                                            }}
-                                                            onClick={() => {
-                                                                if (booking.type === 'Equipment') navigate('/equipment-bookings');
-                                                                else if (booking.type === 'Guide') navigate('/guides/bookings');
-                                                                else {
-                                                                    if (booking.status?.toLowerCase() === 'pending') {
-                                                                        return;
-                                                                    }
-                                                                    navigate('/campsite-feedback', { 
-                                                                        state: { 
-                                                                            targetType: 'campsite', 
-                                                                            targetId: booking.targetId, 
-                                                                            targetName: booking.name 
-                                                                        } 
-                                                                    });
-                                                                }
-                                                            }}
-                                                        >
-                                                            {booking.status?.toLowerCase() === 'pending' ? <Clock size={14} /> : <PenSquare size={14} />} 
-                                                            {booking.status?.toLowerCase() === 'pending' 
-                                                                ? 'Booking Pending' 
-                                                                : (booking.type === 'Campsite' ? 'View & Review' : 'View Details')}
-                                                        </button>
+                                                        {booking.type !== 'Campsite' && (
+                                                            <button 
+                                                                style={{
+                                                                    ...styles.viewDetailsBtn,
+                                                                    ...(booking.status?.toLowerCase() === 'pending' ? { opacity: 0.7, cursor: 'pointer' } : {})
+                                                                }}
+                                                                onClick={() => {
+                                                                    if (booking.type === 'Equipment') navigate('/equipment-bookings');
+                                                                    else if (booking.type === 'Guide') navigate('/guides/bookings');
+                                                                }}
+                                                            >
+                                                                {booking.status?.toLowerCase() === 'pending' ? <Clock size={14} /> : <PenSquare size={14} />} 
+                                                                {booking.status?.toLowerCase() === 'pending' ? 'Booking Pending' : 'View Details'}
+                                                            </button>
+                                                        )}
                                                     </div>
 
                                                     <h4 style={styles.bookingName}>{booking.name}</h4>

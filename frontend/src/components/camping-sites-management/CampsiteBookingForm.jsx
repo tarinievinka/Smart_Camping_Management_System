@@ -58,7 +58,7 @@ const CampsiteBookingForm = () => {
     return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
   };
 
-  const handleProceed = (e) => {
+  const handleProceed = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -91,21 +91,53 @@ const CampsiteBookingForm = () => {
 
     const total = calculateTotal();
     
-    navigate('/payment-checkout', {
-      state: {
-        amount: total,
-        bookingType: 'CampsiteBooking',
-        title: site.name,
-        stay: `${nights()} Nights / ${nights() + 1} Days`,
-        guests: `${formData.guests} Guests`,
-        image: site.image ? resolveMediaUrl(site.image) : null,
-        dates: {
-          checkIn: formData.checkIn,
-          checkOut: formData.checkOut
+    // Create the reservation first
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const token = userInfo.token;
+      
+      const res = await fetch(`${API_BASE}/api/reservations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        bookingId: id // This is the campsite ID
+        body: JSON.stringify({
+          campsite: id,
+          checkInDate: formData.checkIn,
+          checkOutDate: formData.checkOut,
+          totalPrice: total,
+          status: 'pending' // Create as pending until paid
+        })
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to create reservation');
       }
-    });
+
+      const reservationId = data._id;
+
+      navigate('/payment-checkout', {
+        state: {
+          amount: total,
+          bookingType: 'CampsiteBooking',
+          title: site.name,
+          stay: `${nights()} Nights / ${nights() + 1} Days`,
+          guests: `${formData.guests} Guests`,
+          image: site.image ? resolveMediaUrl(site.image) : null,
+          dates: {
+            checkIn: formData.checkIn,
+            checkOut: formData.checkOut
+          },
+          bookingId: reservationId // Pass the REAL reservation ID now
+        }
+      });
+    } catch (err) {
+      console.error("Reservation creation error:", err);
+      setError(err.message || "Failed to initiate booking. Please try again.");
+    }
   };
 
   if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
@@ -134,7 +166,20 @@ const CampsiteBookingForm = () => {
                 </div>
               </div>
               <div className="p-8">
-                <h1 className="text-4xl font-black text-gray-900 mb-4">{site.name}</h1>
+                <h1 className="text-4xl font-black text-gray-900 mb-2">{site.name}</h1>
+                
+                {/* Rating */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="flex text-[#fbbf24] gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={18} fill={i < Math.round(site.averageRating || 0) ? "currentColor" : "none"} strokeWidth={2.5} />
+                    ))}
+                  </div>
+                  <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                    {site.averageRating ? site.averageRating.toFixed(1) : "0.0"} ({site.reviewCount || 0} REVIEWS)
+                  </span>
+                </div>
+
                 <div className="flex flex-wrap gap-6 mb-6">
                   <div className="flex items-center text-gray-600">
                     <MapPin className="w-5 h-5 mr-2 text-[#166534]" />

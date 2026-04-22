@@ -59,15 +59,15 @@ const FeedbackForm = () => {
                 if (selectedReview === "guide") {
                     const res = await axios.get(`${apiUrl}/api/guide-bookings/display`);
                     const bookings = Array.isArray(res.data) ? res.data : [];
-                    
+
                     const userId = resolvedUser?._id || resolvedUser?.id;
                     const userName = getDisplayName(resolvedUser);
 
-                    const myBookings = bookings.filter(b => 
+                    const myBookings = bookings.filter(b =>
                         (userId && String(b.userId) === String(userId)) ||
                         (userName && String(b.customerName).toLowerCase() === userName.toLowerCase())
                     );
-                    
+
                     const guideMap = new Map();
                     myBookings.forEach(b => {
                         const gid = b.guideId?._id || b.guideId;

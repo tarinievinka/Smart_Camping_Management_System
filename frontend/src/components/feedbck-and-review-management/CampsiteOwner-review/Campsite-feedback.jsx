@@ -77,15 +77,15 @@ const FeedbackForm = () => {
                 if (selectedReview === "guide") {
                     const res = await axios.get(`${apiUrl}/api/guide-bookings/display`);
                     const bookings = Array.isArray(res.data) ? res.data : [];
-                    
+
                     const userId = resolvedUser?._id || resolvedUser?.id;
                     const userName = getDisplayName(resolvedUser);
 
-                    const myBookings = bookings.filter(b => 
+                    const myBookings = bookings.filter(b =>
                         (userId && String(b.userId) === String(userId)) ||
                         (userName && String(b.customerName).toLowerCase() === userName.toLowerCase())
                     );
-                    
+
                     const guideMap = new Map();
                     myBookings.forEach(b => {
                         const gid = b.guideId?._id || b.guideId;
@@ -164,18 +164,18 @@ const FeedbackForm = () => {
                 const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
                 const res = await axios.get(`${apiUrl}/api/feedback/display`);
                 const allReviews = Array.isArray(res.data) ? res.data : [];
-                
+
                 // Filter reviews for this specific target
                 const filtered = allReviews.filter((r) => {
                     const typeMatch = String(r.targetType || "").toLowerCase() === selectedReview.toLowerCase();
                     if (!typeMatch) return false;
-                    
+
                     const idMatch = String(r.targetId || "") === String(selectedTargetId);
                     const nameMatch = String(r.targetName || "").trim().toLowerCase() === String(locationName || "").trim().toLowerCase();
-                    
+
                     return idMatch || (locationName && nameMatch);
                 });
-                
+
                 setReviews(filtered);
             } catch (err) {
                 console.error("Failed to fetch reviews:", err);

@@ -3,17 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, Users, Info, Star } from 'lucide-react';
 import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
 
+import CampsiteDetail from './CampsiteDetail';
+
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/campsites';
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const CampingSitesManagement = () => {
   const [campsites, setCampsites] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSite, setSelectedSite] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${API}/display?status=approved`)
-
       .then(res => res.json())
       .then(data => setCampsites(data.data || []))
       .catch(console.error);
@@ -43,7 +45,11 @@ const CampingSitesManagement = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map(site => (
-            <div key={site._id} className="group bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+            <div 
+              key={site._id} 
+              onClick={() => setSelectedSite(site)}
+              className="group bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-1 cursor-pointer"
+            >
               {/* Image Container */}
               <div className="relative h-56 overflow-hidden">
                 <img 
@@ -62,8 +68,20 @@ const CampingSitesManagement = () => {
 
               {/* Content */}
               <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex justify-between items-start mb-1">
                   <h3 className="text-lg font-black text-gray-900 leading-tight line-clamp-1">{site.name}</h3>
+                </div>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex text-[#fbbf24] gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} fill={i < Math.round(site.averageRating || 0) ? "currentColor" : "none"} strokeWidth={2.5} />
+                    ))}
+                  </div>
+                  <span className="text-[12px] font-black text-slate-400 uppercase tracking-wide mt-0.5">
+                    {site.averageRating ? site.averageRating.toFixed(1) : "0.0"} ({site.reviewCount || 0} REVIEWS)
+                  </span>
                 </div>
 
                 <div className="flex flex-col gap-2 mb-5">
@@ -94,7 +112,10 @@ const CampingSitesManagement = () => {
                 )}
 
                 <button
-                  onClick={() => navigate(`/campsite-booking/${site._id}`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/campsite-booking/${site._id}`);
+                  }}
                   className="w-full bg-[#166534] hover:bg-[#14532d] text-white font-black py-3.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg active:scale-[0.98] text-sm uppercase tracking-widest"
                 >
                   Book Now
@@ -107,6 +128,15 @@ const CampingSitesManagement = () => {
           <div className="text-center py-12 text-gray-500">No campsites found.</div>
         )}
       </div>
+
+      {/* Campsite Detail Modal */}
+      {selectedSite && (
+        <CampsiteDetail 
+          site={selectedSite} 
+          onClose={() => setSelectedSite(null)} 
+          onBookNow={(id) => navigate(`/campsite-booking/${id}`)}
+        />
+      )}
     </div>
   );
 };
