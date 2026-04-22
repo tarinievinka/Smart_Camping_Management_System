@@ -83,7 +83,6 @@ const CamperDashboard = () => {
                 const myReviews = allReviews.filter(r => String(r.userId || "") === String(userInfo._id || userInfo.id));
                 setReviews(myReviews);
 
-<<<<<<< HEAD
                 // Fetch Campsite Reservations
                 const token = userInfo.token;
                 if (token) {
@@ -91,7 +90,8 @@ const CamperDashboard = () => {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     setCampsiteBookings(Array.isArray(res.data) ? res.data : []);
-=======
+                }
+
                 // Fetch Notifications
                 if (userInfo.email) {
                     const notifyRes = await axios.get(`http://localhost:5000/api/customer-notifications/user/${userInfo.email}`);
@@ -116,7 +116,6 @@ const CamperDashboard = () => {
                     setEquipmentBookings(updatedEqBookings);
                     const key = `equipment_bookings_${userInfo._id || userInfo.id || 'guest'}`;
                     localStorage.setItem(key, JSON.stringify(updatedEqBookings));
->>>>>>> e7d274c7705d604c5f134a70bd6ca6f46fffd1db
                 }
 
             } catch (err) {
