@@ -45,7 +45,7 @@ CSV_PATH = os.path.join(BASE_DIR, '..', 'data', 'weather_cleaned_phase1.csv')
 
 def get_weather(city: str, target_date: date) -> dict:
     days_away = (target_date - date.today()).days
-    if days_away <= 14:
+    if 0 <= days_away <= 14:
         return _from_api(city, target_date)
     else:
         return _from_csv(city, target_date)
