@@ -13,6 +13,10 @@ const guideRoute = require("./src/routes/guide-routes/guideRoute");
 const guideBookingRoute = require("./src/routes/guide-booking-routes/guideBookingRoute");
 const campsiteRoute = require('./src/routes/campsite-route/campsiteRoutes');
 const reservationRoute = require('./src/routes/reservation-routes/reservations');
+<<<<<<< HEAD
+=======
+const customerNotificationRoute = require('./src/routes/customer-notification-route/CustomerNotificationRoute');
+>>>>>>> 45009f86544afaea39fadd3a60e7445dae119393
 
 const port = process.env.PORT || 5000;
 
@@ -45,7 +49,11 @@ app.use('/api/guides', guideRoute);
 app.use('/api/guide-bookings', guideBookingRoute);
 app.use('/api/campsites', campsiteRoute);
 app.use('/api/reservations', reservationRoute);
+<<<<<<< HEAD
 
+=======
+app.use('/api/customer-notifications', customerNotificationRoute);
+>>>>>>> 45009f86544afaea39fadd3a60e7445dae119393
 const start = async () => {
   await connectDB();
   const server = app.listen(port, () => {
