@@ -288,25 +288,10 @@ const EquipmentStore = () => {
   const [notifyItem, setNotifyItem]             = useState(null);
   const [selectedItem, setSelectedItem]         = useState(null);
 
-<<<<<<< HEAD
-  const favKey = React.useMemo(() => `equipment_favorites_${user?._id || 'guest'}`, [user?._id]);
-
-=======
->>>>>>> 49ee29d92aa615ffc0565b64fa3e74c8844b93a2
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem(cartKey);
       return saved ? JSON.parse(saved) : [];
-<<<<<<< HEAD
-    } catch {
-      return [];
-    }
-  });
-
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem(`equipment_favorites_${user?._id || 'guest'}`);
-    return saved ? JSON.parse(saved) : [];
-=======
     } catch { return []; }
   });
 
@@ -315,8 +300,8 @@ const EquipmentStore = () => {
       const saved = localStorage.getItem(favKey);
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
->>>>>>> 49ee29d92aa615ffc0565b64fa3e74c8844b93a2
   });
+
 
   // Keep storage in sync
   useEffect(() => {
@@ -327,12 +312,7 @@ const EquipmentStore = () => {
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
-<<<<<<< HEAD
-  // 1. Migration Logic: If guest cart has items and user just logged in, move them.
-=======
-
   // Migration Logic: If guest cart has items and user just logged in, move them.
->>>>>>> 6356fa8f7392e9dc86e68507ee06d40959c6d1dc
   useEffect(() => {
     if (user?._id) {
       const guestCartJson = localStorage.getItem('equipment_cart_guest');
