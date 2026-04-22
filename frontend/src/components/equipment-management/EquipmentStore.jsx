@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
-
+import axios from "axios";
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
 const CATEGORIES = ['All Gear', 'Tents', 'Sleeping Bags', 'Backpacks', 'Cooking Gear', 'Lighting', 'Other'];
@@ -302,6 +302,7 @@ const EquipmentStore = () => {
     } catch { return []; }
   });
 
+
   // Keep storage in sync
   useEffect(() => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
@@ -311,7 +312,10 @@ const EquipmentStore = () => {
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 52ce7ce550ae9af7b0a9eacfb8cba725f1153d4b
   // Migration Logic: If guest cart has items and user just logged in, move them.
   useEffect(() => {
     if (user?._id) {

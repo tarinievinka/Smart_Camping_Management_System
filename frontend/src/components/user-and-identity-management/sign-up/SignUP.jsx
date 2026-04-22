@@ -75,14 +75,16 @@ const SignUP = () => {
 			return;
 		}
 
-		if (form.password !== form.confirm) {
-			setError('Passwords do not match');
-			return;
-		}
+		if (form.role !== 'guide') {
+			if (form.password !== form.confirm) {
+				setError('Passwords do not match');
+				return;
+			}
 
-		if (form.password.length < 6) {
-			setError('Password must be at least 6 characters long');
-			return;
+			if (form.password.length < 6) {
+				setError('Password must be at least 6 characters long');
+				return;
+			}
 		}
 
 		setError('');
@@ -142,7 +144,7 @@ const SignUP = () => {
 
 			const userData = {
 				name: form.fullName,
-				email: form.email,
+				email: form.email.toLowerCase().trim(),
 				phone: form.phone,
 				password: form.password,
 				role: form.role === 'campsite owner' ? 'campsite_owner' : form.role,
@@ -205,14 +207,15 @@ const SignUP = () => {
 				}
 
 				switch (role) {
-					case 'camper':
-						navigate('/');
-						break;
 					case 'admin':
 						navigate('/admin-dashboard');
 						break;
+					case 'camper':
+					case 'guide':
+					case 'campsite_owner':
 					default:
 						navigate('/');
+						break;
 				}
 			} else {
 				setError(data.error || 'Registration failed');
@@ -388,61 +391,63 @@ const SignUP = () => {
 							</div>
 						</div>
 
-						<div className="grid grid-cols-2 gap-3">
-							<div>
-								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Password</label>
-								<div className="relative">
-									<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-										<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-										</svg>
-									</span>
-									<input
-										type={showPassword ? 'text' : 'password'}
-										name="password"
-										value={form.password}
-										onChange={handleChange}
-										placeholder="••••••••"
-										className="w-full pr-8 pl-10 py-2.5 border border-gray-200 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition tracking-widest placeholder:tracking-normal"
-									/>
-									<button
-										type="button"
-										onClick={() => setShowPassword(!showPassword)}
-										className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-[10px] font-bold uppercase"
-										aria-label="Toggle password visibility"
-									>
-										{showPassword ? 'Hide' : 'Show'}
-									</button>
+						{form.role !== 'guide' && (
+							<div className="grid grid-cols-2 gap-3">
+								<div>
+									<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Password</label>
+									<div className="relative">
+										<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+											<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+											</svg>
+										</span>
+										<input
+											type={showPassword ? 'text' : 'password'}
+											name="password"
+											value={form.password}
+											onChange={handleChange}
+											placeholder="••••••••"
+											className="w-full pr-8 pl-10 py-2.5 border border-gray-200 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition tracking-widest placeholder:tracking-normal"
+										/>
+										<button
+											type="button"
+											onClick={() => setShowPassword(!showPassword)}
+											className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-[10px] font-bold uppercase"
+											aria-label="Toggle password visibility"
+										>
+											{showPassword ? 'Hide' : 'Show'}
+										</button>
+									</div>
 								</div>
-							</div>
 
-							<div>
-								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Confirm</label>
-								<div className="relative">
-									<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-										<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-										</svg>
-									</span>
-									<input
-										type={showConfirm ? 'text' : 'password'}
-										name="confirm"
-										value={form.confirm}
-										onChange={handleChange}
-										placeholder="••••••••"
-										className="w-full pr-8 pl-10 py-2.5 border border-gray-200 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition tracking-widest placeholder:tracking-normal"
-									/>
-									<button
-										type="button"
-										onClick={() => setShowConfirm(!showConfirm)}
-										className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-[10px] font-bold uppercase"
-										aria-label="Toggle confirm visibility"
-									>
-										{showConfirm ? 'Hide' : 'Show'}
-									</button>
+								<div>
+									<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Confirm</label>
+									<div className="relative">
+										<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+											<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+											</svg>
+										</span>
+										<input
+											type={showConfirm ? 'text' : 'password'}
+											name="confirm"
+											value={form.confirm}
+											onChange={handleChange}
+											placeholder="••••••••"
+											className="w-full pr-8 pl-10 py-2.5 border border-gray-200 rounded-xl text-sm bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition tracking-widest placeholder:tracking-normal"
+										/>
+										<button
+											type="button"
+											onClick={() => setShowConfirm(!showConfirm)}
+											className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-[10px] font-bold uppercase"
+											aria-label="Toggle confirm visibility"
+										>
+											{showConfirm ? 'Hide' : 'Show'}
+										</button>
+									</div>
 								</div>
 							</div>
-						</div>
+						)}
 
 						{form.role !== 'guide' && (
 							<button
