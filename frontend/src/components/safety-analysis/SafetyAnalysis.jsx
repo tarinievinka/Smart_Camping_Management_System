@@ -157,62 +157,98 @@ const SafetyAnalysis = () => {
             {result && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-700">
                 {/* Main Prediction Card */}
-                <div className={`relative overflow-hidden p-10 rounded-[2.5rem] shadow-2xl border ${
-                  result.is_unsafe 
-                  ? 'bg-gradient-to-br from-rose-50 to-white border-rose-200 shadow-rose-100/50' 
-                  : 'bg-gradient-to-br from-emerald-50 to-white border-emerald-200 shadow-emerald-100/50'
-                }`}>
-                  {/* Glass highlight */}
-                  <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/40 rounded-full blur-3xl pointer-events-none" />
-                  
-                  <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
-                    <div className="flex-1">
-                      <h3 className={`text-xs font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2 ${
-                        result.is_unsafe ? 'text-rose-600' : 'text-emerald-600'
-                      }`}>
-                        <div className={`w-2 h-2 rounded-full animate-pulse ${result.is_unsafe ? 'bg-rose-600' : 'bg-emerald-600'}`} />
-                        Safety Status
-                      </h3>
-                      <div className="flex items-center gap-4">
-                        <div className={`p-4 rounded-2xl shadow-lg ${result.is_unsafe ? 'bg-rose-600 text-white shadow-rose-200' : 'bg-emerald-600 text-white shadow-emerald-200'}`}>
-                          {result.is_unsafe ? <ShieldAlert size={36} /> : <ShieldCheck size={36} />}
-                        </div>
-                        <div>
-                          <span className="text-5xl font-black text-slate-900 block tracking-tight">
-                            {result.is_unsafe ? 'Potentially Unsafe' : 'Perfectly Safe'}
-                          </span>
-                          <p className="text-slate-500 mt-1 font-bold">
-                            Confidence Level: <span className={`px-2 py-0.5 rounded-lg uppercase text-[10px] ml-1 tracking-widest ${
-                              result.confidence_label === 'high' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
-                            }`}>{result.confidence_label}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 min-w-[160px] text-center">
-                      <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Safety Score</div>
-                      <div className="text-5xl font-black text-slate-900 tabular-nums leading-none">
-                        {(result.safe_probability * 100).toFixed(0)}<span className="text-2xl text-slate-300">%</span>
-                      </div>
-                    </div>
-                  </div>
+                {(() => {
+                  const prob = result.safe_probability;
+                  let status = { 
+                    label: 'Perfectly Safe', 
+                    subLabel: 'Ideal Conditions',
+                    color: 'text-emerald-600', 
+                    bg: 'bg-emerald-600', 
+                    gradient: 'from-emerald-50 to-white',
+                    border: 'border-emerald-200',
+                    shadow: 'shadow-emerald-100/50',
+                    icon: ShieldCheck 
+                  };
 
-                  {/* Enhanced Progress Bar */}
-                  <div className="mt-12 relative h-5 bg-slate-100 rounded-full border border-slate-200 overflow-hidden p-1 shadow-inner">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-1000 ease-out shadow-lg ${
-                        result.is_unsafe ? 'bg-gradient-to-r from-rose-400 to-rose-600' : 'bg-gradient-to-r from-emerald-400 to-emerald-600'
-                      }`}
-                      style={{ width: `${result.safe_probability * 100}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between mt-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">
-                    <span className={result.safe_probability < 0.3 ? "text-rose-500" : ""}>Extreme Risk</span>
-                    <span>Moderate</span>
-                    <span className={result.safe_probability > 0.8 ? "text-emerald-500" : ""}>Ideal Conditions</span>
-                  </div>
-                </div>
+                  if (prob < 0.4) {
+                    status = { 
+                      label: 'Potentially Unsafe', 
+                      subLabel: 'High Risk detected',
+                      color: 'text-rose-600', 
+                      bg: 'bg-rose-600', 
+                      gradient: 'from-rose-50 to-white',
+                      border: 'border-rose-200',
+                      shadow: 'shadow-rose-100/50',
+                      icon: ShieldAlert 
+                    };
+                  } else if (prob < 0.7) {
+                    status = { 
+                      label: 'Caution Advised', 
+                      subLabel: 'Moderate Conditions',
+                      color: 'text-amber-600', 
+                      bg: 'bg-amber-600', 
+                      gradient: 'from-amber-50 to-white',
+                      border: 'border-amber-200',
+                      shadow: 'shadow-amber-100/50',
+                      icon: Info 
+                    };
+                  }
+
+                  return (
+                    <div className={`relative overflow-hidden p-10 rounded-[2.5rem] shadow-2xl border bg-gradient-to-br ${status.gradient} ${status.border} ${status.shadow}`}>
+                      {/* Glass highlight */}
+                      <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/40 rounded-full blur-3xl pointer-events-none" />
+                      
+                      <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+                        <div className="flex-1">
+                          <h3 className={`text-xs font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2 ${status.color}`}>
+                            <div className={`w-2 h-2 rounded-full animate-pulse ${status.bg}`} />
+                            Safety Status
+                          </h3>
+                          <div className="flex items-center gap-4">
+                            <div className={`p-4 rounded-2xl shadow-lg ${status.bg} text-white shadow-xl`}>
+                              <status.icon size={36} />
+                            </div>
+                            <div>
+                              <span className="text-5xl font-black text-slate-900 block tracking-tight">
+                                {status.label}
+                              </span>
+                              <p className="text-slate-500 mt-1 font-bold">
+                                {status.subLabel} <span className={`px-2 py-0.5 rounded-lg uppercase text-[10px] ml-1 tracking-widest ${
+                                  result.confidence_label === 'high' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                                }`}>{result.confidence_label}</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 min-w-[160px] text-center">
+                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Safety Score</div>
+                          <div className="text-5xl font-black text-slate-900 tabular-nums leading-none">
+                            {(result.safe_probability * 100).toFixed(0)}<span className="text-2xl text-slate-300">%</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Enhanced Progress Bar */}
+                      <div className="mt-12 relative h-5 bg-slate-100 rounded-full border border-slate-200 overflow-hidden p-1 shadow-inner">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-1000 ease-out shadow-lg ${
+                            prob < 0.4 ? 'bg-gradient-to-r from-rose-400 to-rose-600' : 
+                            prob < 0.7 ? 'bg-gradient-to-r from-amber-400 to-amber-600' : 
+                            'bg-gradient-to-r from-emerald-400 to-emerald-600'
+                          }`}
+                          style={{ width: `${result.safe_probability * 100}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between mt-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">
+                        <span className={prob < 0.3 ? "text-rose-500" : ""}>High Risk</span>
+                        <span className={prob >= 0.4 && prob < 0.7 ? "text-amber-500" : ""}>Moderate</span>
+                        <span className={prob >= 0.7 ? "text-emerald-500" : ""}>Ideal Conditions</span>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Weather Grid */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -247,8 +283,10 @@ const SafetyAnalysis = () => {
                       <div>
                         <h4 className="text-2xl font-black mb-3 tracking-tight">AI Insights & Recommendation</h4>
                         <p className="text-slate-300 text-lg leading-relaxed font-medium">
-                          {result.is_unsafe 
+                          {result.safe_probability < 0.4 
                             ? "Based on atmospheric patterns, we advise extreme caution. Significant precipitation or elevated wind speeds pose a risk to temporary shelters. Consider a secure alternative or delay your departure."
+                            : result.safe_probability < 0.7
+                            ? "Predictive models indicate moderate stability. While conditions are generally manageable, minor fluctuations in weather could occur. Ensure you have proper gear and check local updates regularly."
                             : "Predictive models indicate excellent stability. The combination of optimal temperature and low moisture levels creates peak camping conditions. Secure your site and enjoy the outdoors!"}
                         </p>
                       </div>
