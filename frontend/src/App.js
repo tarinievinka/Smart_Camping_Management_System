@@ -72,7 +72,11 @@ import CampsiteOwnerDashboard from './components/camping-sites-management/Campsi
 import SafetyAnalysis from './components/safety-analysis/SafetyAnalysis';
 import GuideFeedback from './components/feedbck-and-review-management/Guide-review/guide-feedback';
 import EquipmentFeedback from './components/feedbck-and-review-management/Equipment-review/EquipmentFeedback';
+<<<<<<< HEAD
 import CampsiteFeedback from './components/feedbck-and-review-management/CampsiteOwner-review/Campsite-feedback';
+=======
+import CampsiteBookingForm from './components/camping-sites-management/CampsiteBookingForm';
+>>>>>>> 8b7cdde7cdf1dfc45b30c7096d90d7496bb8931c
 
 
 
@@ -149,6 +153,7 @@ function App() {
             
             {/* Campsite Routes */}
             <Route path="/campsites" element={<CampingSitesManagement />} />
+            <Route path="/campsite-booking/:id" element={<ProtectedRoute allowedRoles={['camper']}><CampsiteBookingForm /></ProtectedRoute>} />
             <Route path="/campsites-admin" element={<ProtectedRoute allowedRoles={['admin']}><CampsiteAdminContainer /></ProtectedRoute>} />
             <Route path="/owner-profile" element={<ProtectedRoute allowedRoles={['owner']}><CampsiteOwnerDashboard /></ProtectedRoute>} />
             <Route path="/safety-analysis" element={<SafetyAnalysis />} />
