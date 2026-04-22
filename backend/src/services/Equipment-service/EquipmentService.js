@@ -31,6 +31,7 @@ const getAllEquipment = async () => {
 
     return {
       ...eq,
+      description: eq.description || "",
       averageRating,
       reviewCount
     };

@@ -7,7 +7,8 @@ const AddEquipment = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '', category: 'Tents', condition: 'New',
     rentalPrice: '', salePrice: '', stockQuantity: '',
-    availabilityStatus: 'Available'
+    availabilityStatus: 'Available',
+    description: ''
   });
   const [imageFile, setImageFile]     = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -89,7 +90,15 @@ const AddEquipment = ({ onSave, onCancel }) => {
 
     setUploading(true);
     const data = new FormData();
-    Object.keys(formData).forEach(key => data.append(key, formData[key]));
+    
+    // Explicitly append all text fields
+    const fields = ['name', 'category', 'condition', 'rentalPrice', 'salePrice', 'stockQuantity', 'availabilityStatus', 'description'];
+    fields.forEach(field => {
+      if (formData[field] !== undefined && formData[field] !== null) {
+        data.append(field, formData[field]);
+      }
+    });
+
     if (imageFile) data.append('image', imageFile);
 
     await onSave(data);
@@ -197,6 +206,24 @@ const AddEquipment = ({ onSave, onCancel }) => {
             </select>
           </div>
 
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Description
+          </label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            className={inputClass('description')}
+            placeholder="Describe the equipment details, features, and durability..."
+            rows="4"
+          ></textarea>
+          {errors.description && (
+            <p className="text-red-500 text-xs mt-1">⚠ {errors.description}</p>
+          )}
         </div>
 
         {/* Image Upload */}
