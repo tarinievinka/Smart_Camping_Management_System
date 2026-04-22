@@ -97,7 +97,7 @@ const EquipmentBookings = () => {
                         <button
                           type="button"
                           onClick={() =>
-                            navigate("/feedbackreview", {
+                            navigate("/equipment-feedback", {
                               state: {
                                 targetType: "equipment",
                                 targetName: item.name,

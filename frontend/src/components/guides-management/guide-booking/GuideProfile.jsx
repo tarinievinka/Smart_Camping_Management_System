@@ -276,20 +276,16 @@ const GuideProfile = () => {
                   
                   <p className="text-gray-700 font-medium leading-relaxed mb-5 text-[15px]">{review.comment}</p>
                   
-                  {Array.isArray(review.images) && review.images.length > 0 && (
-                    <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                      {review.images.map((img, idx) => (
-                        <a key={idx} href={`http://localhost:5000/uploads/feedback/${img}`} target="_blank" rel="noreferrer" className="shrink-0 h-[100px] w-[130px] rounded-2xl overflow-hidden border border-gray-100 block shadow-sm">
-                          <img src={`http://localhost:5000/uploads/feedback/${img}`} alt="Review photo" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                  {review.image && (!Array.isArray(review.images) || review.images.length === 0) && (
-                    <div className="mt-4">
-                      <a href={`http://localhost:5000/uploads/feedback/${review.image}`} target="_blank" rel="noreferrer" className="inline-block h-[100px] w-[130px] rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-                        <img src={`http://localhost:5000/uploads/feedback/${review.image}`} alt="Review photo" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                      </a>
+                  {Array.isArray(review.imageUrls) && review.imageUrls.length > 0 && (
+                    <div className="flex gap-3 overflow-x-auto pb-2 mt-4 no-scrollbar">
+                      {review.imageUrls.map((img, idx) => {
+                        const resolvedUrl = resolveMediaUrl(img);
+                        return (
+                          <a key={idx} href={resolvedUrl} target="_blank" rel="noreferrer" className="shrink-0 h-[100px] w-[130px] rounded-2xl overflow-hidden border border-gray-100 block shadow-sm">
+                            <img src={resolvedUrl} alt="Review photo" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                          </a>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

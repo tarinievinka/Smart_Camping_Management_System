@@ -376,7 +376,7 @@ const Bookings = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end shrink-0 pr-2">
-                      <button onClick={(e) => { e.stopPropagation(); navigate('/feedback', { state: { targetType: 'guide', targetName: guide.name } }); }} className="px-6 py-2.5 bg-[#F4F5F7] text-gray-700 font-bold text-sm rounded-xl hover:bg-[#e4e7ed] transition-colors">Add Reviews</button>
+                      <button onClick={(e) => { e.stopPropagation(); navigate('/guide-feedback', { state: { targetType: 'guide', targetId: guide._id, targetName: guide.name } }); }} className="px-6 py-2.5 bg-[#F4F5F7] text-gray-700 font-bold text-sm rounded-xl hover:bg-[#e4e7ed] transition-colors">Add Reviews</button>
                       <button onClick={(e) => { e.stopPropagation(); navigate(`/guides/${guide._id}`, { state: { fromBookings: true } }); }} className="px-6 py-2.5 text-[#166534] bg-[#f0fdf4] font-bold text-sm rounded-xl hover:bg-[#dcfce7] transition-all flex items-center gap-1.5 hover:gap-2">View guide profile <ArrowRight size={14} /></button>
                     </div>
                   </div>

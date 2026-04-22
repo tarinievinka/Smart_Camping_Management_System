@@ -185,23 +185,7 @@ const FeedbackForm = () => {
                         <p className="text-slate-500 font-medium text-sm">Share your experience to help fellow campers</p>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-sm self-start sm:self-auto">
-                        <button
-                            type="button"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm border border-slate-200 transition-all pointer-events-none"
-                        >
-                            <PenSquare size={16} />
-                            Submit Review
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => navigate("/my-reviews")}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white transition-all"
-                        >
-                            <User size={16} />
-                            My Reviews
-                        </button>
-                    </div>
+
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
