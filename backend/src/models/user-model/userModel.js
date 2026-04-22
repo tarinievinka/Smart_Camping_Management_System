@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: {
     type: String,
-    enum: ['camper', 'guide', 'campsite_owner', 'admin'],
+    enum: ['camper', 'guide', 'campsite_owner', 'admin', 'user', 'campsite-owner'],
     default: 'camper',
   },
   phone: { 
@@ -26,6 +26,20 @@ const userSchema = new mongoose.Schema({
   campingDetails: {
     preferredLocations: [String],
     experienceLevel: { type: String, enum: ['beginner', 'intermediate', 'expert'] },
+  },
+  guideStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  },
+  guideApplication: {
+    experience: { type: Number, min: 0 },
+    fullName: { type: String, trim: true },
+    nic: { type: String, trim: true },
+    age: { type: Number, min: 18 },
+    description: { type: String, trim: true },
+    languages: { type: [String], default: [] },
+    cv: { type: String, trim: true },
   },
   isActive: { type: Boolean, default: true },
   resetPasswordToken: String,

@@ -6,6 +6,7 @@ import { resolveMediaUrl } from "../../../utils/resolveMediaUrl";
 import { getGuideDailyRate } from "../../../utils/guidePricing";
 import { isGuideDoubleLocked, formatAvailableAgainLabel } from "../../../utils/guideAvailability";
 import { useToast } from "../../../context/ToastContext";
+import { useAuth } from "../../../context/AuthContext";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -63,6 +64,7 @@ export const enrichGuide = (guide, index) => {
 export const GuideCard = ({ guide, isFavourite, onToggleFavourite }) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [imgError, setImgError] = useState(false);
   const src = resolveMediaUrl(guide.coverPhoto) || resolveMediaUrl(guide.profilePhoto);
   const locked = isGuideDoubleLocked(guide);

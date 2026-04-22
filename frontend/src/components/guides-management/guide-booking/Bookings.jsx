@@ -83,7 +83,9 @@ const Bookings = () => {
         const guides = Array.isArray(res.data) ? res.data : res.data?.guides || res.data?.data || [];
 
         const merged = parsedBookings.map((b) => {
-          const guide = guides.find((g) => String(g._id) === String(b.guideId));
+          const gid = typeof b.guideId === 'object' ? b.guideId?._id : b.guideId;
+          const guide = (typeof b.guideId === 'object' ? b.guideId : null) || guides.find((g) => String(g._id) === String(gid));
+          
           if (!guide) return null;
           return { ...guide, booking: b };
         }).filter(Boolean);

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, ArrowRight, Home, RefreshCw } from 'lucide-react';
+import { syncGuideSession } from '../components/guides-management/guide-self/guideSession';
 
 const Login = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,10 +21,27 @@ const Login = () => {
         try {
             const data = await login(email, password);
             alert('Login successful!');
+            const from = location.state?.from;
+            if (from) {
+                navigate(from);
+                return;
+            }
+
+            if (data.role === 'guide') {
+                await syncGuideSession(data.token);
+            }
+
             switch (data.role) {
-                case 'admin': navigate('/admin'); break;
-                case 'campsite-owner': navigate('/owner'); break;
-                default: navigate('/campsites'); break;
+                case 'admin':
+                    navigate('/admin-dashboard');
+                    break;
+                case 'camper':
+                case 'guide':
+                case 'campsite-owner':
+                case 'campsite_owner':
+                default:
+                    navigate('/');
+                    break;
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
@@ -148,7 +167,7 @@ const Login = () => {
 
                 {/* Footer */}
                 <p className="text-center text-[13px] text-gray-500 mt-7">
-                    Don't have an account? <Link to="/register" className="text-green-600 font-bold hover:underline">Sign up</Link>
+                    Don't have an account? <Link to="/register" state={{ from: location.state?.from }} className="text-green-600 font-bold hover:underline">Sign up</Link>
                 </p>
             </div>
         </div>

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 const Login = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { setUser } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -27,24 +30,28 @@ const Login = () => {
             if (response.ok) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
+                const userInfo = { ...data.user, token: data.token };
+                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                setUser(userInfo);
                 
                 alert('Login successful!');
                 
+                const from = location.state?.from;
+                if (from) {
+                    navigate(from);
+                    return;
+                }
+
                 switch (data.user.role) {
-                    case 'camper':
-                        navigate('/camper-dashboard');
-                        break;
-                    case 'guide':
-                        navigate('/guide-profile');
-                        break;
-                    case 'campsite_owner':
-                        navigate('/owner-profile');
-                        break;
                     case 'admin':
                         navigate('/admin-dashboard');
                         break;
+                    case 'camper':
+                    case 'guide':
+                    case 'campsite_owner':
                     default:
                         navigate('/');
+                        break;
                 }
             } else {
                 setError(data.error || 'Login failed');
@@ -135,7 +142,7 @@ const Login = () => {
                         <div>
                             <div className="flex justify-between items-center mb-1">
                                 <label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700">Password</label>
-                                <button type="button" onClick={() => navigate('/login/forgot')} className="text-[11px] text-[#10a110] font-bold hover:underline">Forgot password?</button>
+                                <Link to="/login/forgot-request" className="text-[11px] text-green-600 font-bold hover:underline">Forgot password?</Link>
                             </div>
                             <div className="relative">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -165,7 +172,7 @@ const Login = () => {
                     </form>
 
                     <p className="text-center text-xs text-gray-600 mt-8 font-medium">
-                        Don't have an account? <Link to="/signup" className="text-[#10a110] font-bold hover:underline">Sign up</Link>
+                        Don't have an account? <Link to="/signup" state={{ from: location.state?.from }} className="text-[#10a110] font-bold hover:underline">Sign up</Link>
                     </p>
                 </div>
             </main>

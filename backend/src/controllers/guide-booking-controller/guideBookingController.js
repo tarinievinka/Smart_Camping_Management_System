@@ -31,8 +31,15 @@ exports.createBooking = async (req, res) => {
 // Get all bookings
 exports.getAllBookings = async (req, res) => {
     try {
-        const bookings = await GuideBooking.find();
-        res.json(bookings);
+        const bookings = await GuideBooking.find().populate("guideId");
+        const results = bookings.map(b => {
+            const doc = b.toObject();
+            if (doc.guideId && typeof doc.guideId === 'object' && !doc.guideName) {
+                doc.guideName = doc.guideId.name;
+            }
+            return doc;
+        });
+        res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -52,7 +59,7 @@ exports.updateBooking = async (req, res) => {
         if (prevStatus === "pending" && newStatus === "confirmed") {
             try {
                 await CustomerNotification.create({
-                    customerName: updated.customerName || "Guest",
+                    customerName: updated.customerName || "Anonymous",
                     bookingId: updated._id,
                     title: "Booking confirmed",
                     body: "Your guide confirmed your trip request. See details under My Bookings.",

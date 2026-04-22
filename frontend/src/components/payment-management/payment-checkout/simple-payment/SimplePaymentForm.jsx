@@ -90,7 +90,6 @@ const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439
           totalAmount: amount,
         });
       }
-
       setProcessed(true);
       setLoading(false);
 

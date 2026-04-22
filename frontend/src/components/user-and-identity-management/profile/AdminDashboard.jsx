@@ -10,15 +10,15 @@ const AdminDashboard = () => {
     const [deactivateError, setDeactivateError] = useState('');
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
+        const stored = localStorage.getItem('userInfo');
 
-        if (!storedUser || !token) { navigate('/login'); return; }
+        if (!stored) { navigate('/login'); return; }
 
-        const parsed = JSON.parse(storedUser);
-        if (parsed.role !== 'admin') { navigate('/login'); return; }
+        const userInfo = JSON.parse(stored);
+        const token = userInfo.token;
+        if (!token || userInfo.role !== 'admin') { navigate('/login'); return; }
 
-        setUser(parsed);
+        setUser(userInfo);
         setLoading(false);
 
         // Refresh profile from backend
@@ -28,8 +28,9 @@ const AdminDashboard = () => {
             .then((r) => r.json())
             .then((fresh) => {
                 if (fresh && !fresh.error) {
-                    setUser(fresh);
-                    localStorage.setItem('user', JSON.stringify(fresh));
+                    const latestUserInfo = { ...userInfo, ...fresh };
+                    setUser(latestUserInfo);
+                    localStorage.setItem('userInfo', JSON.stringify(latestUserInfo));
                 }
             })
             .catch(() => {});
@@ -55,15 +56,15 @@ const AdminDashboard = () => {
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('userInfo');
         navigate('/login');
     };
 
     const handleDeactivate = async () => {
         if (!window.confirm('Are you sure you want to deactivate your admin account?')) return;
         
-        const token = localStorage.getItem('token');
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const token = userInfo.token;
         try {
             const targetId = user?._id || user?.id; // Attempt to use _id or id
             const res = await fetch(`http://localhost:5000/api/${targetId}/status`, {
@@ -79,7 +80,7 @@ const AdminDashboard = () => {
                 setDeactivateMsg('Deactivated successfully');
                 const updatedUser = { ...user, isActive: false };
                 setUser(updatedUser);
-                localStorage.setItem('user', JSON.stringify(updatedUser));
+                localStorage.setItem('userInfo', JSON.stringify(updatedUser));
                 setTimeout(() => setDeactivateMsg(''), 3000);
             } else {
                 const data = await res.json();
@@ -298,7 +299,7 @@ const AdminDashboard = () => {
                                 sub="Manage camping equipment inventory"
                                 bg="linear-gradient(135deg,#2563eb,#1d4ed8)"
                                 glow="rgba(37,99,235,0.35)"
-                                onClick={() => navigate('/admin/equipment')}
+                                onClick={() => navigate('/equipment-dashboard')}
                             />
                             <ActionButton
                                 icon={
@@ -313,7 +314,7 @@ const AdminDashboard = () => {
                                 sub="Oversee guides and assignments"
                                 bg="linear-gradient(135deg,#f59e0b,#d97706)"
                                 glow="rgba(245,158,11,0.35)"
-                                onClick={() => navigate('/admin/guides')}
+                                onClick={() => navigate('/guides/dashboard')}
                             />
                             <ActionButton
                                 icon={
@@ -331,17 +332,14 @@ const AdminDashboard = () => {
                             <ActionButton
                                 icon={
                                     <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                                     </svg>
                                 }
-                                label="Booking Management"
-                                sub="Manage system reservations"
-                                bg="linear-gradient(135deg,#8b5cf6,#6d28d9)"
-                                glow="rgba(139,92,246,0.35)"
-                                onClick={() => navigate('/admin/bookings')}
+                                label="Reviews & Feedback"
+                                sub="Manage user reviews and feedback"
+                                bg="linear-gradient(135deg,#db2777,#9333ea)"
+                                glow="rgba(219,39,119,0.35)"
+                                onClick={() => navigate('/admin/feedback')}
                             />
                         </div>
 
