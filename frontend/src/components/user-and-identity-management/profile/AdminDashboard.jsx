@@ -33,7 +33,7 @@ const AdminDashboard = () => {
                     localStorage.setItem('userInfo', JSON.stringify(latestUserInfo));
                 }
             })
-            .catch(() => {});
+            .catch(() => { });
 
         // Fetch user count for stats
         fetch('http://localhost:5000/api', {
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
                     }));
                 }
             })
-            .catch(() => {});
+            .catch(() => { });
     }, [navigate]);
 
     const handleLogout = () => {
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
 
     const handleDeactivate = async () => {
         if (!window.confirm('Are you sure you want to deactivate your admin account?')) return;
-        
+
         const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
         const token = userInfo.token;
         try {
@@ -118,27 +118,12 @@ const AdminDashboard = () => {
 
             {/* Header */}
             <header style={s.header}>
-                <div style={s.logo} onClick={() => navigate('/')}>
-                    <div style={s.logoIcon}>
-                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                    </div>
-                    <span style={s.logoText}>Smart Camping</span>
-                </div>
+                <div style={{ flex: 1 }} />
                 <div style={s.headerRight}>
                     <div style={s.adminChip}>
                         <div style={s.adminDot} />
                         Admin Panel
                     </div>
-                    <button style={s.logoutBtn} onClick={handleLogout}>
-                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Logout
-                    </button>
                 </div>
             </header>
 
@@ -203,20 +188,7 @@ const AdminDashboard = () => {
                         color="#f59e0b"
                         glow="rgba(245,158,11,0.3)"
                     />
-                    <StatCard
-                        icon={
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                        }
-                        label="Bookings"
-                        value={stats.bookings}
-                        color="#8b5cf6"
-                        glow="rgba(139,92,246,0.3)"
-                    />
+
                 </div>
 
                 {/* Content Row */}
@@ -241,7 +213,7 @@ const AdminDashboard = () => {
                             />
                             <InfoRow label="User ID" value={user?.userId || '—'} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3L15.5 7.5z"></path></svg>} mono bg="#f8fafc" />
                         </div>
-                        
+
                         {/* Account Actions */}
                         <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             <ActionButton
@@ -403,7 +375,7 @@ const ActionButton = ({ icon, label, sub, bg, glow, onClick }) => (
 const s = {
     /* Page */
     page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Inter','Segoe UI',sans-serif", position: 'relative', overflow: 'hidden' },
-    bgImage: { position: 'fixed', inset: 0, backgroundImage: "url('https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&q=80&w=2000')", backgroundSize: 'cover', backgroundPosition: 'center', zIndex: 0 },
+    bgImage: { position: 'fixed', inset: 0, backgroundImage: "url('/images/admin%20dash.jpg')", backgroundSize: 'cover', backgroundPosition: 'center', zIndex: 0 },
     bgOverlay: { position: 'fixed', inset: 0, background: 'linear-gradient(135deg,rgba(0,0,0,0.65) 0%,rgba(5,10,25,0.75) 100%)', backdropFilter: 'blur(3px)', zIndex: 1 },
 
     /* Header */
@@ -429,27 +401,27 @@ const s = {
     welcomeSub: { fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', margin: 0 },
 
     /* Stats */
-    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2.5rem' },
-    statCard: { 
-        background: 'rgba(255, 255, 255, 0.9)', 
+    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem', marginBottom: '2.5rem' },
+    statCard: {
+        background: 'rgba(255, 255, 255, 0.9)',
         backdropFilter: 'blur(10px)',
-        borderRadius: '16px', 
-        padding: '1.5rem', 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '1.25rem', 
+        borderRadius: '16px',
+        padding: '1.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1.25rem',
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
         border: '1px solid rgba(255, 255, 255, 0.3)',
         transition: 'transform 0.2s ease'
     },
-    statIconWrap: { 
-        width: '52px', 
-        height: '52px', 
-        borderRadius: '12px', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        flexShrink: 0 
+    statIconWrap: {
+        width: '52px',
+        height: '52px',
+        borderRadius: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0
     },
     statContent: { display: 'flex', flexDirection: 'column', gap: '2px' },
     statLabel: { fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 },
