@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShoppingCart, Star, MessageSquare, Tag, RefreshCw, ShieldCheck } from 'lucide-react';
+<<<<<<< HEAD
 import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 
 const CustomStyles = () => (
   <style>{`
@@ -56,7 +59,11 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
       }
     };
     fetchReviews();
+<<<<<<< HEAD
   }, [item._id, item.name]);
+=======
+  }, [item._id]);
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 
   const averageRating = reviews.length > 0 
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
@@ -201,6 +208,7 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
                        <span className="text-[10px] font-bold text-gray-400">{new Date(rev.createdAt).toLocaleDateString()}</span>
                      </div>
                      <p className="text-sm text-gray-600 leading-relaxed italic">"{rev.comment}"</p>
+<<<<<<< HEAD
                      
                      {Array.isArray(rev.imageUrls) && rev.imageUrls.length > 0 && (
                        <div className="flex gap-2 overflow-x-auto mt-3 no-scrollbar pb-1">
@@ -214,6 +222,8 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
                          })}
                        </div>
                      )}
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
                    </div>
                  ))}
                </div>

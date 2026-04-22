@@ -5,7 +5,11 @@ import { createPayment } from '../../../../services/paymentApi';
 import CardDetails from '../card-details/CardDetails';
 import { saveEquipmentBooking } from '../../../../utils/equipmentBookings';
 
+<<<<<<< HEAD
 const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking", equipmentItems = [], equipmentBookingDraft = null, returnPath = null }) => {
+=======
+const SimplePaymentForm = ({ amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking", equipmentItems = [], equipmentBookingDraft = null }) => {
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
   const navigate = useNavigate();
   const [cardType, setCardType] = useState('visa');
   const [cardData, setCardData] = useState({
@@ -74,15 +78,22 @@ const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "
       // Reduce stock if this is an equipment booking
       if (bookingType === 'EquipmentBooking' && equipmentItems.length > 0) {
         const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
+<<<<<<< HEAD
         const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
         await Promise.all(
           equipmentItems.map(item =>
             fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
               method: 'PATCH',
+<<<<<<< HEAD
               headers: { 
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${storedUser.token}`
               },
+=======
+              headers: { 'Content-Type': 'application/json' },
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
               body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
             }).then(res => res.json())
           )
@@ -103,9 +114,19 @@ const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "
 
       // Redirect after 2 seconds
       setTimeout(() => {
+<<<<<<< HEAD
         navigate('/payment-success', {
           state: { message: 'Payment successful. Your booking is now available.', variant: 'success' },
         });
+=======
+        if (bookingType === 'EquipmentBooking') {
+          navigate('/equipment-bookings', {
+            state: { message: 'Payment successful. Your equipment booking is now available.' },
+          });
+          return;
+        }
+        navigate('/payment-success', { state: { equipmentItems } });
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
       }, 2000);
     } catch (err) {
       console.error('Payment failed:', err);

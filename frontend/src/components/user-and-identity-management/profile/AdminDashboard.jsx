@@ -62,7 +62,11 @@ const AdminDashboard = () => {
 
     const handleDeactivate = async () => {
         if (!window.confirm('Are you sure you want to deactivate your admin account?')) return;
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
         const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
         const token = userInfo.token;
         try {
@@ -260,6 +264,24 @@ const AdminDashboard = () => {
                                 bg="linear-gradient(135deg,#0d9488,#0f766e)"
                                 glow="rgba(13,148,136,0.35)"
                                 onClick={() => navigate('/campsites-admin')}
+<<<<<<< HEAD
+=======
+                            />
+                            <ActionButton
+                                icon={
+                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                    </svg>
+                                }
+                                label="Owner Management"
+                                sub="Manage campsite owner applications"
+                                bg="linear-gradient(135deg,#3b82f6,#1d4ed8)"
+                                glow="rgba(59,130,246,0.35)"
+                                onClick={() => navigate('/admin/owner-management')}
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
                             />
                             <ActionButton
                                 icon={

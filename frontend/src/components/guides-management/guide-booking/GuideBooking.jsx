@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import { Search, SlidersHorizontal, LayoutGrid, Heart, ChevronDown, Star } from "lucide-react";
+=======
+import { Search, SlidersHorizontal, LayoutGrid, Calendar, Heart, LogOut, ChevronDown, Star } from "lucide-react";
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 import axios from "axios";
 import { resolveMediaUrl } from "../../../utils/resolveMediaUrl";
 import { getGuideDailyRate } from "../../../utils/guidePricing";

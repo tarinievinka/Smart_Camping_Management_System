@@ -22,6 +22,7 @@ const CamperDashboard = () => {
     const [reviews, setReviews] = useState([]);
 
     useEffect(() => {
+<<<<<<< HEAD
         if (authUser) {
             setUser(authUser);
         } else {
@@ -91,6 +92,21 @@ const CamperDashboard = () => {
 
     const handleLogout = () => {
         authLogout();
+=======
+        const stored = localStorage.getItem('userInfo');
+        const userInfo = stored ? JSON.parse(stored) : null;
+        if (!userInfo || !userInfo.token) {
+            navigate('/login');
+            return;
+        }
+
+        setUser(userInfo);
+        setLoading(false);
+    }, [navigate]);
+
+    const handleLogout = () => {
+        localStorage.removeItem('userInfo');
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
         navigate('/login');
     };
 
@@ -177,14 +193,83 @@ const CamperDashboard = () => {
 
     return (
         <div style={styles.container}>
+<<<<<<< HEAD
+=======
+            {/* Sidebar */}
+            <aside style={styles.sidebar}>
+                <div style={styles.logoArea}>
+                    <div style={styles.logoSquare}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                            <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 style={styles.logoText}>Smart Camping</h1>
+                        <p style={styles.logoSubtext}>Management System</p>
+                    </div>
+                </div>
+
+                <nav style={styles.navMenu}>
+                    <NavItem label="Dashboard" icon="📊" active={activeTab === 'Dashboard'} onClick={() => setActiveTab('Dashboard')} />
+                    <NavItem label="My Bookings" icon="📅" active={activeTab === 'My Bookings'} onClick={() => setActiveTab('My Bookings')} />
+                    <NavItem label="Equipment" icon="⛺" active={activeTab === 'Equipment'} onClick={() => setActiveTab('Equipment')} />
+                    <NavItem label="Guides" icon="🧭" active={activeTab === 'Guides'} onClick={() => setActiveTab('Guides')} />
+                    <NavItem label="Payments" icon="💳" active={activeTab === 'Payments'} onClick={() => setActiveTab('Payments')} />
+                    <NavItem label="My Reviews" icon="⭐" active={activeTab === 'My Reviews'} onClick={() => navigate('/my-reviews')} />
+                </nav>
+
+                <div style={styles.sidebarFooter}>
+                    <div style={styles.userCard}>
+                        <div style={styles.userDetails}>
+                            <p style={styles.userName}>{user?.name?.trim() || 'User'}</p>
+                            <p style={styles.userRole}>Camper</p>
+                        </div>
+                        <button style={styles.logoutBtn} onClick={handleLogout}>
+                            <span style={styles.logoutText}>Sign Out</span>
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#ef4444">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div style={{ padding: '0 20px 20px' }}>
+                    <button 
+                        style={styles.deleteAccountBtn} 
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                                handleDeleteAccount();
+                            }
+                        }}
+                    >
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete Account
+                    </button>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
             <main style={styles.content}>
                 <div style={styles.scrollArea}>
+<<<<<<< HEAD
                     <div style={styles.centeredContainer}>
                         {/* Header Section */}
                         <section style={styles.hero}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
                                     <h2 style={styles.welcomeMsg}>Welcome, {user?.name?.split(' ')[0] || 'Explorer'}!</h2>
+=======
+                    <section style={styles.hero}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                            <div>
+                                <h2 style={styles.welcomeMsg}>Welcome, {user?.name?.split(' ')[0] || 'Explorer'}!</h2>
+                                {isDemoUser ? (
+                                    <p style={styles.welcomeSub}>Your next adventure at <span style={{ color: '#10a110', fontWeight: 700 }}>Pine Ridge Reserve</span> starts in 3 days.</p>
+                                ) : (
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
                                     <p style={styles.welcomeSub}>Ready for your next camping trip?</p>
                                 </div>
                                 <button style={styles.updateDetailsBtn} onClick={() => navigate('/edit-profile')}>

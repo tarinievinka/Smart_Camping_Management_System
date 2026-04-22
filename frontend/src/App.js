@@ -10,6 +10,7 @@ import EditProfile from './components/user-and-identity-management/profile/EditP
 import AdminDashboard from './components/user-and-identity-management/profile/AdminDashboard';
 import DeleteUsers from './components/user-and-identity-management/profile/DeleteUsers';
 import CamperDashboard from './components/user-and-identity-management/profile/CamperDashboard';
+import AdminOwnerManagement from './components/admin/AdminOwnerManagement';
 
 // Payment management components
 import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
@@ -59,16 +60,22 @@ import GuideSelfReviews from './components/guides-management/guide-self/GuideSel
 // Blogs page
 import Blogs from './components/blogs/Blogs';
 
+<<<<<<< HEAD
 // Guide Login Redirect
 import GuideLoginRedirect from './components/guides-management/guide-self/GuideLoginRedirect';
 
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 // Campsite Management
 import CampingSitesManagement from './components/camping-sites-management/CampingSitesManagement';
 import CampsiteAdminContainer from './components/camping-sites-management/CampsiteAdminContainer';
 import CampsiteOwnerDashboard from './components/camping-sites-management/CampsiteOwnerDashboard';
+<<<<<<< HEAD
 import SafetyAnalysis from './components/safety-analysis/SafetyAnalysis';
 import GuideFeedback from './components/feedbck-and-review-management/Guide-review/guide-feedback';
 import EquipmentFeedback from './components/feedbck-and-review-management/Equipment-review/EquipmentFeedback';
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 
 
 
@@ -90,6 +97,7 @@ function App() {
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/admin/delete-users" element={<DeleteUsers />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/owner-management" element={<AdminOwnerManagement />} />
             
             {/* Payment management routes */}
             <Route path="/payment-history" element={<PaymentHistory />} />
@@ -106,8 +114,11 @@ function App() {
             <Route path='/my-reviews' element={<MyReviews />} />
             <Route path='/admin/feedback' element={<AdminFeedback />} />
             <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
+<<<<<<< HEAD
             <Route path='/guide-feedback' element={<GuideFeedback />} />
             <Route path='/equipment-feedback' element={<EquipmentFeedback />} />
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
@@ -135,13 +146,19 @@ function App() {
             <Route path='/guides/owncalendar' element={<GuideSelfCalendar />} />
             <Route path='/guides/ownreviews' element={<GuideSelfReviews />} />
             <Route path='/guides/:id' element={<GuideProfile />} />
+<<<<<<< HEAD
             <Route path='/guide-profile' element={<GuideLoginRedirect />} />
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
             
             {/* Campsite Routes */}
             <Route path="/campsites" element={<CampingSitesManagement />} />
             <Route path="/campsites-admin" element={<CampsiteAdminContainer />} />
             <Route path="/owner-profile" element={<CampsiteOwnerDashboard />} />
+<<<<<<< HEAD
             <Route path="/safety-analysis" element={<SafetyAnalysis />} />
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
           </Routes>
         </div>
         <Footer />

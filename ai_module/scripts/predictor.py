@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 import joblib
 import numpy as np
@@ -9,6 +10,14 @@ MODELS_DIR = os.path.join(BASE_DIR, '..', 'models')
 scaler = joblib.load(os.path.join(MODELS_DIR, 'weather_scaler.pkl'))
 model  = joblib.load(os.path.join(MODELS_DIR, 'camping_safety_model_tuned.pkl'))
 le     = joblib.load(os.path.join(MODELS_DIR, 'city_label_encoder.pkl'))
+=======
+import joblib
+import numpy as np
+
+scaler = joblib.load('../models/weather_scaler.pkl')
+model  = joblib.load('../models/camping_safety_model_tuned.pkl')
+le     = joblib.load('../models/city_label_encoder.pkl')
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 
 def predict_safety(city: str, temperature: float, radiation: float,
                    precip_hours: float, wind_speed: float) -> dict:

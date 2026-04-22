@@ -139,7 +139,10 @@ const BookingSummary = () => {
             quantity: (itemStates[key(item)] || { quantity: 1 }).quantity,
             mode: item.mode
           })),
+<<<<<<< HEAD
           from: location.pathname,
+=======
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
           equipmentBookingDraft: {
             pickupDate,
             returnDate,

@@ -2,14 +2,29 @@ const Campsite = require('../../models/campsite-model/CampsiteModel');
 
 exports.createCampsite = async (req, res) => {
   try {
+<<<<<<< HEAD
+=======
+    // Standardize ownerId to ensure it is always saved as an ObjectId if possible
+    const ownerId = req.user ? (req.user._id || req.user.id) : req.body.ownerId;
+    
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
     const newCampsite = new Campsite({
       ...req.body,
       image: req.file ? `/uploads/${req.file.filename}` : '',
       amenities: req.body.amenities ? JSON.parse(req.body.amenities) : [],
+<<<<<<< HEAD
       status: 'pending' // Enforce pending status upon creation for owner verification
     });
     
     await newCampsite.save();
+=======
+      ownerId,
+      status: 'pending'
+    });
+    
+    await newCampsite.save();
+    console.log(`[CAMPSITE] Site created successfully. Owner: ${ownerId}, Site: ${newCampsite._id}`);
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
     res.status(201).json({ success: true, data: newCampsite });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -50,6 +65,32 @@ exports.getSitesByOwner = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
+=======
+exports.getMyCampsites = async (req, res) => {
+  try {
+    const ownerId = req.user._id ? req.user._id.toString() : req.user.id;
+    console.log(`[CAMPSITE] Fetching dashboard for ownerId: ${ownerId}`);
+    
+    // Using .lean() to ensure we get plain JS objects and avoid Mongoose serialization issues
+    const campsites = await Campsite.find({ ownerId: ownerId }).lean().sort({ createdAt: -1 });
+    
+    console.log(`[CAMPSITE] Dashboard sync: Found ${campsites.length} sites for ${ownerId}`);
+    
+    // Returning multiple formats to ensure frontend compatibility
+    res.status(200).json({ 
+      success: true, 
+      count: campsites.length,
+      data: campsites,
+      campsites: campsites // Redundant backup key
+    });
+  } catch (error) {
+    console.error(`[CAMPSITE] Error in getMyCampsites: ${error.message}`);
+    res.status(500).json({ success: false, error: "Failed to retrieve your campsites" });
+  }
+};
+
+>>>>>>> 72d49f97b953854ffc2cce76cb28c3b75c102fd7
 exports.updateStatus = async (req, res) => {
   try {
     const campsite = await Campsite.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
