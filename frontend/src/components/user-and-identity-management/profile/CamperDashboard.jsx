@@ -263,7 +263,7 @@ const CamperDashboard = () => {
                                                     ) : (
                                                         notifications.map(n => (
                                                             <div key={n._id} style={{ ...styles.notificationItem, borderLeft: n.read ? 'none' : '4px solid #10a110' }}>
-                                                                <p style={styles.notificationTitle}>{n.title}</p>
+                                                                 <p style={styles.notificationTitle}>{n.title}</p>
                                                                 <p style={styles.notificationBody}>{n.body}</p>
                                                                 <span style={styles.notificationTime}>{new Date(n.createdAt).toLocaleDateString()}</span>
                                                             </div>
@@ -283,10 +283,6 @@ const CamperDashboard = () => {
                         {/* Summary Cards */}
                         <div style={styles.statsRow}>
                             <StatBox label="Upcoming Trips" value={stats.upcoming} icon={<Calendar size={24} />} color="#f0fdf4" iconColor="#10a110" />
-<<<<<<< HEAD
-                            <StatBox label="Total Spent" value={stats.spent} icon={<CreditCard size={24} />} color="#f0fff4" iconColor="#10a110" />
-                            <StatBox label="Active Bookings" value={stats.active} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
-=======
                             <StatBox 
                                 label="Total Spent" 
                                 value={stats.spent} 
@@ -295,8 +291,7 @@ const CamperDashboard = () => {
                                 iconColor="#10a110" 
                                 onClick={() => navigate('/payment-history')}
                             />
-                            <StatBox label="Active Rentals" value={stats.rentals} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
->>>>>>> e7d274c7705d604c5f134a70bd6ca6f46fffd1db
+                            <StatBox label="Active Bookings" value={stats.active} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
                         </div>
 
                         {/* Main Grid: Bookings + Reviews */}
