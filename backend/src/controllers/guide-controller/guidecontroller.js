@@ -1,5 +1,8 @@
 const Guide = require("../../models/guide-model/guidemodel");
 const User = require("../../models/user-model/userModel");
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const { sendEmail } = require("../../utils/emailUtils");
 
 // Create a new guide
 exports.createGuide = async (req, res) => {
@@ -86,28 +89,77 @@ exports.approveGuide = async (req, res) => {
       return res.status(400).json({ message: "User is not a guide applicant" });
     }
 
-    // Update user approval status using the correct schema field
+    // 1. Generate a random temporary password
+    const tempPassword = crypto.randomBytes(4).toString('hex'); // 8 characters
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    console.log(`[GUIDE_APPROVAL] Approving user: ${user.email} (${user._id})`);
+    console.log(`[GUIDE_APPROVAL] Generated temp password: ${tempPassword}`);
+
+    // 2. Update user status and password
     user.guideStatus = 'approved';
     user.isActive = true;
+    user.password = hashedPassword;
+    
+    // Explicitly mark password as modified just in case
+    user.markModified('password');
+    user.markModified('isActive');
+    
     await user.save();
+    console.log(`[GUIDE_APPROVAL] User document saved successfully.`);
+
+    // 3. Send approval email
+    const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`;
+    const message = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; borderRadius: 12px;">
+        <h1 style="color: #10a110; text-align: center;">Welcome to Smart Camping!</h1>
+        <p>Dear <strong>${user.name}</strong>,</p>
+        <p>Congratulations! Your application to become a <strong>Smart Camping Guide</strong> has been approved.</p>
+        
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 24px 0; border: 1px solid #f1f5f9;">
+          <p style="margin-top: 0;"><strong>Your Login Credentials:</strong></p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Temporary Password:</strong> <span style="font-family: monospace; font-size: 16px; background: #fff; padding: 4px 8px; border: 1px dashed #cbd5e1; border-radius: 4px;">${tempPassword}</span></p>
+        </div>
+
+        <p>You can now log in to your dashboard to manage your bookings and profile:</p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${loginUrl}" style="background-color: #10a110; color: white; padding: 12px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Log in to Dashboard</a>
+        </div>
+
+        <p style="color: #64748b; font-size: 14px;"><em>For security reasons, we recommend changing your password after your first login.</em></p>
+        
+        <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+        <p style="text-align: center; color: #94a3b8; font-size: 12px;">© 2026 Smart Camping Management System. All rights reserved.</p>
+      </div>
+    `;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'Smart Camping - Guide Application Approved!',
+        message,
+      });
+    } catch (emailErr) {
+      console.error("Email notification failed:", emailErr);
+      // We continue since the user is already approved in the DB
+    }
 
     // Prevent duplicate guide documents
     const existingGuide = await Guide.findOne({ email: user.email });
     if (existingGuide) {
-      // Already approved — just return the existing guide
-      return res.status(200).json({ message: "Guide already approved", guide: existingGuide });
+      return res.status(200).json({ message: "Guide approved successfully (Profile existed)", guide: existingGuide });
     }
 
     // Create a new Guide document using the application data
-    // NOTE: nic and age are required by the Guide schema — must be included
     const app = user.guideApplication || {};
     const guideData = {
       name:        app.fullName || user.name,
       email:       user.email,
       phone:       user.phone || '',
-      experience:  Number(app.experience) || 0,   // Guide schema expects Number
-      nic:         app.nic || '',                  // required field
-      age:         Number(app.age) || 18,          // required field
+      experience:  Number(app.experience) || 0,
+      nic:         app.nic || '',
+      age:         Number(app.age) || 18,
       description: app.description || '',
       language:    app.languages ? app.languages.join(', ') : '',
       cv:          app.cv || '',
@@ -117,7 +169,7 @@ exports.approveGuide = async (req, res) => {
     const newGuide = new Guide(guideData);
     await newGuide.save();
 
-    res.status(200).json({ message: "Guide approved successfully", guide: newGuide });
+    res.status(200).json({ message: "Guide approved and notified successfully", guide: newGuide });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

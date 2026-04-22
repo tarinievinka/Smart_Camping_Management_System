@@ -27,7 +27,7 @@ const GuideLoginRedirect = () => {
                 // We need to fetch the guide _id matching the logged in user's email
                 const response = await axios.get(`${API_URL}/api/guides/display`);
                 const allGuides = response.data;
-                const match = allGuides.find(g => g.email === userInfo.email);
+                const match = allGuides.find(g => g.email.toLowerCase() === userInfo.email.toLowerCase());
 
                 if (match) {
                     // Initialize the session using the matched guide ID

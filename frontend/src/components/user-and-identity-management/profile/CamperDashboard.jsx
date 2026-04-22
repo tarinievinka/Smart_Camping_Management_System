@@ -146,7 +146,7 @@ const CamperDashboard = () => {
             name: b.items.map(i => i.name).join(', '),
             date: new Date(b.bookedAt).toLocaleDateString(),
             status: b.status,
-            total: `$${b.totalAmount || 0}`,
+            total: `LKR ${b.totalAmount || 0}`,
             rawDate: b.bookedAt,
             image: b.items?.[0]?.imageUrl 
                 ? `http://localhost:5000${b.items[0].imageUrl}` 
@@ -165,7 +165,7 @@ const CamperDashboard = () => {
                 name: guide?.name || b.guideId?.name || b.guideName || 'Local Guide',
                 date: b.startDate ? new Date(b.startDate).toLocaleDateString() : new Date(b.bookedAt).toLocaleDateString(),
                 status: b.status,
-                total: `$${b.amount || 0}`,
+                total: `LKR ${b.amount || 0}`,
                 rawDate: b.startDate || b.bookedAt,
                 image: guide?.profilePhoto 
                     ? `http://localhost:5000${guide.profilePhoto}` 
@@ -177,11 +177,11 @@ const CamperDashboard = () => {
 
     const stats = useMemo(() => {
         const upcoming = allBookings.filter(b => b.status.toLowerCase() === 'pending' || b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'paid').length;
-        const totalSpent = allBookings.reduce((sum, b) => sum + parseFloat(b.total.replace('$', '')), 0);
+        const totalSpent = allBookings.reduce((sum, b) => sum + parseFloat(b.total.replace('LKR ', '').replace('$', '')), 0);
         const activeRentals = equipmentBookings.filter(b => b.status.toLowerCase() === 'paid').length;
         return {
             upcoming: upcoming,
-            spent: `$${totalSpent.toFixed(2)}`,
+            spent: `LKR ${totalSpent.toLocaleString()}`,
             rentals: `${activeRentals} bookings`
         };
     }, [allBookings, equipmentBookings]);
