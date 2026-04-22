@@ -8,6 +8,7 @@ const navLinks = [
     { label: "Campsites", href: "/campsites" },
     { label: "Equipment", href: "/equipment-store" },
     { label: "Guides", href: "/guides" },
+    { label: "Safety", href: "/safety-analysis" },
     { label: "Blogs", href: "/blogs" },
     { label: "Payment", href: "/payment-history" },
 ];

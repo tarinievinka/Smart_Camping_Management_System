@@ -1,9 +1,14 @@
+import os
 import joblib
 import numpy as np
 
-scaler = joblib.load('../models/weather_scaler.pkl')
-model  = joblib.load('../models/camping_safety_model_tuned.pkl')
-le     = joblib.load('../models/city_label_encoder.pkl')
+# Use absolute path relative to this script's location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, '..', 'models')
+
+scaler = joblib.load(os.path.join(MODELS_DIR, 'weather_scaler.pkl'))
+model  = joblib.load(os.path.join(MODELS_DIR, 'camping_safety_model_tuned.pkl'))
+le     = joblib.load(os.path.join(MODELS_DIR, 'city_label_encoder.pkl'))
 
 def predict_safety(city: str, temperature: float, radiation: float,
                    precip_hours: float, wind_speed: float) -> dict:

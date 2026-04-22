@@ -34,7 +34,7 @@ const FeedbackForm = () => {
     const location = useLocation();
     const { user } = useAuth();
     const resolvedUser = user || getStoredUser();
-    const [selectedReview, setSelectedReview] = useState(location.state?.targetType || "guide");
+    const [selectedReview, setSelectedReview] = useState(location.state?.targetType || "campsite");
     const [selectedTargetId, setSelectedTargetId] = useState(location.state?.targetId || "");
     const [userName, setUserName] = useState(getDisplayName(resolvedUser));
     const [locationName, setLocationName] = useState(location.state?.targetName || "");
@@ -152,8 +152,10 @@ const FeedbackForm = () => {
             setImageFiles([]);
             setImagePreviews([]);
             setErrors({});
-            if (selectedReview === "equipment" || location.pathname === "/feedbackreview") {
+            if (selectedReview === "equipment") {
                 navigate("/equipment-bookings");
+            } else if (selectedReview === "campsite") {
+                navigate("/my-reviews"); // Or specific campsite bookings if available
             } else {
                 navigate("/my-reviews");
             }
@@ -185,23 +187,7 @@ const FeedbackForm = () => {
                         <p className="text-slate-500 font-medium text-sm">Share your experience to help fellow campers</p>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-sm self-start sm:self-auto">
-                        <button
-                            type="button"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm border border-slate-200 transition-all pointer-events-none"
-                        >
-                            <PenSquare size={16} />
-                            Submit Review
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => navigate("/my-reviews")}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white transition-all"
-                        >
-                            <User size={16} />
-                            My Reviews
-                        </button>
-                    </div>
+
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
