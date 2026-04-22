@@ -2,10 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
-import { Star, MapPin, Calendar, CreditCard, Package, Compass, Trash2, LogOut, ChevronRight, MessageSquare, PenSquare, Award, Clock, User } from 'lucide-react';
+import { Star, MapPin, Calendar, CreditCard, Package, Compass, Trash2, LogOut, ChevronRight, MessageSquare, PenSquare, Clock, User } from 'lucide-react';
 import { getEquipmentBookings } from '../../../utils/equipmentBookings';
-import GuideApplyModal from './GuideApplyModal';
-import { syncGuideSession } from '../../guides-management/guide-self/guideSession';
 
 const CamperDashboard = () => {
     const navigate = useNavigate();
@@ -16,7 +14,6 @@ const CamperDashboard = () => {
     const [activeTab, setActiveTab] = useState('Dashboard');
     const [activeBookingTab, setActiveBookingTab] = useState('All Bookings');
     const [isDeleted, setIsDeleted] = useState(false);
-    const [showApplyModal, setShowApplyModal] = useState(false);
     
     // Data states
     const [equipmentBookings, setEquipmentBookings] = useState([]);
@@ -90,24 +87,7 @@ const CamperDashboard = () => {
         fetchData();
     }, [navigate, location.state, authUser]);
 
-    const refreshUserProfile = async () => {
-        try {
-            const stored = JSON.parse(localStorage.getItem('userInfo') || '{}');
-            const res = await axios.get('http://localhost:5000/api/profile', {
-                headers: { Authorization: `Bearer ${stored.token}` }
-            });
-            const updatedUser = { ...res.data, token: stored.token };
-            localStorage.setItem('userInfo', JSON.stringify(updatedUser));
-            setUser(updatedUser);
-            setAuthUser(updatedUser);
 
-            if (updatedUser.role === 'guide') {
-                await syncGuideSession(updatedUser.token);
-            }
-        } catch (err) {
-            console.error("Failed to refresh profile:", err);
-        }
-    };
 
     const handleLogout = () => {
         authLogout();
@@ -373,62 +353,7 @@ const CamperDashboard = () => {
                             </div>
                         </div>
 
-                        {/* Guide Application Section */}
-                        {(user?.role === 'camper' || (user?.role === 'guide' && user?.guideStatus === 'pending')) && (
-                            <section style={styles.guideApplyCard}>
-                                <div style={styles.guideApplyContent}>
-                                    <div style={styles.guideApplyIcon}><Award size={32} /></div>
-                                    <div>
-                                        <h3 style={styles.guideApplyTitle}>Earn as a Local Guide</h3>
-                                        <p style={styles.guideApplyText}>
-                                            Love the outdoors? Share your expertise with fellow campers and earn money.
-                                        </p>
-                                    </div>
-                                </div>
-                                {user?.guideApplication?.nic ? (
-                                    <div style={styles.pendingStatus}>
-                                        <Clock size={16} /> Application Pending Review
-                                    </div>
-                                ) : (
-                                    <button style={styles.applyBtn} onClick={() => setShowApplyModal(true)}>
-                                        Apply Now
-                                    </button>
-                                )}
-                            </section>
-                        )}
 
-                        {/* Approved Guide Success Section */}
-                        {user?.role === 'guide' && user?.guideStatus === 'approved' && (
-                            <section style={{...styles.guideApplyCard, background: '#f0fdf4', border: '2px solid #bbf7d0'}}>
-                                <div style={styles.guideApplyContent}>
-                                    <div style={{...styles.guideApplyIcon, backgroundColor: '#dcfce7', color: '#16a34a'}}>
-                                        <Award size={32} />
-                                    </div>
-                                    <div>
-                                        <h3 style={{...styles.guideApplyTitle, color: '#166534'}}>Congratulations! You are now a Local Guide</h3>
-                                        <p style={{...styles.guideApplyText, color: '#15803d'}}>
-                                            Your application has been approved. You can now start managing your tours and bookings.
-                                        </p>
-                                    </div>
-                                </div>
-                                <button 
-                                    style={{
-                                        ...styles.applyBtn, 
-                                        backgroundColor: '#16a34a', 
-                                        color: '#fff',
-                                        padding: '16px 32px',
-                                        fontSize: '16px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        boxShadow: '0 10px 15px -3px rgba(22, 163, 74, 0.4)'
-                                    }} 
-                                    onClick={() => navigate('/guides/owndashboard')}
-                                >
-                                    Go to Guide Dashboard <ChevronRight size={20} />
-                                </button>
-                            </section>
-                        )}
                     </div>
                 </div>
             </main>
@@ -450,12 +375,7 @@ const CamperDashboard = () => {
                 </div>
             )}
 
-            <GuideApplyModal 
-                isOpen={showApplyModal} 
-                onClose={() => setShowApplyModal(false)} 
-                user={user} 
-                onApplied={refreshUserProfile}
-            />
+
         </div>
     );
 };
@@ -610,30 +530,8 @@ const styles = {
         width: '100%', height: '100%', background: '#10a110', 
         animation: 'progress 3s linear forwards' 
     },
-    guideApplyCard: {
-        background: 'linear-gradient(135deg, #10a110 0%, #059669 100%)',
-        borderRadius: '24px', padding: '32px', display: 'flex', alignItems: 'center', 
-        justifyContent: 'space-between', gap: '24px', marginBottom: '40px', color: '#fff',
-        boxShadow: '0 20px 25px -5px rgba(16, 161, 16, 0.2)'
-    },
-    guideApplyContent: { display: 'flex', alignItems: 'center', gap: '24px' },
-    guideApplyIcon: { 
-        width: '64px', height: '64px', borderRadius: '16px', background: 'rgba(255,255,255,0.2)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center'
-    },
-    guideApplyTitle: { fontSize: '22px', fontWeight: 800, margin: '0 0 4px 0' },
-    guideApplyText: { fontSize: '15px', opacity: 0.9, margin: 0 },
-    applyBtn: {
-        background: '#fff', color: '#10a110', border: 'none', padding: '14px 28px',
-        borderRadius: '14px', fontSize: '15px', fontWeight: 700, cursor: 'pointer',
-        transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        whiteSpace: 'nowrap', ':hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 12px rgba(0,0,0,0.15)' }
-    },
-    pendingStatus: {
-        display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px',
-        borderRadius: '12px', background: 'rgba(255,255,255,0.15)', color: '#fff',
-        fontSize: '14px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.3)'
-    }
+
+
 };
 
 export default CamperDashboard;

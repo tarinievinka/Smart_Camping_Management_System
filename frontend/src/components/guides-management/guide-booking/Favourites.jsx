@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
-  LayoutGrid, Calendar, Heart, LogOut,
+  LayoutGrid, Heart, LogOut, SlidersHorizontal,
   Search, Bell, Settings, ArrowRight, Star, Map, ChevronDown
 } from "lucide-react";
 import { GuideCard, enrichGuide } from "./GuideBooking";
@@ -71,72 +71,52 @@ const Favourites = () => {
 
   const navItems = [
     { icon: LayoutGrid, label: "Browse Guides", path: "/guides" },
-    { icon: Calendar, label: "My Bookings", path: "/guides/bookings" },
     { icon: Heart, label: "Favorites", path: "/guides/favourites" },
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#F8F9FB] font-sans text-gray-900">
-
-      {/* Shared Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-6 shrink-0 hidden lg:flex">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold shrink-0" style={{ backgroundColor: '#166534' }}>
-            W
-          </div>
-          <div>
-            <h2 className="text-gray-900 font-bold text-lg">WildGuide</h2>
-            <p className="text-gray-500 text-xs">Adventure awaits</p>
-          </div>
-        </div>
-
-        <nav className="flex-1 space-y-1.5">
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
-                location.pathname === item.path
-                  ? "text-white"
-                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-              }`}
-              style={location.pathname === item.path ? { backgroundColor: '#166534' } : {}}
-            >
-              <item.icon size={20} /> {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <button
-          onClick={handleSignOut}
-          className="flex items-center gap-3 px-4 py-3 text-red-500 text-sm font-semibold hover:bg-red-50 rounded-xl transition-colors mt-auto"
-        >
-          <LogOut size={20} className="rotate-180" /> Sign Out
-        </button>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto relative">
-        <div className="max-w-5xl mx-auto">
-
-          {/* Top Bar */}
-          <div className="flex items-center justify-between mb-12">
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                placeholder="Search your expeditions..."
-                className="w-full bg-gray-200/60 border-none rounded-full py-3.5 pl-12 pr-6 text-sm font-medium text-gray-700 placeholder-gray-500 outline-none transition-all"
-                onFocus={e => e.target.style.outline = `2px solid #166534`}
-                onBlur={e => e.target.style.outline = 'none'}
-              />
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#F8F9FB] font-sans text-gray-900">
+      <main className="py-10 px-4 sm:px-6 lg:px-8 overflow-y-auto relative">
+        <div className="max-w-6xl mx-auto">
 
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-[40px] font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Saved Expeditions</h1>
-            <p className="text-gray-500 font-medium tracking-wide max-w-lg">Your curated collection of wilderness experts. Ready for your next journey into the heart of nature.</p>
+          <div className="mb-10">
+            <h1 className="text-5xl font-black text-gray-900 tracking-tight mb-2">Saved Expeditions</h1>
+            <p className="text-gray-500 font-medium tracking-wide">Your curated collection of wilderness experts.</p>
+          </div>
+
+          {/* Modern Tab Navigation & Search Bar Integrated */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12 p-1.5 bg-gray-200/50 rounded-[24px] w-full">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              {navItems.map(item => (
+                <button 
+                  key={item.label} 
+                  onClick={() => navigate(item.path)} 
+                  className={`flex items-center gap-2.5 px-6 py-3 rounded-[18px] text-sm font-bold transition-all duration-200 whitespace-nowrap ${
+                    location.pathname === item.path 
+                      ? "bg-white text-[#166534] shadow-sm scale-[1.02]" 
+                      : "text-gray-500 hover:text-gray-900 hover:bg-white/50"
+                  }`}
+                >
+                  <item.icon size={18} /> 
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 px-2 shrink-0">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search guides..."
+                  className="pl-12 pr-4 py-2.5 border border-transparent rounded-[18px] text-sm w-full md:w-64 bg-white/80 outline-none focus:bg-white focus:ring-2 focus:ring-[#166534]/20 transition-all"
+                />
+              </div>
+              <button type="button" className="p-2.5 bg-white/80 hover:bg-white rounded-[16px] transition-colors shadow-sm">
+                <SlidersHorizontal size={18} className="text-gray-500" />
+              </button>
+            </div>
           </div>
 
           {/* Filters & Sort */}

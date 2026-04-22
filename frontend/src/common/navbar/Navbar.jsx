@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, CreditCard, LogOut, ChevronDown, Trash2 } from "lucide-react";
+import { User, CreditCard, LogOut, ChevronDown, Trash2, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { getCustomerBookingName } from "../../utils/customerIdentity";
 
 const navLinks = [
     { label: "Home", href: "/" },
@@ -10,7 +11,6 @@ const navLinks = [
     { label: "Guides", href: "/guides" },
     { label: "Safety", href: "/safety-analysis" },
     { label: "Blogs", href: "/blogs" },
-    { label: "Payment", href: "/payment-history" },
 ];
 
 const Navbar = () => {
@@ -31,20 +31,35 @@ const Navbar = () => {
 
         const fetchNotifications = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/customer-notifications/user/${user.email}`);
-                const data = await response.json();
-                if (Array.isArray(data)) {
-                    setNotifications(data);
-                    const unread = data.filter(n => !n.read).length;
-                    setUnreadCount(unread);
+                // Fetch customer notifications (restocks, etc.)
+                const customerRes = await fetch(`${process.env.REACT_APP_API_URL}/api/customer-notifications/user/${user.email}`);
+                const customerData = await customerRes.json();
+                
+                // Fetch guide booking notifications
+                const guideRes = await fetch(`${process.env.REACT_APP_API_URL}/api/guide-bookings/notifications?customerName=${getCustomerBookingName()}`);
+                const guideData = await guideRes.json();
 
-                    // Check for fresh restock notifications that haven't sent a browser alert yet
-                    const newRestock = data.find(n => n.restocked && !n.alertSent);
-                    if (newRestock) {
-                        alert(`🚀 RESTOCK ALERT: ${newRestock.title}\n\n${newRestock.body}`);
-                        // Mark as alert sent so it doesn't pop up again
-                        fetch(`${process.env.REACT_APP_API_URL}/api/customer-notifications/alert-sent/${newRestock._id}`, { method: 'PATCH' });
-                    }
+                let allNotifications = [];
+                
+                if (Array.isArray(customerData)) {
+                    allNotifications = [...allNotifications, ...customerData.map(n => ({ ...n, type: 'customer' }))];
+                }
+                
+                if (Array.isArray(guideData)) {
+                    allNotifications = [...allNotifications, ...guideData.map(n => ({ ...n, type: 'guide' }))];
+                }
+
+                // Sort by date descending
+                allNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                setNotifications(allNotifications);
+                setUnreadCount(allNotifications.filter(n => !n.read).length);
+
+                // Check for fresh restock notifications for alerts
+                const newRestock = allNotifications.find(n => n.type === 'customer' && n.restocked && !n.alertSent);
+                if (newRestock) {
+                    alert(`🚀 RESTOCK ALERT: ${newRestock.title}\n\n${newRestock.body}`);
+                    fetch(`${process.env.REACT_APP_API_URL}/api/customer-notifications/alert-sent/${newRestock._id}`, { method: 'PATCH' });
                 }
             } catch (error) {
                 console.error("Failed to fetch notifications:", error);
@@ -56,11 +71,19 @@ const Navbar = () => {
         return () => clearInterval(interval);
     }, [user?.email]);
 
-    const markAsRead = async (id) => {
+    const markAsRead = async (id, type) => {
         try {
-            await fetch(`${process.env.REACT_APP_API_URL}/api/customer-notifications/read/${id}`, { method: 'PATCH' });
-            setNotifications(prev => prev.map(n => n._id === id ? { ...n, read: true } : n));
-            setUnreadCount(prev => Math.max(0, prev - 1));
+            const endpoint = type === 'guide'
+                ? `${process.env.REACT_APP_API_URL}/api/guide-bookings/notifications/${id}/read`
+                : `${process.env.REACT_APP_API_URL}/api/customer-notifications/read/${id}`;
+            
+            await fetch(endpoint, { method: 'PATCH' });
+            
+            setNotifications(prev => {
+                const updated = prev.map(n => n._id === id ? { ...n, read: true } : n);
+                setUnreadCount(updated.filter(n => !n.read).length);
+                return updated;
+            });
         } catch (error) {
             console.error("Failed to mark as read:", error);
         }
@@ -218,17 +241,25 @@ const Navbar = () => {
                                                 notifications.map((n) => (
                                                     <div 
                                                         key={n._id} 
-                                                        onClick={() => markAsRead(n._id)}
+                                                        onClick={() => markAsRead(n._id, n.type)}
                                                         className={`p-4 border-b border-gray-50 cursor-pointer transition-colors hover:bg-gray-50 ${!n.read ? 'bg-[#166534]/5' : ''}`}
                                                     >
                                                         <div className="flex gap-3">
-                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${n.restocked ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
-                                                                {n.restocked ? '📦' : 'ℹ️'}
+                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                                                                n.type === 'guide' ? 'bg-amber-100 text-amber-600' :
+                                                                n.restocked ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'
+                                                            }`}>
+                                                                {n.type === 'guide' ? '🏕️' : n.restocked ? '📦' : 'ℹ️'}
                                                             </div>
                                                             <div className="flex-1">
-                                                                <p className={`text-[13px] leading-tight mb-1 ${!n.read ? 'font-bold text-gray-900' : 'text-gray-600'}`}>
-                                                                    {n.title}
-                                                                </p>
+                                                                <div className="flex justify-between items-start gap-2">
+                                                                    <p className={`text-[13px] leading-tight mb-1 ${!n.read ? 'font-bold text-gray-900' : 'text-gray-600'}`}>
+                                                                        {n.title}
+                                                                    </p>
+                                                                    {n.type === 'guide' && (
+                                                                        <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded leading-none shrink-0">GUIDE</span>
+                                                                    )}
+                                                                </div>
                                                                 <p className="text-[11px] text-gray-500 line-clamp-2 leading-relaxed">
                                                                     {n.body}
                                                                 </p>
