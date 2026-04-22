@@ -45,6 +45,24 @@ exports.getAllBookings = async (req, res) => {
     }
 };
 
+// Get bookings for a specific guide
+exports.getBookingsByGuide = async (req, res) => {
+    try {
+        const { guideId } = req.params;
+        const bookings = await GuideBooking.find({ guideId }).populate("guideId");
+        const results = bookings.map(b => {
+            const doc = b.toObject();
+            if (doc.guideId && typeof doc.guideId === 'object' && !doc.guideName) {
+                doc.guideName = doc.guideId.name;
+            }
+            return doc;
+        });
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 // Update a booking by ID
 exports.updateBooking = async (req, res) => {
     try {
