@@ -7,11 +7,12 @@ const connectDB = require('./src/config/db');
 const paymentRoute = require('./src/routes/payment-route/paymentRoute');
 const feedbackRoute = require('./src/routes/feedback-route/feedbackRoute');
 const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
-const notifyRoute = require('./src/routes/Notify-route/NotifyRoute'); 
+const notifyRoute = require('./src/routes/Notify-route/NotifyRoute');
 const userRoute = require('./src/routes/user-routes/userRoutes');
 const guideRoute = require("./src/routes/guide-routes/guideRoute");
 const guideBookingRoute = require("./src/routes/guide-booking-routes/guideBookingRoute");
 const campsiteRoute = require('./src/routes/campsite-route/campsiteRoutes');
+const reservationRoute = require('./src/routes/reservation-routes/reservations');
 const customerNotificationRoute = require('./src/routes/customer-notification-route/CustomerNotificationRoute');
 
 const port = process.env.PORT || 5000;
@@ -39,11 +40,12 @@ app.get('/', (req, res) => {
 app.use('/api/payment', paymentRoute);
 app.use('/api/feedback', feedbackRoute);
 app.use('/api/equipment', equipmentRouter);
-app.use('/api/notify', notifyRoute); 
+app.use('/api/notify', notifyRoute);
 app.use('/api', userRoute);
 app.use('/api/guides', guideRoute);
 app.use('/api/guide-bookings', guideBookingRoute);
 app.use('/api/campsites', campsiteRoute);
+app.use('/api/reservations', reservationRoute);
 app.use('/api/customer-notifications', customerNotificationRoute);
 const start = async () => {
   await connectDB();

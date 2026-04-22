@@ -13,11 +13,12 @@ import {
     Search,
     Filter,
     AlertTriangle,
-    TrendingUp,
-    DollarSign,
+    Coins,
     Clock,
     BadgeCheck,
+    FileCheck,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // ─── Status badge colours ────────────────────────────────────────────────────
 const statusConfig = {
@@ -79,6 +80,7 @@ const ConfirmModal = ({ open, title, message, confirmLabel, confirmClass, onConf
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const PaymentAdminDashboard = () => {
+    const navigate = useNavigate();
     const [payments, setPayments] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -185,20 +187,29 @@ const PaymentAdminDashboard = () => {
                     <h1 className="text-2xl font-bold text-gray-900">Payment Administration</h1>
                     <p className="text-sm text-gray-500 mt-0.5">Manage, update, and remove payment records</p>
                 </div>
-                <button
-                    onClick={fetchPayments}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
-                >
-                    <RefreshCw className="w-4 h-4" />
-                    Refresh
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate('/admin/bank-slips')}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition"
+                    >
+                        <FileCheck className="w-4 h-4" />
+                        Verify Bank Slips
+                    </button>
+                    <button
+                        onClick={fetchPayments}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
+                    >
+                        <RefreshCw className="w-4 h-4" />
+                        Refresh
+                    </button>
+                </div>
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <SummaryCard icon={DollarSign} label="Total Revenue" value={`$${totalRevenue.toFixed(2)}`} color="bg-green-600" sub={`${successCount} completed`} />
+                    <SummaryCard icon={Coins} label="Total Revenue" value={`LKR ${totalRevenue.toFixed(2)}`} color="bg-green-600" sub={`${successCount} completed`} />
                     <SummaryCard icon={Clock} label="Pending" value={pendingCount} color="bg-yellow-500" sub="awaiting confirmation" />
                     <SummaryCard icon={BadgeCheck} label="Completed" value={successCount} color="bg-blue-600" sub="successful payments" />
                     <SummaryCard icon={RotateCcw} label="Refunded" value={refundCount} color="bg-purple-600" sub="total refunds" />
@@ -272,7 +283,7 @@ const PaymentAdminDashboard = () => {
                                             <td className="px-4 py-3 font-mono text-gray-700 text-xs whitespace-nowrap">{payment.transactionId || payment._id?.slice(-8)}</td>
                                             <td className="px-4 py-3 text-gray-700">{payment.description}</td>
                                             <td className="px-4 py-3 text-gray-600 capitalize">{payment.paymentMethod?.replace('-', ' ')}</td>
-                                            <td className="px-4 py-3 font-semibold text-gray-900">${payment.amount?.toFixed(2)}</td>
+                                            <td className="px-4 py-3 font-semibold text-gray-900">LKR {payment.amount?.toFixed(2)}</td>
                                             <td className="px-4 py-3"><StatusBadge status={payment.status} /></td>
 
                                             {/* Update Status buttons */}

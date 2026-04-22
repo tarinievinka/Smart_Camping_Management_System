@@ -17,6 +17,7 @@ import PaymentManagement from './components/payment-management/PaymentManagement
 import SecureCheckout from './components/payment-management/payment-checkout/SecureCheckout';
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
 import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
+import BankSlipAdminDashboard from './components/admin/dashboard/BankSlipAdminDashboard';
 import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';
 import PaymentCard from './components/payment-management/payment-card/PaymentCard';
 
@@ -98,7 +99,8 @@ function App() {
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-failure" element={<PaymentFailure />} />
             <Route path="/payment-card" element={<PaymentCard />} />
-            <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
+             <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
+            <Route path="/admin/bank-slips" element={<BankSlipAdminDashboard />} />
             
             {/* Feedback Routes */}
             <Route path='/feedback' element={<Feedback />} />

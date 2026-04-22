@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon, ChevronDown, PenSquare } from "lucide-react";
+import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon, ChevronDown, PenSquare, ShoppingBag } from "lucide-react";
+import { getEquipmentBookings } from "../../../utils/equipmentBookings";
 
 const starLabels = ["Terrible", "Bad", "Okay", "Good", "Very Good"];
 
@@ -53,29 +54,85 @@ const FeedbackForm = () => {
             setFetchingItems(true);
             try {
                 const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
-                let endpoint = "";
-                if (selectedReview === "guide") endpoint = "/api/guides/display";
-                else if (selectedReview === "equipment") endpoint = "/api/equipment/display";
-                else if (selectedReview === "campsite") endpoint = "/api/campsites/display";
+                let items = [];
 
-                const res = await axios.get(`${apiUrl}${endpoint}`);
-                const data = Array.isArray(res.data) ? res.data : res.data?.guides || res.data?.data || res.data?.equipment || res.data?.campsites || [];
+                if (selectedReview === "guide") {
+                    const res = await axios.get(`${apiUrl}/api/guide-bookings/display`);
+                    const bookings = Array.isArray(res.data) ? res.data : [];
+                    
+                    const userId = resolvedUser?._id || resolvedUser?.id;
+                    const userName = getDisplayName(resolvedUser);
 
-                setItemsList(data);
+                    const myBookings = bookings.filter(b => 
+                        (userId && String(b.userId) === String(userId)) ||
+                        (userName && String(b.customerName).toLowerCase() === userName.toLowerCase())
+                    );
+                    
+                    const guideMap = new Map();
+                    myBookings.forEach(b => {
+                        const gid = b.guideId?._id || b.guideId;
+                        if (gid && !guideMap.has(String(gid))) {
+                            guideMap.set(String(gid), {
+                                _id: gid,
+                                name: b.guideName || b.guideId?.name || "Unknown Guide"
+                            });
+                        }
+                    });
+                    items = Array.from(guideMap.values());
+                } else if (selectedReview === "equipment") {
+                    const eqBookings = getEquipmentBookings();
+                    const equipmentMap = new Map();
+                    eqBookings.forEach(b => {
+                        if (Array.isArray(b.items)) {
+                            b.items.forEach(item => {
+                                if (!equipmentMap.has(String(item._id))) {
+                                    equipmentMap.set(String(item._id), {
+                                        _id: item._id,
+                                        name: item.name
+                                    });
+                                }
+                            });
+                        }
+                    });
+                    items = Array.from(equipmentMap.values());
+                } else if (selectedReview === "campsite") {
+                    const token = resolvedUser?.token;
+                    if (token) {
+                        const res = await axios.get(`${apiUrl}/api/reservations/myreservations`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        const reservations = Array.isArray(res.data) ? res.data : [];
+                        const campsiteMap = new Map();
+                        reservations.forEach(r => {
+                            if (r.campsite && !campsiteMap.has(String(r.campsite._id))) {
+                                campsiteMap.set(String(r.campsite._id), {
+                                    _id: r.campsite._id,
+                                    name: r.campsite.name || r.campsite.title || "Unknown Campsite"
+                                });
+                            }
+                        });
+                        items = Array.from(campsiteMap.values());
+                    }
+                }
 
-                // If we have items and no locationName is set, pick the first one
-                if (data.length > 0 && !locationName) {
-                    setLocationName(data[0].name || data[0].title || "");
-                    setSelectedTargetId(data[0]._id || data[0].id || "");
+                setItemsList(items);
+
+                if (items.length > 0 && !locationName) {
+                    setLocationName(items[0].name || "");
+                    setSelectedTargetId(items[0]._id || "");
+                } else if (items.length === 0) {
+                    setLocationName("");
+                    setSelectedTargetId("");
                 }
             } catch (err) {
                 console.error(`Failed to load ${selectedReview} items`, err);
+                setItemsList([]);
             } finally {
                 setFetchingItems(false);
             }
         };
         fetchItems();
-    }, [selectedReview, isEditingSpecificItem]);
+    }, [selectedReview, isEditingSpecificItem, resolvedUser]);
 
     const [rating, setRating] = useState(4);
     const [hover, setHover] = useState(null);
@@ -250,18 +307,25 @@ const FeedbackForm = () => {
                                                 value={selectedTargetId}
                                                 onChange={(e) => {
                                                     setSelectedTargetId(e.target.value);
-                                                    const selected = itemsList.find(item => (item._id || item.id) === e.target.value);
+                                                    const selected = itemsList.find(item => String(item._id || item.id) === String(e.target.value));
                                                     setLocationName(selected ? (selected.name || selected.title || "") : "");
                                                     if (errors.locationName) setErrors({ ...errors, locationName: "" });
                                                 }}
-                                                className={`w-full appearance-none bg-slate-50 border ${errors.locationName ? "border-red-400" : "border-slate-200"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 cursor-pointer`}
+                                                disabled={itemsList.length === 0}
+                                                className={`w-full appearance-none bg-slate-50 border ${errors.locationName ? "border-red-400" : "border-slate-200"} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 ${itemsList.length === 0 ? "cursor-not-allowed text-slate-400" : "cursor-pointer"}`}
                                             >
-                                                <option value="">Select {selectedReview}...</option>
-                                                {itemsList.map(item => (
-                                                    <option key={item._id || item.id} value={item._id || item.id}>
-                                                        {item.name || item.title}
-                                                    </option>
-                                                ))}
+                                                {itemsList.length === 0 ? (
+                                                    <option value="">No booked {selectedReview}s found</option>
+                                                ) : (
+                                                    <>
+                                                        <option value="">Select your booked {selectedReview}...</option>
+                                                        {itemsList.map(item => (
+                                                            <option key={item._id || item.id} value={item._id || item.id}>
+                                                                {item.name || item.title}
+                                                            </option>
+                                                        ))}
+                                                    </>
+                                                )}
                                             </select>
                                             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                         </>
