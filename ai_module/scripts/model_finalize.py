@@ -31,7 +31,6 @@ scaler = joblib.load('../models/weather_scaler.pkl')
 model  = joblib.load('../models/camping_safety_model_tuned.pkl')
 
 X_test_scaled = X_test.copy()
-X_test_scaled[FEATURES[:-1]] = scaler.transform(X_test[FEATURES[:-1]])
 
 predictions   = model.predict(X_test_scaled)
 probabilities = model.predict_proba(X_test_scaled)[:, 1]

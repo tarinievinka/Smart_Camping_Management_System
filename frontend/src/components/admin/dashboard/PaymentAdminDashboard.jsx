@@ -13,11 +13,12 @@ import {
     Search,
     Filter,
     AlertTriangle,
-    TrendingUp,
     Coins,
     Clock,
     BadgeCheck,
+    FileCheck,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // ─── Status badge colours ────────────────────────────────────────────────────
 const statusConfig = {
@@ -79,6 +80,7 @@ const ConfirmModal = ({ open, title, message, confirmLabel, confirmClass, onConf
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const PaymentAdminDashboard = () => {
+    const navigate = useNavigate();
     const [payments, setPayments] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -185,13 +187,22 @@ const PaymentAdminDashboard = () => {
                     <h1 className="text-2xl font-bold text-gray-900">Payment Administration</h1>
                     <p className="text-sm text-gray-500 mt-0.5">Manage, update, and remove payment records</p>
                 </div>
-                <button
-                    onClick={fetchPayments}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
-                >
-                    <RefreshCw className="w-4 h-4" />
-                    Refresh
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate('/admin/bank-slips')}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition"
+                    >
+                        <FileCheck className="w-4 h-4" />
+                        Verify Bank Slips
+                    </button>
+                    <button
+                        onClick={fetchPayments}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
+                    >
+                        <RefreshCw className="w-4 h-4" />
+                        Refresh
+                    </button>
+                </div>
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">

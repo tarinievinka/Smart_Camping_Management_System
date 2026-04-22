@@ -38,6 +38,9 @@ else:
     ]
     df[features_to_scale] = scaler.fit_transform(df[features_to_scale])
 
+    joblib.dump(scaler, '../models/weather_scaler.pkl')
+    print("   weather_scaler.pkl saved.")
+
     # 5. Final Cleanup
     # Drop the original text 'city' and 'time' columns for the ML model
     df_final = df.drop(columns=['city', 'time'])
