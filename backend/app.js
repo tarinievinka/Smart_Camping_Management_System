@@ -50,14 +50,6 @@ app.use('/api/guide-bookings', guideBookingRoute);
 app.use('/api/campsites', campsiteRoute);
 app.use('/api/reservations', reservationRoute);
 app.use('/api/customer-notifications', customerNotificationRoute);
-<<<<<<< HEAD
-const start = async () => {
-  await connectDB();
-  const server = app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-  });
-=======
->>>>>>> c9024bdec91196298ab2a8864d91f12db503d7b3
 
 const start = async () => {
   try {
