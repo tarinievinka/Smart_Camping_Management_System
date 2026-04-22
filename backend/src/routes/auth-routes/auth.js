@@ -1,7 +1,7 @@
-import express from 'express';
-import jwt from 'jsonwebtoken';
-import User from '../../models/user-models/User.js';
-import { protect } from '../../utils/auth.js';
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const User = require('../../models/user-models/User');
+const { protect } = require('../../utils/auth');
 
 const router = express.Router();
 
@@ -92,4 +92,4 @@ router.get('/profile', protect, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

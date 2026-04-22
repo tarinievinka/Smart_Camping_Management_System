@@ -14,7 +14,7 @@ import {
     Filter,
     AlertTriangle,
     TrendingUp,
-    DollarSign,
+    Coins,
     Clock,
     BadgeCheck,
 } from 'lucide-react';
@@ -198,7 +198,7 @@ const PaymentAdminDashboard = () => {
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <SummaryCard icon={DollarSign} label="Total Revenue" value={`$${totalRevenue.toFixed(2)}`} color="bg-green-600" sub={`${successCount} completed`} />
+                    <SummaryCard icon={Coins} label="Total Revenue" value={`LKR ${totalRevenue.toFixed(2)}`} color="bg-green-600" sub={`${successCount} completed`} />
                     <SummaryCard icon={Clock} label="Pending" value={pendingCount} color="bg-yellow-500" sub="awaiting confirmation" />
                     <SummaryCard icon={BadgeCheck} label="Completed" value={successCount} color="bg-blue-600" sub="successful payments" />
                     <SummaryCard icon={RotateCcw} label="Refunded" value={refundCount} color="bg-purple-600" sub="total refunds" />
@@ -272,7 +272,7 @@ const PaymentAdminDashboard = () => {
                                             <td className="px-4 py-3 font-mono text-gray-700 text-xs whitespace-nowrap">{payment.transactionId || payment._id?.slice(-8)}</td>
                                             <td className="px-4 py-3 text-gray-700">{payment.description}</td>
                                             <td className="px-4 py-3 text-gray-600 capitalize">{payment.paymentMethod?.replace('-', ' ')}</td>
-                                            <td className="px-4 py-3 font-semibold text-gray-900">${payment.amount?.toFixed(2)}</td>
+                                            <td className="px-4 py-3 font-semibold text-gray-900">LKR {payment.amount?.toFixed(2)}</td>
                                             <td className="px-4 py-3"><StatusBadge status={payment.status} /></td>
 
                                             {/* Update Status buttons */}
