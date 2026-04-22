@@ -12,7 +12,7 @@ const userRoute = require('./src/routes/user-routes/userRoutes');
 const guideRoute = require("./src/routes/guide-routes/guideRoute");
 const guideBookingRoute = require("./src/routes/guide-booking-routes/guideBookingRoute");
 const campsiteRoute = require('./src/routes/campsite-route/campsiteRoutes');
-const customerNotificationRoute = require('./src/routes/customer-notification-route/CustomerNotificationRoute');
+const reservationRoute = require('./src/routes/reservation-routes/reservations');
 
 const port = process.env.PORT || 5000;
 
@@ -44,7 +44,7 @@ app.use('/api', userRoute);
 app.use('/api/guides', guideRoute);
 app.use('/api/guide-bookings', guideBookingRoute);
 app.use('/api/campsites', campsiteRoute);
-app.use('/api/customer-notifications', customerNotificationRoute);
+app.use('/api/reservations', reservationRoute);
 const start = async () => {
   await connectDB();
   const server = app.listen(port, () => {
