@@ -1,10 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-<<<<<<< HEAD
-import { User, LogOut, ChevronDown } from "lucide-react";
-=======
 import { User, CreditCard, LogOut, ChevronDown, Trash2, Bell } from "lucide-react";
->>>>>>> c9024bdec91196298ab2a8864d91f12db503d7b3
 import { useAuth } from "../../context/AuthContext";
 import { getCustomerBookingName } from "../../utils/customerIdentity";
 
@@ -122,7 +118,6 @@ const Navbar = () => {
                 return "/camper-dashboard";
             case "admin":
                 return "/admin-dashboard";
-            case "guide":
             case "guide":
                 return "/guides/owndashboard";
 

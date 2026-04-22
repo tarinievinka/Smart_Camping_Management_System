@@ -67,17 +67,8 @@ print(f"  Days with rain_sum > 20mm : {(df['rain_sum'] > 20.0).sum()}")
 print(f"  Days with wind > 35 km/h  : {(df['windspeed_10m_max'] > 35.0).sum()}")
 print(f"  Total unsafe days          : {df['is_unsafe'].sum()}")
 
-<<<<<<< HEAD
 # 4. Feature scaling (DEPRECATED: Scaling now handled in training/inference scripts)
 # Keep data raw in the CSV for better flexibility
-=======
-    joblib.dump(scaler, '../models/weather_scaler.pkl')
-    print("   weather_scaler.pkl saved.")
-
-    # 5. Final Cleanup
-    # Drop the original text 'city' and 'time' columns for the ML model
-    df_final = df.drop(columns=['city', 'time'])
->>>>>>> c9024bdec91196298ab2a8864d91f12db503d7b3
 
 
 # 5. Drop columns not needed for ML
