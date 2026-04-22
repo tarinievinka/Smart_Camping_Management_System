@@ -69,7 +69,7 @@ const PaymentSummary = ({ amount, title, image, stay, dates, guests }) => {
         {/* Terms Footer */}
         <p className="text-xs text-center text-gray-500">
           By clicking 'Complete Payment', you agree to our{' '}
-          <button className="text-blue-600 hover:underline bg-none border-none cursor-pointer p-0">
+          <button className="text-[#166534] hover:underline bg-none border-none cursor-pointer p-0 font-bold">
             Terms of Service
           </button>{' '}
           and Cancellation Policy.
