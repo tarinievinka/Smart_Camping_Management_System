@@ -3,9 +3,12 @@ const mongoose = require("mongoose");
 const guideBookingSchema = new mongoose.Schema(
     {
         guideId: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Guide",
             required: [true, "Guide ID is required"],
+        },
+        guideName: {
+            type: String,
         },
         bookedAt: {
             type: Date,
@@ -18,6 +21,9 @@ const guideBookingSchema = new mongoose.Schema(
             default: "pending",
         },
         customerName: {
+            type: String,
+        },
+        userId: {
             type: String,
         },
         amount: {

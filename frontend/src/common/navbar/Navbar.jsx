@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, CreditCard, LogOut, ChevronDown } from "lucide-react";
+import { User, CreditCard, LogOut, ChevronDown, Trash2 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
@@ -9,6 +9,7 @@ const navLinks = [
     { label: "Equipment", href: "/equipment-store" },
     { label: "Guides", href: "/guides" },
     { label: "Blogs", href: "/blogs" },
+    { label: "Payment", href: "/payment-history" },
 ];
 
 const Navbar = () => {
@@ -44,7 +45,7 @@ const Navbar = () => {
             case "admin":
                 return "/admin-dashboard";
             case "guide":
-                return "/guides/owndashboard";
+                return "/camper-dashboard";
             case "owner":
                 return "/owner-profile";
             default:
@@ -86,17 +87,6 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
-                        {user?.role === "camper" && (
-                            <Link
-                                to="/payment-history"
-                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/payment-history")
-                                        ? "text-[#166534] border-b-2 border-[#166534]"
-                                        : "text-gray-600 hover:text-[#166534]"
-                                    }`}
-                            >
-                                Payment
-                            </Link>
-                        )}
                     </div>
 
                     {/* Right Side — Search + CTA + Profile */}
@@ -171,6 +161,23 @@ const Navbar = () => {
 
 
                                     <div className="border-t border-gray-100 mt-1 pt-1">
+                                        {(user?.role === "camper" || user?.role === "guide") && (
+                                            <button
+                                                onClick={() => {
+                                                    setProfileOpen(false);
+                                                    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                                                        // We'll need to handle deletion. For now, redirect to dashboard where delete logic exists or implement here.
+                                                        // Actually, CamperDashboard has the logic. We'll just navigate to dashboard and trigger it or just use the button there.
+                                                        // But the user asked to place it neatly in profile dropdown.
+                                                        navigate("/camper-dashboard", { state: { triggerDelete: true } });
+                                                    }
+                                                }}
+                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors duration-150"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                                Delete Account
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => {
                                                 setProfileOpen(false);
@@ -224,18 +231,6 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
-                        {user?.role === "camper" && (
-                            <Link
-                                to="/payment-history"
-                                onClick={() => setMobileOpen(false)}
-                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive("/payment-history")
-                                        ? "text-[#166534] bg-[#166534]/10"
-                                        : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
-                                    }`}
-                            >
-                                Payment
-                            </Link>
-                        )}
                         {/* Mobile CTA */}
                         <div className="pt-2 border-t border-gray-100">
                             <Link
@@ -276,6 +271,21 @@ const Navbar = () => {
                                 <User className="w-4 h-4" />
                                 Profile
                             </Link>
+
+                            {(user?.role === "camper" || user?.role === "guide") && (
+                                <button
+                                    onClick={() => {
+                                        setMobileOpen(false);
+                                        if (window.confirm("Are you sure you want to delete your account?")) {
+                                            navigate("/camper-dashboard", { state: { triggerDelete: true } });
+                                        }
+                                    }}
+                                    className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    Delete Account
+                                </button>
+                            )}
 
                         </div>
 

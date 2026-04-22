@@ -122,3 +122,19 @@ exports.approveGuide = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Get my guide profile (for logged in guide)
+exports.getMyGuideProfile = async (req, res) => {
+  try {
+    const guide = await Guide.findOne({ 
+      $or: [
+        { userId: req.user.id },
+        { email: req.user.email }
+      ]
+    });
+    if (!guide) return res.status(404).json({ message: "Guide profile not found" });
+    res.json(guide);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

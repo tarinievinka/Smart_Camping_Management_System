@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, ArrowRight, Home, RefreshCw } from 'lucide-react';
+import { syncGuideSession } from '../components/guides-management/guide-self/guideSession';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -26,10 +27,21 @@ const Login = () => {
                 return;
             }
 
+            if (data.role === 'guide') {
+                await syncGuideSession(data.token);
+            }
+
             switch (data.role) {
-                case 'admin': navigate('/admin'); break;
-                case 'campsite-owner': navigate('/owner'); break;
-                default: navigate('/'); break;
+                case 'admin':
+                    navigate('/admin-dashboard');
+                    break;
+                case 'camper':
+                case 'guide':
+                case 'campsite-owner':
+                case 'campsite_owner':
+                default:
+                    navigate('/');
+                    break;
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
