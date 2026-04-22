@@ -63,7 +63,9 @@ const EditProfile = () => {
                 localStorage.setItem('userInfo', JSON.stringify(updatedUser));
                 setUserRole(updatedUser.role);
                 setSuccess('Profile updated successfully! ✓');
-                setTimeout(() => navigate(updatedUser.role === 'admin' ? '/admin-dashboard' : '/camper-dashboard'), 1500);
+                const isOwner = ['owner', 'campsite_owner', 'campsite-owner'].includes(updatedUser.role);
+                const dashboardPath = updatedUser.role === 'admin' ? '/admin-dashboard' : (isOwner ? '/owner-profile' : '/camper-dashboard');
+                setTimeout(() => navigate(dashboardPath), 1500);
             } else {
                 setError(data.error || 'Update failed. Please try again.');
             }
@@ -125,7 +127,10 @@ const EditProfile = () => {
                     <span style={styles.logoText}>Smart Camping</span>
                 </div>
 
-                <button style={styles.backBtn} onClick={() => navigate(userRole === 'admin' ? '/admin-dashboard' : '/camper-dashboard')}>
+                <button style={styles.backBtn} onClick={() => {
+                    const isOwner = ['owner', 'campsite_owner', 'campsite-owner'].includes(userRole);
+                    navigate(userRole === 'admin' ? '/admin-dashboard' : (isOwner ? '/owner-profile' : '/camper-dashboard'));
+                }}>
                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -226,7 +231,10 @@ const EditProfile = () => {
                             <button
                                 type="button"
                                 style={styles.cancelBtn}
-                                onClick={() => navigate(userRole === 'admin' ? '/admin-dashboard' : '/camper-dashboard')}
+                                onClick={() => {
+                                    const isOwner = ['owner', 'campsite_owner', 'campsite-owner'].includes(userRole);
+                                    navigate(userRole === 'admin' ? '/admin-dashboard' : (isOwner ? '/owner-profile' : '/camper-dashboard'));
+                                }}
                             >
                                 Cancel
                             </button>

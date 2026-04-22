@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, CreditCard, LogOut, ChevronDown, Trash2, Bell } from "lucide-react";
+import { User, LogOut, ChevronDown, Trash2, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getCustomerBookingName } from "../../utils/customerIdentity";
 
@@ -112,21 +112,39 @@ const Navbar = () => {
 
     const getDashboardPath = () => {
         if (!user) return "/login";
-        switch (user.role) {
+        
+        const role = user.role?.toLowerCase()?.trim();
+        const ownerStatus = user.ownerStatus?.toLowerCase()?.trim();
+        
+        // Priority check for approved owners or specific owner roles
+        const isOwner = ownerStatus === 'approved' || 
+                        ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+        
+        if (isOwner) return "/owner-profile";
+
+        switch (role) {
             case "camper":
                 return "/camper-dashboard";
             case "admin":
                 return "/admin-dashboard";
             case "guide":
-                return "/guides/owndashboard";
-            case "owner":
-            case "campsite_owner":
-            case "campsite-owner":
-                return "/owner-profile";
+                return "/guides/ownprofile";
             default:
                 return "/camper-dashboard";
         }
     };
+
+    const role = user?.role?.toLowerCase()?.trim();
+    const ownerStatus = user?.ownerStatus?.toLowerCase()?.trim();
+    const isOwner = ownerStatus === 'approved' || 
+                   ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+    const isAdmin = role === 'admin';
+    const isGuide = role === 'guide';
+    const isCamper = role === 'camper';
+    const isGuest = !user;
+
+    // Hide common navbar tabs (Home, Campsites, etc.) for logged-in non-camper roles
+    const hideCommonTabs = !isCamper && !isGuest;
 
     const isOwnerDashboard = location.pathname === "/owner-profile";
 
@@ -149,8 +167,8 @@ const Navbar = () => {
                         </div>
                     </Link>
 
-                    {/* Desktop Nav Links - Hidden on Owner Dashboard */}
-                    {!isOwnerDashboard && (
+                    {/* Desktop Nav Links - Hidden for non-campers */}
+                    {!hideCommonTabs && (
                         <div className="hidden md:flex items-center gap-10 lg:gap-14 ml-10">
                             {navLinks.map((link) => (
                                 <Link
@@ -165,35 +183,28 @@ const Navbar = () => {
                                     {link.label}
                                 </Link>
                             ))}
-                            {(user?.role === "owner" || user?.role === "campsite_owner" || user?.role === "campsite-owner") && (
-                                <Link
-                                    to="/owner-profile"
-                                    className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/owner-profile")
-                                            ? "text-[#166534] border-b-2 border-[#166534]"
-                                            : "text-gray-600 hover:text-[#166534]"
-                                        }`}
-                                >
-                                    Profile
-                                </Link>
-                            )}
-                            {user?.role === "camper" && (
-                                <Link
-                                    to="/payment-history"
-                                    className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/payment-history")
-                                            ? "text-[#166534] border-b-2 border-[#166534]"
-                                            : "text-gray-600 hover:text-[#166534]"
-                                        }`}
-                                >
-                                    Payment
-                                </Link>
-                            )}
+                        </div>
+                    )}
+
+                    {/* Owner Profile Link - Show if hideCommonTabs is true but user is owner */}
+                    {hideCommonTabs && isOwner && (
+                        <div className="hidden md:flex items-center gap-10 ml-10">
+                            <Link
+                                to="/owner-profile"
+                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/owner-profile")
+                                        ? "text-[#166534] border-b-2 border-[#166534]"
+                                        : "text-gray-600 hover:text-[#166534]"
+                                    }`}
+                            >
+                                Profile
+                            </Link>
                         </div>
                     )}
 
                     {/* Right Side — Search + CTA + Profile */}
                     <div className="hidden md:flex items-center gap-4 ml-auto pl-8">
 
-                        {!isOwnerDashboard && (
+                        {!hideCommonTabs && (
                             <>
                                 {/* Search Icon */}
                                 <button
@@ -343,8 +354,12 @@ const Navbar = () => {
                                         onClick={() => { 
                                             setProfileOpen(false); 
                                             const path = getDashboardPath();
-                                            // If owner dashboard, append trigger param
-                                            const target = user?.role === 'owner' ? `${path}?profile=open` : path;
+                                            // If owner dashboard, append trigger param for all owner variations
+                                            const role = user?.role?.toLowerCase()?.trim();
+                                            const ownerStatus = user?.ownerStatus?.toLowerCase()?.trim();
+                                            const isOwner = ownerStatus === 'approved' || 
+                                                            ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+                                            const target = isOwner ? `${path}?profile=open` : path;
                                             navigate(target); 
                                         }}
 
@@ -413,7 +428,7 @@ const Navbar = () => {
             {mobileOpen && (
                 <div className="md:hidden border-t border-gray-100 bg-white">
                     <div className="px-4 py-3 space-y-1">
-                        {navLinks.map((link) => (
+                        {!hideCommonTabs && navLinks.map((link) => (
                             <Link
                                 key={link.label}
                                 to={link.href}
@@ -426,28 +441,32 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
-                        {user?.role === "camper" && (
+
+                        {hideCommonTabs && isOwner && (
                             <Link
-                                to="/payment-history"
+                                to="/owner-profile"
                                 onClick={() => setMobileOpen(false)}
-                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive("/payment-history")
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive("/owner-profile")
                                         ? "text-[#166534] bg-[#166534]/10"
                                         : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
                                     }`}
                             >
-                                Payment
+                                Profile
                             </Link>
                         )}
+
                         {/* Mobile CTA */}
-                        <div className="pt-2 border-t border-gray-100">
-                            <Link
-                                to="/"
-                                onClick={() => setMobileOpen(false)}
-                                className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#14532d] transition-all duration-200"
-                            >
-                                Plan Your Adventure
-                            </Link>
-                        </div>
+                        {!hideCommonTabs && (
+                            <div className="pt-2 border-t border-gray-100">
+                                <Link
+                                    to="/"
+                                    onClick={() => setMobileOpen(false)}
+                                    className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#14532d] transition-all duration-200"
+                                >
+                                    Plan Your Adventure
+                                </Link>
+                            </div>
+                        )}
                         
                         {/* Mobile auth links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">

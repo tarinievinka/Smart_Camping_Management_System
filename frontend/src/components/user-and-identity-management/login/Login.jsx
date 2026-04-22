@@ -5,11 +5,33 @@ import { useAuth } from '../../../context/AuthContext';
 const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { setUser } = useAuth();
+    const { user, setUser } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    // Auto-redirect if already logged in
+    React.useEffect(() => {
+        if (user) {
+            const role = user.role?.toLowerCase()?.trim();
+            const ownerStatus = user.ownerStatus?.toLowerCase()?.trim();
+            const isOwner = ownerStatus === 'approved' || 
+                            ['campsite_owner', 'campsite-owner', 'owner', 'campsite owner'].includes(role);
+
+            if (role === 'admin') {
+                navigate('/admin-dashboard', { replace: true });
+            } else if (isOwner) {
+                navigate('/owner-profile', { replace: true });
+            } else if (role === 'guide') {
+                navigate('/guide-profile', { replace: true });
+            } else if (role === 'camper') {
+                navigate('/', { replace: true });
+            } else {
+                navigate('/', { replace: true });
+            }
+        }
+    }, [user, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,31 +56,25 @@ const Login = () => {
                 localStorage.setItem('userInfo', JSON.stringify(userInfo));
                 setUser(userInfo);
                 
-                alert('Login successful!');
-                
                 const from = location.state?.from;
                 if (from) {
                     navigate(from);
                     return;
                 }
 
-                switch (data.user.role) {
-                    case 'admin':
-                        navigate('/admin-dashboard');
-                        break;
+                const role = data.user.role?.toLowerCase()?.trim();
+                const ownerStatus = data.user.ownerStatus?.toLowerCase()?.trim();
+                const isOwner = ownerStatus === 'approved' || 
+                                ['campsite_owner', 'campsite-owner', 'owner', 'campsite owner'].includes(role);
 
-                    case 'guide':
-                        navigate('/guide-profile');
-                        break;
-                    case 'campsite_owner':
-                    case 'campsite-owner':
-                    case 'owner':
-                        navigate('/owner-profile');
-                        break;
-                    case 'camper':
-                    default:
-                        navigate('/');
-                        break;
+                if (role === 'admin') {
+                    navigate('/admin-dashboard');
+                } else if (isOwner) {
+                    navigate('/owner-profile');
+                } else if (role === 'guide') {
+                    navigate('/guide-profile');
+                } else {
+                    navigate('/');
                 }
             } else {
                 setError(data.error || 'Login failed');

@@ -59,11 +59,19 @@ const CampsiteOwnerDashboard = () => {
         // Enforce access control
         const token = getAuthToken();
         const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-        if (!token || userInfo.role !== 'owner') {
-            if (userInfo.role !== 'campsite_owner' && userInfo.role !== 'owner') {
-                navigate('/login');
-                return;
-            }
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+
+        const role = userInfo.role?.toLowerCase()?.trim();
+        const ownerStatus = userInfo.ownerStatus?.toLowerCase()?.trim();
+        const isOwner = ownerStatus === 'approved' || 
+                        ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+
+        if (!isOwner) {
+            navigate('/login');
+            return;
         }
         fetchDashboardData();
     }, [navigate]);
