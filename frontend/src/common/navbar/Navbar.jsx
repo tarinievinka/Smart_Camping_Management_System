@@ -205,15 +205,6 @@ const Navbar = () => {
                                     </svg>
                                 </button>
 
-<<<<<<< HEAD
-                        {/* CTA */}
-                        <Link
-                            to=""
-                            className="hidden lg:inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#155e2e] active:bg-[#14532d] shadow-md hover:shadow-lg transition-all duration-200 mr-2"
-                        >
-                            Plan Your Adventure
-                        </Link>
-=======
                                 {/* CTA */}
                                 <Link
                                     to="/guides"
@@ -223,7 +214,6 @@ const Navbar = () => {
                                 </Link>
                             </>
                         )}
->>>>>>> 6602de466b5cc317c8fb08e6c0c13eb115d04699
 
                         {/* Auth Buttons */}
                         {!user ? (
