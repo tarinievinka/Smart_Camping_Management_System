@@ -7,6 +7,10 @@ const feedbackSchema = new mongoose.Schema({
     required: true
   },
 
+  userName: {
+    type: String
+  },
+
   targetType: {
     type: String,
     enum: ["Campsite", "Equipment", "Guide"],
@@ -17,6 +21,10 @@ const feedbackSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     refPath: "targetType"   // Dynamic reference (same like bookingType)
+  },
+
+  targetName: {
+    type: String
   },
 
   rating: {
@@ -41,6 +49,20 @@ const feedbackSchema = new mongoose.Schema({
 
   editableUntil: {
     type: Date
+  },
+
+  sessionDate: {
+    type: Date,
+    required: true
+  },
+
+  sessionEndDate: {
+    type: Date
+  },
+
+  imageUrls: {
+    type: [String],
+    default: []
   }
 
 }, { timestamps: true });

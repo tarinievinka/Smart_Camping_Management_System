@@ -8,7 +8,31 @@ const createGuide = async (data) => {
 
 // Get all guides
 const getAllGuides = async () => {
-  return await Guide.find();
+  const guides = await Guide.find().lean();
+  
+  // Aggregate feedback to get average rating per guide
+  const Feedback = require('../../models/feedback-model/FeedbackModel');
+  const feedbacks = await Feedback.find({ targetType: 'Guide' }).lean();
+  
+  return guides.map(guide => {
+    // Match by targetId OR targetName
+    const guideFeedbacks = feedbacks.filter(f => {
+      const idMatch = f.targetId && f.targetId.toString() === guide._id.toString();
+      const nameMatch = f.targetName && f.targetName.trim().toLowerCase() === guide.name.trim().toLowerCase();
+      return idMatch || nameMatch;
+    });
+    
+    const reviewCount = guideFeedbacks.length;
+    const averageRating = reviewCount > 0 
+      ? guideFeedbacks.reduce((sum, f) => sum + f.rating, 0) / reviewCount 
+      : 0;
+
+    return {
+      ...guide,
+      averageRating,
+      reviewCount
+    };
+  });
 };
 
 // Get guide by ID

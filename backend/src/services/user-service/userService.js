@@ -23,7 +23,17 @@ const registerUser = async (data) => {
 const loginUser = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error('User not found');
-  if (!user.isActive) throw new Error('Account is deactivated');
+  if (!user.isActive) {
+    if (user.role === 'guide') {
+      if (user.guideStatus === 'pending') throw new Error('Your guide application is pending admin approval');
+      if (user.guideStatus === 'rejected') throw new Error('Your guide application was rejected');
+    }
+    if (user.role === 'campsite_owner') {
+      if (user.ownerStatus === 'pending') throw new Error('Your campsite owner application is pending admin approval');
+      if (user.ownerStatus === 'rejected') throw new Error('Your campsite owner application was rejected');
+    }
+    throw new Error('Account is deactivated');
+  }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) throw new Error('Invalid credentials');

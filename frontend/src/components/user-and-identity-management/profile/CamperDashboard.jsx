@@ -9,28 +9,25 @@ const CamperDashboard = () => {
     const [isDeleted, setIsDeleted] = useState(false);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
-        if (!storedUser || !token) { 
-            // For demo purposes, if no user, set a mockup user
-            setUser({ name: 'Alex Explorer', _id: 'demo-id' });
-            setLoading(false);
-            return; 
+        const stored = localStorage.getItem('userInfo');
+        const userInfo = stored ? JSON.parse(stored) : null;
+        if (!userInfo || !userInfo.token) {
+            navigate('/login');
+            return;
         }
 
-        const parsed = JSON.parse(storedUser);
-        setUser(parsed);
+        setUser(userInfo);
         setLoading(false);
     }, [navigate]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('userInfo');
         navigate('/login');
     };
 
     const handleDeleteAccount = async () => {
-        const token = localStorage.getItem('token');
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const token = userInfo.token;
         try {
             const res = await fetch('http://localhost:5000/api/profile', {
                 method: 'DELETE',
@@ -85,13 +82,13 @@ const CamperDashboard = () => {
                     <NavItem label="Equipment" icon="⛺" active={activeTab === 'Equipment'} onClick={() => setActiveTab('Equipment')} />
                     <NavItem label="Guides" icon="🧭" active={activeTab === 'Guides'} onClick={() => setActiveTab('Guides')} />
                     <NavItem label="Payments" icon="💳" active={activeTab === 'Payments'} onClick={() => setActiveTab('Payments')} />
-                    <NavItem label="Settings" icon="⚙️" active={activeTab === 'Settings'} onClick={() => navigate('/edit-profile')} />
+                    <NavItem label="My Reviews" icon="⭐" active={activeTab === 'My Reviews'} onClick={() => navigate('/my-reviews')} />
                 </nav>
 
                 <div style={styles.sidebarFooter}>
                     <div style={styles.userCard}>
                         <div style={styles.userDetails}>
-                            <p style={styles.userName}>{user?.name || 'Alex Explorer'}</p>
+                            <p style={styles.userName}>{user?.name?.trim() || 'User'}</p>
                             <p style={styles.userRole}>Camper</p>
                         </div>
                         <button style={styles.logoutBtn} onClick={handleLogout}>
@@ -144,7 +141,7 @@ const CamperDashboard = () => {
                     <section style={styles.hero}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                             <div>
-                                <h2 style={styles.welcomeMsg}>Welcome, {user?.name?.split(' ')[0] || 'Alex'}!</h2>
+                                <h2 style={styles.welcomeMsg}>Welcome, {user?.name?.split(' ')[0] || 'Explorer'}!</h2>
                                 {isDemoUser ? (
                                     <p style={styles.welcomeSub}>Your next adventure at <span style={{ color: '#10a110', fontWeight: 700 }}>Pine Ridge Reserve</span> starts in 3 days.</p>
                                 ) : (

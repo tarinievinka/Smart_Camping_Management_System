@@ -9,6 +9,7 @@ import EditProfile from './components/user-and-identity-management/profile/EditP
 import AdminDashboard from './components/user-and-identity-management/profile/AdminDashboard';
 import DeleteUsers from './components/user-and-identity-management/profile/DeleteUsers';
 import CamperDashboard from './components/user-and-identity-management/profile/CamperDashboard';
+import AdminOwnerManagement from './components/admin/AdminOwnerManagement';
 
 // Payment management components
 import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
@@ -19,6 +20,11 @@ import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDash
 import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';
 import PaymentCard from './components/payment-management/payment-card/PaymentCard';
 
+import Feedback from './components/feedbck-and-review-management/Feedback';
+import MyReviews from './components/feedbck-and-review-management/my-reviews/MyReviews';
+import AdminFeedback from './components/feedbck-and-review-management/admin-feedback/AdminFeedback';
+import AdminAllReviews from './components/feedbck-and-review-management/admin-feedback/AdminAllReviews';
+
 // Equipment management components
 import EquipmentStore from './components/equipment-management/EquipmentStore';
 import BookingSummary from './components/equipment-management/BookingSummary';
@@ -27,6 +33,7 @@ import AddEquipment from './components/equipment-management/AddEquipment';
 import EditEquipment from './components/equipment-management/EditEquipment';
 import EquipmentList from './components/equipment-management/EquipmentList';
 import NotifyRequests from './components/equipment-management/NotifyRequests';
+import EquipmentBookings from './components/equipment-management/EquipmentBookings';
 
 // Landing page
 import Landing from './components/landing/Landing';
@@ -52,6 +59,13 @@ import GuideSelfReviews from './components/guides-management/guide-self/GuideSel
 // Blogs page
 import Blogs from './components/blogs/Blogs';
 
+// Campsite Management
+import CampingSitesManagement from './components/camping-sites-management/CampingSitesManagement';
+import CampsiteAdminContainer from './components/camping-sites-management/CampsiteAdminContainer';
+import CampsiteOwnerDashboard from './components/camping-sites-management/CampsiteOwnerDashboard';
+
+
+
 function App() {
   return (
     <BrowserRouter>
@@ -69,6 +83,7 @@ function App() {
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/admin/delete-users" element={<DeleteUsers />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/owner-management" element={<AdminOwnerManagement />} />
             
             {/* Payment management routes */}
             <Route path="/payment-history" element={<PaymentHistory />} />
@@ -78,10 +93,18 @@ function App() {
             <Route path="/payment-failure" element={<PaymentFailure />} />
             <Route path="/payment-card" element={<PaymentCard />} />
             <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
+            
+            {/* Feedback Routes */}
+            <Route path='/feedback' element={<Feedback />} />
+            <Route path='/feedbackreview' element={<Feedback />} />
+            <Route path='/my-reviews' element={<MyReviews />} />
+            <Route path='/admin/feedback' element={<AdminFeedback />} />
+            <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
 
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
             <Route path="/booking-summary" element={<BookingSummary />} />
+            <Route path="/equipment-bookings" element={<EquipmentBookings />} />
             <Route path="/equipment-dashboard" element={<EquipmentDashboard />} />
             <Route path="/equipment-list" element={<EquipmentList />} />
             <Route path="/add-equipment" element={<AddEquipment />} />
@@ -104,6 +127,11 @@ function App() {
             <Route path='/guides/owncalendar' element={<GuideSelfCalendar />} />
             <Route path='/guides/ownreviews' element={<GuideSelfReviews />} />
             <Route path='/guides/:id' element={<GuideProfile />} />
+            
+            {/* Campsite Routes */}
+            <Route path="/campsites" element={<CampingSitesManagement />} />
+            <Route path="/campsites-admin" element={<CampsiteAdminContainer />} />
+            <Route path="/owner-profile" element={<CampsiteOwnerDashboard />} />
           </Routes>
         </div>
         <Footer />

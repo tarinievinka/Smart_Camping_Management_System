@@ -35,7 +35,7 @@ const PaymentHistory = () => {
       console.log('Backend payments data received:', data);
 
       // Normalize backend data to match frontend expectations
-      const normalizedData = (data || []).map(payment => {
+      let normalizedData = (data || []).map(payment => {
         // Map backend 'success' to frontend 'completed'
         let status = payment.paymentStatus || 'pending';
         if (status === 'success') status = 'completed';
@@ -52,7 +52,27 @@ const PaymentHistory = () => {
         };
       });
 
-      console.log('Normalized payments data:', normalizedData);
+      // Filter to only show payments for the logged-in user
+      const storedUser = localStorage.getItem('user');
+      const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+      
+      if (parsedUser) {
+        const userEmail = parsedUser.email?.toLowerCase();
+        const userId = parsedUser._id || parsedUser.id || parsedUser.userId;
+        
+        normalizedData = normalizedData.filter(payment => {
+          // Check standard fields where email or user ID might be stored
+          const paymentEmail = payment.email?.toLowerCase() || payment.userEmail?.toLowerCase() || payment.billingDetails?.email?.toLowerCase();
+          const pUserId = payment.userId || payment.user?.id || payment.user?._id || payment.user || payment.clientId;
+          
+          return (userEmail && paymentEmail === userEmail) || (userId && pUserId === userId);
+        });
+      } else {
+        // No user logged in, so show no history
+        normalizedData = [];
+      }
+
+      console.log('Normalized and filtered payments data:', normalizedData);
       setPayments(normalizedData);
       setError(null);
     } catch (err) {
