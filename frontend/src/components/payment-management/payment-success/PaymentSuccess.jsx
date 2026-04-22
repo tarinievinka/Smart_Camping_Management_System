@@ -33,7 +33,7 @@ const PaymentSuccess = () => {
             <div className="space-y-2">
               <a
                 href="/payment-history"
-                className="w-full block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition"
+                className="w-full block bg-[#166534] hover:bg-[#14532d] text-white font-semibold py-3 px-4 rounded-lg transition"
               >
                 View Payment History
               </a>

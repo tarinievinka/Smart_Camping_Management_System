@@ -190,7 +190,7 @@ const PaymentAdminDashboard = () => {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => navigate('/admin/bank-slips')}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition"
+                        className="flex items-center gap-2 px-4 py-2 bg-[#166534] hover:bg-[#14532d] text-white text-sm font-semibold rounded-lg transition"
                     >
                         <FileCheck className="w-4 h-4" />
                         Verify Bank Slips
@@ -211,7 +211,7 @@ const PaymentAdminDashboard = () => {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <SummaryCard icon={Coins} label="Total Revenue" value={`LKR ${totalRevenue.toFixed(2)}`} color="bg-green-600" sub={`${successCount} completed`} />
                     <SummaryCard icon={Clock} label="Pending" value={pendingCount} color="bg-yellow-500" sub="awaiting confirmation" />
-                    <SummaryCard icon={BadgeCheck} label="Completed" value={successCount} color="bg-blue-600" sub="successful payments" />
+                    <SummaryCard icon={BadgeCheck} label="Completed" value={successCount} color="bg-[#166534]" sub="successful payments" />
                     <SummaryCard icon={RotateCcw} label="Refunded" value={refundCount} color="bg-purple-600" sub="total refunds" />
                 </div>
 

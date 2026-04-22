@@ -39,8 +39,8 @@ const HistoryCards = ({ payments = [] }) => {
       title: 'Equipments',
       type: 'EquipmentBooking',
       icon: <Package className="w-6 h-6" />,
-      color: 'bg-blue-50 text-blue-600 border-blue-100',
-      accent: 'bg-blue-600',
+      color: 'bg-[#166534]/10 text-[#166534] border-[#166534]/20',
+      accent: 'bg-[#166534]',
       total: getCategoryTotal('EquipmentBooking'),
       count: getCategoryCount('EquipmentBooking'),
       description: 'Gear & rental items'

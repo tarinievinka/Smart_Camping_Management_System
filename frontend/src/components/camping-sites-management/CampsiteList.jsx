@@ -53,7 +53,7 @@ const CampsiteList = ({ campsites, onEdit, onDelete, handleStatusChange }) => {
               <td className="p-4 text-center">
                 <button
                   onClick={() => onEdit(item)}
-                  className="bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold py-1 px-3 rounded-md mr-2 transition text-sm"
+                  className="bg-[#166534]/10 hover:bg-[#166534]/20 text-[#166534] font-semibold py-1 px-3 rounded-md mr-2 transition text-sm"
                 >
                   Edit
                 </button>
