@@ -29,8 +29,31 @@ exports.getAllCampsites = async (req, res) => {
     if (req.query.status) {
       filter.status = req.query.status;
     }
-    const campsites = await Campsite.find(filter);
-    res.status(200).json({ success: true, data: campsites });
+    const campsites = await Campsite.find(filter).lean();
+    
+    // Fetch all feedbacks to aggregate
+    const Feedback = require('../../models/feedback-model/FeedbackModel');
+    const allFeedbacks = await Feedback.find({ targetType: 'Campsite' }).lean();
+
+    const dataWithRatings = campsites.map(site => {
+      const siteFeedbacks = allFeedbacks.filter(f => 
+        String(f.targetId || "") === String(site._id) || 
+        String(f.targetName || "").trim().toLowerCase() === String(site.name || "").trim().toLowerCase()
+      );
+      
+      const reviewCount = siteFeedbacks.length;
+      const averageRating = reviewCount > 0
+        ? siteFeedbacks.reduce((sum, f) => sum + f.rating, 0) / reviewCount
+        : 0;
+
+      return {
+        ...site,
+        averageRating,
+        reviewCount
+      };
+    });
+
+    res.status(200).json({ success: true, data: dataWithRatings });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
