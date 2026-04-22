@@ -40,11 +40,13 @@ const Header = () => {
             case "camper":
                 return "/camper-dashboard";
             case "admin":
-                return "/admin-dashboard";
+                return "/admin";
             case "guide":
                 return "/guides/owndashboard";
             case "owner":
-                return "/owner-profile";
+            case "campsite-owner":
+            case "campsite_owner":
+                return "/owner";
             default:
                 return "/camper-dashboard";
         }
@@ -89,6 +91,17 @@ const Header = () => {
                                 {link.label}
                             </Link>
                         ))}
+                        {(user?.role === "owner" || user?.role === "campsite_owner" || user?.role === "campsite-owner") && (
+                            <Link
+                                to="/owner"
+                                className={`text-sm font-medium transition-colors duration-200 pb-0.5 ${isActive("/owner")
+                                        ? "text-[#166534] border-b-2 border-[#166534]"
+                                        : "text-gray-600 hover:text-[#166534]"
+                                    }`}
+                            >
+                                Profile
+                            </Link>
+                        )}
                     </div>
 
                     {/* Right Side */}
@@ -236,6 +249,18 @@ const Header = () => {
                                 {link.label}
                             </Link>
                         ))}
+                        {(user?.role === "owner" || user?.role === "campsite_owner" || user?.role === "campsite-owner") && (
+                            <Link
+                                to="/owner"
+                                onClick={() => setMobileOpen(false)}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive("/owner")
+                                        ? "text-[#166534] bg-[#166534]/10"
+                                        : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
+                                    }`}
+                            >
+                                Profile
+                            </Link>
+                        )}
 
                         {/* Mobile auth links (Logged Out) */}
                         {!user && (

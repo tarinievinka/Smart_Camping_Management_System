@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
 import axios from "axios";
+import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
@@ -133,7 +134,7 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
   const isLowStock    = item.stockQuantity > 0 && item.stockQuantity <= 3;
   const inCart        = cart.some(c => c._id === item._id && c.mode === mode);
 
-  const imgSrc = item.imageUrl ? `${process.env.REACT_APP_API_URL}${item.imageUrl}` : null;
+  const imgSrc = resolveMediaUrl(item.imageUrl);
   const backOn = item.availabilityStatus === 'Out of Stock' ? "soon" : null;
 
   return (
