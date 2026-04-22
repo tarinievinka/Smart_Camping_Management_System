@@ -87,8 +87,6 @@ const CamperDashboard = () => {
         fetchData();
     }, [navigate, location.state, authUser]);
 
-
-
     const handleLogout = () => {
         authLogout();
         navigate('/login');
@@ -157,7 +155,7 @@ const CamperDashboard = () => {
 
     const stats = useMemo(() => {
         const upcoming = allBookings.filter(b => b.status.toLowerCase() === 'pending' || b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'paid').length;
-        const totalSpent = allBookings.reduce((sum, b) => sum + parseFloat(b.total.replace('LKR ', '').replace('$', '')), 0);
+        const totalSpent = allBookings.reduce((sum, b) => sum + parseFloat(String(b.total || "0").replace('LKR ', '').replace('$', '')), 0);
         const activeRentals = equipmentBookings.filter(b => b.status.toLowerCase() === 'paid').length;
         return {
             upcoming: upcoming,
@@ -271,9 +269,9 @@ const CamperDashboard = () => {
                                                             <span style={{ fontWeight: 700, color: '#10a110' }}>{booking.total}</span>
                                                         </div>
                                                         <div style={styles.bookingDetailItem}>
-                                                            <span style={booking.status === 'Confirmed' || booking.status === 'paid' ? styles.pillGreen : styles.pillYellow}>
+                                                            <span style={(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? styles.pillGreen : styles.pillYellow}>
                                                                 <Clock size={12} style={{ marginRight: '4px' }} />
-                                                                {booking.status}
+                                                                {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1).toLowerCase()}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -374,8 +372,6 @@ const CamperDashboard = () => {
                     </div>
                 </div>
             )}
-
-
         </div>
     );
 };
@@ -530,8 +526,6 @@ const styles = {
         width: '100%', height: '100%', background: '#10a110', 
         animation: 'progress 3s linear forwards' 
     },
-
-
 };
 
 export default CamperDashboard;

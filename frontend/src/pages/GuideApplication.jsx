@@ -111,6 +111,7 @@ const GuideApplication = () => {
 
 		// Password validation removed for guides (received via email after approval)
 
+
 		setError('');
 		setSuccessMessage('');
 
@@ -139,6 +140,7 @@ const GuideApplication = () => {
 			const userData = {
 				name: form.fullName,
 				email: form.email.toLowerCase().trim(),
+
 				phone: form.phone,
 				password: form.password,
 				role: 'guide',
@@ -389,6 +391,7 @@ const GuideApplication = () => {
 						</div>
 
 						{/* Password Section Removed - Received via Email After Approval */}
+
 
 						<button
 							type="submit"

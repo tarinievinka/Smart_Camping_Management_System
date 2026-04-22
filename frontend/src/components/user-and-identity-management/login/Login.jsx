@@ -46,6 +46,7 @@ const Login = () => {
                     case 'admin':
                         navigate('/admin-dashboard');
                         break;
+
                     case 'guide':
                         navigate('/guide-profile');
                         break;

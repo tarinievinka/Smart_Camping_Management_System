@@ -37,8 +37,12 @@ const Login = () => {
                     break;
                 case 'camper':
                 case 'guide':
+                    navigate('/');
+                    break;
                 case 'campsite-owner':
                 case 'campsite_owner':
+                    navigate('/owner-profile');
+                    break;
                 default:
                     navigate('/');
                     break;

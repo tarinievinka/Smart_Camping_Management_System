@@ -75,6 +75,7 @@ const PaymentHistory = () => {
           return matchesId || matchesEmail;
         });
       } else {
+
         normalizedData = [];
       }
 

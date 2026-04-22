@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ShoppingCart, Star, MessageSquare, Tag, RefreshCw, ShieldCheck } from 'lucide-react';
 import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
 
+
 const CustomStyles = () => (
   <style>{`
     @keyframes fadeIn {
@@ -57,6 +58,7 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
     };
     fetchReviews();
   }, [item._id, item.name]);
+
 
   const averageRating = reviews.length > 0 
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
@@ -214,6 +216,7 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
                          })}
                        </div>
                      )}
+
                    </div>
                  ))}
                </div>

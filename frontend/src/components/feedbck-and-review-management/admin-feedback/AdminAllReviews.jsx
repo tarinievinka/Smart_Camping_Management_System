@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Star, ChevronDown, MapPin, ArrowLeft } from "lucide-react";
+import ReviewSidebar from "../ReviewSidebar";
+
 
 const AdminAllReviews = () => {
   const navigate = useNavigate();
@@ -68,6 +70,8 @@ const AdminAllReviews = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
+      <ReviewSidebar />
+
       <div className="flex-1 h-screen overflow-y-auto">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">

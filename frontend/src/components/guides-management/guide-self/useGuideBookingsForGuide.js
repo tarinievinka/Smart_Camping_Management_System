@@ -73,10 +73,8 @@ export function useGuideBookingsForGuide(guideId) {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get(`${API_URL}/api/guide-bookings/display`);
-      const all = Array.isArray(res.data) ? res.data : [];
-      const mine = all.filter((b) => String(b.guideId) === String(guideId));
-      setEntries(mine);
+      const res = await axios.get(`${API_URL}/api/guide-bookings/guide/${guideId}`);
+      setEntries(Array.isArray(res.data) ? res.data : []);
     } catch {
       setError("Failed to load bookings.");
       setEntries([]);

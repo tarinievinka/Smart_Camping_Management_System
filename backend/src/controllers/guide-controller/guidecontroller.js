@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { sendEmail } = require("../../utils/emailUtils");
 
+
 // Create a new guide
 exports.createGuide = async (req, res) => {
   try {
@@ -145,21 +146,27 @@ exports.approveGuide = async (req, res) => {
       // We continue since the user is already approved in the DB
     }
 
+
     // Prevent duplicate guide documents
     const existingGuide = await Guide.findOne({ email: user.email });
     if (existingGuide) {
+
+      // Already approved — just return the existing guide
       return res.status(200).json({ message: "Guide approved successfully (Profile existed)", guide: existingGuide });
     }
 
     // Create a new Guide document using the application data
+    // NOTE: nic and age are required by the Guide schema — must be included
+
     const app = user.guideApplication || {};
     const guideData = {
       name:        app.fullName || user.name,
       email:       user.email,
       phone:       user.phone || '',
-      experience:  Number(app.experience) || 0,
-      nic:         app.nic || '',
-      age:         Number(app.age) || 18,
+      experience:  Number(app.experience) || 0,   // Guide schema expects Number
+      nic:         app.nic || '',                  // required field
+      age:         Number(app.age) || 18,          // required field
+
       description: app.description || '',
       language:    app.languages ? app.languages.join(', ') : '',
       cv:          app.cv || '',
@@ -189,4 +196,4 @@ exports.getMyGuideProfile = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
+};

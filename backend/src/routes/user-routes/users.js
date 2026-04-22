@@ -1,6 +1,6 @@
-import express from 'express';
-import User from '../../models/user-models/User.js';
-import { protect, admin } from '../../utils/auth.js';
+const express = require('express');
+const User = require('../../models/user-models/User');
+const { protect, admin } = require('../../utils/auth');
 
 const router = express.Router();
 
@@ -77,4 +77,4 @@ router.delete('/:id', protect, admin, async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

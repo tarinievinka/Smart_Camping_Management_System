@@ -140,6 +140,7 @@ const BookingSummary = () => {
             mode: item.mode
           })),
           from: location.pathname,
+
           equipmentBookingDraft: {
             pickupDate,
             returnDate,

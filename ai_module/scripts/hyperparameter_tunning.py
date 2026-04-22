@@ -1,6 +1,8 @@
 
 
 
+
+
 import pandas as pd
 import numpy as np
 import joblib
@@ -33,21 +35,16 @@ X_train, X_test, y_train, y_test = train_test_split(
 # STEP 1 ── EXPORT SCALER  (Critical for website predictions)
 # ══════════════════════════════════════════════════════════════════════════════
 print("=" * 60)
-print("STEP 1: Fitting & Saving Weather Scaler")
+print("STEP 1: Loading Existing Weather Scaler")
 print("=" * 60)
 
-scaler = StandardScaler()
-scaler.fit(X_train[FEATURES[:-1]])          # Fit on numeric weather features only (exclude city_code)
+scaler = joblib.load('../models/weather_scaler.pkl')
+print("   weather_scaler.pkl loaded from ../models/weather_scaler.pkl")
+print("    Using pre-trained scaler to ensure consistency.\n")
 
-joblib.dump(scaler, '../models/weather_scaler.pkl')
-print("   weather_scaler.pkl saved → ../models/weather_scaler.pkl")
-print("    This file is REQUIRED by the website for correct predictions!\n")
-
-# Scale for use in this script
+# Data is already scaled in Phase 2, but we keep X_train_scaled/X_test_scaled variables for compatibility
 X_train_scaled = X_train.copy()
 X_test_scaled  = X_test.copy()
-X_train_scaled[FEATURES[:-1]] = scaler.transform(X_train[FEATURES[:-1]])
-X_test_scaled[FEATURES[:-1]]  = scaler.transform(X_test[FEATURES[:-1]])
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 2 ── BASELINE OVERFITTING / UNDERFITTING CHECK

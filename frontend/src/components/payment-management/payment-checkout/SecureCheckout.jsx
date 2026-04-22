@@ -11,6 +11,7 @@ const SecureCheckout = () => {
   const location = useLocation();
   const navigate = useNavigate();
     const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems, equipmentBookingDraft, from } = location.state || {};
+
   
   const currentBookingId = bookingId || `temp-bk-${Math.random().toString(36).substr(2, 9)}`;
   const currentAmount = amount || 0.00;
@@ -78,6 +79,7 @@ const SecureCheckout = () => {
       }
 
       navigate('/payment-success', { state: { message: 'Bank deposit payment submitted successfully! Waiting for admin approval.', variant: 'success' } });
+
     } catch (err) {
       console.error('Payment failed:', err);
       alert('Payment submission failed. Please try again.');
@@ -188,12 +190,14 @@ const SecureCheckout = () => {
             {paymentMethod === 'credit-card' && (
               <SimplePaymentForm 
                 alreadyPaid={alreadyPaid}
+
                 amount={currentAmount} 
                 bookingId={currentBookingId} 
                 bookingType={currentBookingType} 
                 equipmentItems={equipmentItems}
                 equipmentBookingDraft={equipmentBookingDraft}
                 returnPath={from}
+
               />
             )}
             {paymentMethod === 'bank-deposit' && (
@@ -297,6 +301,7 @@ const SecureCheckout = () => {
                         const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
                         try {
                           const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
                           await Promise.all(
                             equipmentItems.map(item =>
                               fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
@@ -305,6 +310,7 @@ const SecureCheckout = () => {
                                   'Content-Type': 'application/json',
                                   'Authorization': `Bearer ${storedUser.token}`
                                 },
+
                                 body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
                               }).then(res => res.json())
                             )
@@ -325,6 +331,7 @@ const SecureCheckout = () => {
                       }
 
                       navigate('/payment-success', { 
+
                         state: { 
                           message: 'Google Pay payment completed successfully!', 
                           variant: 'success' 

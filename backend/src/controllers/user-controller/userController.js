@@ -1,4 +1,5 @@
 const userService = require('../../services/user-service/userService');
+const User = require('../../models/user-model/userModel');
 
 const jwt = require('jsonwebtoken'); // Added for token generation on register
 
@@ -127,6 +128,36 @@ const forgotPassword = async (req, res) => {
   }
 };
 
+const approveOwner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndUpdate(
+      id,
+      { ownerStatus: 'approved', isActive: true },
+      { new: true }
+    ).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json({ message: 'Campsite owner approved successfully', user });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+const rejectOwner = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndUpdate(
+      id,
+      { ownerStatus: 'rejected', isActive: false },
+      { new: true }
+    ).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json({ message: 'Campsite owner application rejected', user });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
@@ -144,4 +175,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getProfile, updateProfile, setUserStatus, deleteUser, deleteMyProfile, getAllUsers, forgotPassword, resetPassword };
+module.exports = { register, login, getProfile, updateProfile, setUserStatus, deleteUser, deleteMyProfile, getAllUsers, forgotPassword, resetPassword, approveOwner, rejectOwner };
