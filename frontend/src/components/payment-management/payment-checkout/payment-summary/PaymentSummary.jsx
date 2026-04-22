@@ -6,7 +6,9 @@ const PaymentSummary = ({ amount, title, image, stay, dates, guests }) => {
     title: title || 'Wilderness Retreat - Site #42',
     image: image || 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=150&h=150&fit=crop',
     stay: stay || '3 Nights Stay',
-    dates: dates || 'Oct 12 - Oct 15, 2023',
+    dates: typeof dates === 'object' && dates.checkIn && dates.checkOut 
+           ? `${dates.checkIn} to ${dates.checkOut}`
+           : (dates || 'Oct 12 - Oct 15, 2023'),
     guests: guests || '2 Adults, 1 Child',
     costs: [
       {

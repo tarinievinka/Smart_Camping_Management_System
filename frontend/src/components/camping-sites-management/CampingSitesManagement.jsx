@@ -94,16 +94,7 @@ const CampingSitesManagement = () => {
                 )}
 
                 <button
-                  onClick={() => navigate('/payment-checkout', {
-                    state: {
-                      amount: site.pricePerNight,
-                      bookingType: 'CampsiteBooking',
-                      title: site.name,
-                      stay: '1 Night / 2 Days',
-                      guests: `${site.capacity} Guests Max`,
-                      image: site.image ? resolveMediaUrl(site.image) : null
-                    }
-                  })}
+                  onClick={() => navigate(`/campsite-booking/${site._id}`)}
                   className="w-full bg-[#166534] hover:bg-[#14532d] text-white font-black py-3.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg active:scale-[0.98] text-sm uppercase tracking-widest"
                 >
                   Book Now
