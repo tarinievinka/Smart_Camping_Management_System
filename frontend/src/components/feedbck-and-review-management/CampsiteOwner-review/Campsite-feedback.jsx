@@ -4,10 +4,26 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon, ChevronDown, PenSquare, ShoppingBag } from "lucide-react";
+import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon, ChevronDown, PenSquare, ShoppingBag, MessageSquare } from "lucide-react";
 import { getEquipmentBookings } from "../../../utils/equipmentBookings";
+import { resolveMediaUrl } from "../../../utils/resolveMediaUrl";
 
 const starLabels = ["Terrible", "Bad", "Okay", "Good", "Very Good"];
+
+const CustomStyles = () => (
+    <style>{`
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+      .animate-slideUp { animation: slideUp 0.4s ease-out; }
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #15803d; border-radius: 10px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #166534; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    `}</style>
+);
 
 const getStoredUser = () => {
     try {
@@ -41,6 +57,8 @@ const FeedbackForm = () => {
     const [locationName, setLocationName] = useState(location.state?.targetName || "");
     const [itemsList, setItemsList] = useState([]);
     const [fetchingItems, setFetchingItems] = useState(false);
+    const [reviews, setReviews] = useState([]);
+    const [loadingReviews, setLoadingReviews] = useState(false);
     const isEditingSpecificItem = !!location.state?.targetName;
 
     useEffect(() => {
@@ -134,6 +152,40 @@ const FeedbackForm = () => {
         fetchItems();
     }, [selectedReview, isEditingSpecificItem, resolvedUser]);
 
+    useEffect(() => {
+        const fetchReviews = async () => {
+            if (!selectedTargetId && !locationName) {
+                setReviews([]);
+                return;
+            }
+
+            setLoadingReviews(true);
+            try {
+                const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+                const res = await axios.get(`${apiUrl}/api/feedback/display`);
+                const allReviews = Array.isArray(res.data) ? res.data : [];
+                
+                // Filter reviews for this specific target
+                const filtered = allReviews.filter((r) => {
+                    const typeMatch = String(r.targetType || "").toLowerCase() === selectedReview.toLowerCase();
+                    if (!typeMatch) return false;
+                    
+                    const idMatch = String(r.targetId || "") === String(selectedTargetId);
+                    const nameMatch = String(r.targetName || "").trim().toLowerCase() === String(locationName || "").trim().toLowerCase();
+                    
+                    return idMatch || (locationName && nameMatch);
+                });
+                
+                setReviews(filtered);
+            } catch (err) {
+                console.error("Failed to fetch reviews:", err);
+            } finally {
+                setLoadingReviews(false);
+            }
+        };
+        fetchReviews();
+    }, [selectedTargetId, locationName, selectedReview]);
+
     const [rating, setRating] = useState(4);
     const [hover, setHover] = useState(null);
     const [reviewText, setReviewText] = useState("");
@@ -209,13 +261,7 @@ const FeedbackForm = () => {
             setImageFiles([]);
             setImagePreviews([]);
             setErrors({});
-            if (selectedReview === "equipment") {
-                navigate("/equipment-bookings");
-            } else if (selectedReview === "campsite") {
-                navigate("/my-reviews"); // Or specific campsite bookings if available
-            } else {
-                navigate("/my-reviews");
-            }
+            navigate("/camper-dashboard");
         } catch (error) {
             console.error("Error submitting feedback:", error);
 
@@ -236,7 +282,8 @@ const FeedbackForm = () => {
     };
 
     return (
-        <div className="w-full py-10 px-4 sm:px-6 lg:px-8 flex flex-col items-center font-sans bg-white">
+        <div className="w-full py-10 px-4 sm:px-6 lg:px-8 flex flex-col items-center font-sans bg-white animate-fadeIn">
+            <CustomStyles />
             <div className="w-full max-w-3xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 w-full">
                     <div className="pl-1">
@@ -502,6 +549,7 @@ const FeedbackForm = () => {
                         </button>
                     </div>
                 </form>
+
             </div>
         </div>
     );

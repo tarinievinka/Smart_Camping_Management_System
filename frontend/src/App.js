@@ -71,6 +71,7 @@ import CampsiteOwnerDashboard from './components/camping-sites-management/Campsi
 import SafetyAnalysis from './components/safety-analysis/SafetyAnalysis';
 import GuideFeedback from './components/feedbck-and-review-management/Guide-review/guide-feedback';
 import EquipmentFeedback from './components/feedbck-and-review-management/Equipment-review/EquipmentFeedback';
+import CampsiteFeedback from './components/feedbck-and-review-management/CampsiteOwner-review/Campsite-feedback';
 
 
 
@@ -113,6 +114,7 @@ function App() {
             <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
             <Route path='/guide-feedback' element={<GuideFeedback />} />
             <Route path='/equipment-feedback' element={<EquipmentFeedback />} />
+            <Route path='/campsite-feedback' element={<CampsiteFeedback />} />
 
 
             {/* Equipment management routes */}

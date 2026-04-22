@@ -212,7 +212,7 @@ const FeedbackForm = () => {
             if (selectedReview === "equipment" || location.pathname === "/feedbackreview") {
                 navigate("/equipment-bookings");
             } else {
-                navigate("/my-reviews");
+                navigate("/camper-dashboard");
             }
         } catch (error) {
             console.error("Error submitting feedback:", error);

@@ -18,6 +18,7 @@ const CamperDashboard = () => {
     // Data states
     const [equipmentBookings, setEquipmentBookings] = useState([]);
     const [guideBookings, setGuideBookings] = useState([]);
+    const [campsiteBookings, setCampsiteBookings] = useState([]);
     const [guides, setGuides] = useState([]);
     const [reviews, setReviews] = useState([]);
 
@@ -76,6 +77,15 @@ const CamperDashboard = () => {
                 const allReviews = reviewRes.data || [];
                 const myReviews = allReviews.filter(r => String(r.userId || "") === String(userInfo._id || userInfo.id));
                 setReviews(myReviews);
+
+                // Fetch Campsite Reservations
+                const token = userInfo.token;
+                if (token) {
+                    const res = await axios.get('http://localhost:5000/api/reservations/myreservations', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setCampsiteBookings(Array.isArray(res.data) ? res.data : []);
+                }
 
             } catch (err) {
                 console.error("Error fetching dashboard data:", err);
@@ -150,19 +160,30 @@ const CamperDashboard = () => {
                     : (guide?.profilePicture ? `http://localhost:5000${guide.profilePicture}` : "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=80&w=1000")
             };
         });
-        return [...eq, ...gd].sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
-    }, [equipmentBookings, guideBookings, guides]);
+        const cs = campsiteBookings.map(b => ({
+            id: b._id,
+            type: 'Campsite',
+            name: b.campsite?.name || b.campsite?.title || 'Unknown Campsite',
+            date: new Date(b.checkInDate || b.checkIn).toLocaleDateString(),
+            status: b.status || 'Confirmed',
+            total: `LKR ${b.totalPrice || 0}`,
+            rawDate: b.checkInDate || b.checkIn,
+            image: b.campsite?.images?.[0] || "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80&w=1000",
+            targetId: b.campsite?._id
+        }));
+        return [...eq, ...gd, ...cs].sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
+    }, [equipmentBookings, guideBookings, guides, campsiteBookings]);
 
     const stats = useMemo(() => {
         const upcoming = allBookings.filter(b => b.status.toLowerCase() === 'pending' || b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'paid').length;
         const totalSpent = allBookings.reduce((sum, b) => sum + parseFloat(String(b.total || "0").replace('LKR ', '').replace('$', '')), 0);
-        const activeRentals = equipmentBookings.filter(b => b.status.toLowerCase() === 'paid').length;
+        const activeBookings = allBookings.filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'paid').length;
         return {
             upcoming: upcoming,
             spent: `LKR ${totalSpent.toLocaleString()}`,
-            rentals: `${activeRentals} bookings`
+            active: `${activeBookings} active`
         };
-    }, [allBookings, equipmentBookings]);
+    }, [allBookings]);
 
     if (loading) {
         return (
@@ -195,7 +216,7 @@ const CamperDashboard = () => {
                         <div style={styles.statsRow}>
                             <StatBox label="Upcoming Trips" value={stats.upcoming} icon={<Calendar size={24} />} color="#f0fdf4" iconColor="#10a110" />
                             <StatBox label="Total Spent" value={stats.spent} icon={<CreditCard size={24} />} color="#f0fff4" iconColor="#10a110" />
-                            <StatBox label="Active Rentals" value={stats.rentals} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
+                            <StatBox label="Active Bookings" value={stats.active} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
                         </div>
 
                         {/* Main Grid: Bookings + Reviews */}
@@ -205,7 +226,7 @@ const CamperDashboard = () => {
                                 <div style={styles.cardHeader}>
                                     <h3 style={styles.cardTitle}>My Bookings</h3>
                                     <div style={styles.tabGroup}>
-                                        {['All Bookings', 'Equipment Rentals', 'Guide Bookings'].map(tab => (
+                                        {['All Bookings', 'Equipment Rentals', 'Guide Bookings', 'Campsite Reservations'].map(tab => (
                                             <button 
                                                 key={tab}
                                                 style={{
@@ -224,6 +245,7 @@ const CamperDashboard = () => {
                                         .filter(b => {
                                             if (activeBookingTab === 'Equipment Rentals') return b.type === 'Equipment';
                                             if (activeBookingTab === 'Guide Bookings') return b.type === 'Guide';
+                                            if (activeBookingTab === 'Campsite Reservations') return b.type === 'Campsite';
                                             return true;
                                         })
                                         .map((booking, index) => (
@@ -236,20 +258,41 @@ const CamperDashboard = () => {
                                                         <div style={styles.bookingMeta}>
                                                             <span style={{ 
                                                                 ...styles.bookingTypeBadge,
-                                                                background: booking.type === 'Equipment' ? '#f0fdf4' : '#eff6ff',
-                                                                color: booking.type === 'Equipment' ? '#10a110' : '#3b82f6',
-                                                                border: `1px solid ${booking.type === 'Equipment' ? '#dcfce7' : '#dbeafe'}`
+                                                                background: '#f0fdf4',
+                                                                color: '#10a110',
+                                                                border: '1px solid #dcfce7'
                                                             }}>
-                                                                {booking.type === 'Equipment' ? <Package size={12} /> : <Compass size={12} />}
-                                                                {booking.type}
+                                                                {booking.type === 'Equipment' ? <Package size={12} /> : (booking.type === 'Guide' ? <Compass size={12} /> : <MapPin size={12} />)}
+                                                                {booking.type.toUpperCase()}
                                                             </span>
                                                             <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>#{booking.id?.slice(-6) || 'N/A'}</span>
                                                         </div>
                                                         <button 
-                                                            style={styles.viewDetailsBtn}
-                                                            onClick={() => navigate(booking.type === 'Equipment' ? '/equipment-bookings' : '/guides/bookings')}
+                                                            style={{
+                                                                ...styles.viewDetailsBtn,
+                                                                ...(booking.status?.toLowerCase() === 'pending' ? { opacity: 0.7, cursor: booking.type === 'Campsite' ? 'not-allowed' : 'pointer' } : {})
+                                                            }}
+                                                            onClick={() => {
+                                                                if (booking.type === 'Equipment') navigate('/equipment-bookings');
+                                                                else if (booking.type === 'Guide') navigate('/guides/bookings');
+                                                                else {
+                                                                    if (booking.status?.toLowerCase() === 'pending') {
+                                                                        return;
+                                                                    }
+                                                                    navigate('/campsite-feedback', { 
+                                                                        state: { 
+                                                                            targetType: 'campsite', 
+                                                                            targetId: booking.targetId, 
+                                                                            targetName: booking.name 
+                                                                        } 
+                                                                    });
+                                                                }
+                                                            }}
                                                         >
-                                                            <PenSquare size={14} /> View Details
+                                                            {booking.status?.toLowerCase() === 'pending' ? <Clock size={14} /> : <PenSquare size={14} />} 
+                                                            {booking.status?.toLowerCase() === 'pending' 
+                                                                ? 'Booking Pending' 
+                                                                : (booking.type === 'Campsite' ? 'View & Review' : 'View Details')}
                                                         </button>
                                                     </div>
 

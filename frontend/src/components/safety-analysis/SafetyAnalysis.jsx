@@ -9,10 +9,13 @@ const CITIES = [
 
 const SafetyAnalysis = () => {
   const [city, setCity] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  const durationDays = Math.max(1, Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1);
 
   const handleAnalyze = async (e) => {
     e.preventDefault();
@@ -20,13 +23,27 @@ const SafetyAnalysis = () => {
       setError("Please select a city.");
       return;
     }
+    
+    // Date Validation
+    const today = new Date().toISOString().split('T')[0];
+    if (startDate < today) {
+      setError("Start date cannot be in the past.");
+      return;
+    }
+    if (endDate < startDate) {
+      setError("End date must be on or after the start date.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
 
     try {
+      // We use the start date for the primary forecast as the current backend model 
+      // likely predicts safety for a specific point in time or initialization.
       const response = await axios.get(`http://localhost:5001/forecast`, {
-        params: { city, date }
+        params: { city, date: startDate }
       });
       setResult(response.data);
     } catch (err) {
@@ -62,10 +79,10 @@ const SafetyAnalysis = () => {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-2 shadow-2xl">
             <Activity size={14} /> AI Powered Prediction
           </div>
-          <h1 className="text-5xl font-black text-white tracking-tight sm:text-6xl lg:text-7xl drop-shadow-2xl">
+          <h1 className="text-3xl font-black text-white tracking-tight sm:text-4xl lg:text-5xl drop-shadow-2xl">
             Camping Safety <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Analysis</span>
           </h1>
-          <p className="text-lg text-slate-200 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-lg">
+          <p className="text-base text-slate-200 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-lg">
             Our intelligent system combines real-time meteorology with historical patterns to ensure your next adventure is perfectly safe.
           </p>
         </div>
@@ -78,10 +95,10 @@ const SafetyAnalysis = () => {
                 <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-200">
                   <Gauge size={20} />
                 </div>
-                <h2 className="text-2xl font-black text-slate-800 tracking-tight">Trip Details</h2>
+                <h2 className="text-xl font-black text-slate-800 tracking-tight">Trip Details</h2>
               </div>
               
-              <form onSubmit={handleAnalyze} className="space-y-8">
+              <form onSubmit={handleAnalyze} className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-500 ml-1 flex items-center gap-2">
                     <MapPin size={16} className="text-emerald-500" /> Destination City
@@ -98,17 +115,38 @@ const SafetyAnalysis = () => {
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-500 ml-1 flex items-center gap-2">
-                    <Calendar size={16} className="text-emerald-500" /> Planned Date
-                  </label>
-                  <input
-                    type="date"
-                    value={date}
-                    min={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-700 font-semibold focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all cursor-pointer hover:bg-white shadow-sm"
-                  />
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-500 ml-1 flex items-center gap-2">
+                      <Calendar size={16} className="text-emerald-500" /> Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      min={new Date().toISOString().split('T')[0]}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-700 font-semibold focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all cursor-pointer hover:bg-white shadow-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-500 ml-1 flex items-center gap-2">
+                      <Calendar size={16} className="text-emerald-500" /> End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      min={startDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-slate-700 font-semibold focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all cursor-pointer hover:bg-white shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Duration Display */}
+                <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between">
+                    <span className="text-sm font-bold text-slate-600">Total Duration:</span>
+                    <span className="text-emerald-700 font-black">{durationDays} {durationDays === 1 ? 'Day' : 'Days'}</span>
                 </div>
 
                 <button
@@ -147,7 +185,7 @@ const SafetyAnalysis = () => {
                 <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mb-8 rotate-3 border border-slate-100">
                   <ShieldCheck size={48} className="text-emerald-500/20" />
                 </div>
-                <h3 className="text-2xl font-black text-white/80">Awaiting Your Input</h3>
+                <h3 className="text-xl font-black text-white/80">Awaiting Your Input</h3>
                 <p className="text-white/60 font-medium max-w-sm mt-3">
                   Please provide your trip details on the left to initialize the safety analysis engine.
                 </p>

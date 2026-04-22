@@ -53,7 +53,7 @@ const feedbackSchema = new mongoose.Schema({
 
   sessionDate: {
     type: Date,
-    required: true
+    required: false
   },
 
   sessionEndDate: {

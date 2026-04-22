@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Star, Pencil, Trash2, X, ChevronDown, MapPin, PenSquare, User, Upload } from "lucide-react";
-import ReviewSidebar from "../ReviewSidebar";
 
 const MyReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -175,7 +174,6 @@ const MyReviews = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      <ReviewSidebar />
 
 
       <div className="flex-1 h-screen overflow-y-auto">
