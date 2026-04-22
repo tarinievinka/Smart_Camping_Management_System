@@ -128,9 +128,9 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
                 </div>
                 <div className="text-xl font-black text-gray-900">LKR {item.rentalPrice}<span className="text-xs font-bold text-gray-400 ml-1">/day</span></div>
               </div>
-              <div className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${mode === 'buy' ? 'border-blue-600 bg-blue-50' : 'border-gray-100 hover:border-gray-200'}`} onClick={() => setMode('buy')}>
+              <div className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${mode === 'buy' ? 'border-[#166534] bg-green-50' : 'border-gray-100 hover:border-gray-200'}`} onClick={() => setMode('buy')}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Tag size={14} className={mode === 'buy' ? 'text-blue-600' : 'text-gray-400'} />
+                  <Tag size={14} className={mode === 'buy' ? 'text-[#166534]' : 'text-gray-400'} />
                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Purchase Price</span>
                 </div>
                 <div className="text-xl font-black text-gray-900">LKR {item.salePrice}</div>
@@ -148,7 +148,7 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
                       ? 'bg-red-50 text-red-300 cursor-not-allowed shadow-none'
                       : mode === 'rent'
                         ? 'bg-[#166534] hover:bg-[#14532d] text-white'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-[#166534] hover:bg-[#14532d] text-white'
                 }`}
               >
                 {inCart ? '✓ Added to Cart' : isUnavailable ? 'Sold Out' : mode === 'rent' ? 'Rent Now' : 'Buy Now'}

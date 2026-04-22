@@ -517,11 +517,11 @@ const SignUP = () => {
 					)}
 
 					{form.role === 'campsite owner' && (
-						<div className="rounded-3xl border-2 border-blue-400 bg-blue-50 p-5 space-y-4">
+						<div className="rounded-3xl border-2 border-green-400 bg-green-50 p-5 space-y-4">
 							<div className="flex items-start justify-between gap-3">
 								<div>
-									<h3 className="text-lg font-semibold text-blue-900">🏕️ Owner Application</h3>
-									<p className="text-sm text-blue-700 mt-1">
+									<h3 className="text-lg font-semibold text-green-900">🏕️ Owner Application</h3>
+									<p className="text-sm text-green-700 mt-1">
 										Complete your campsite owner profile to get approved.
 									</p>
 								</div>
@@ -530,7 +530,7 @@ const SignUP = () => {
 							<button
 								type="button"
 								onClick={() => setShowOwnerModal(true)}
-								className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors duration-200 shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_20px_rgba(37,99,235,0.5)]"
+								className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors duration-200 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_20px_rgba(34,197,94,0.5)]"
 							>
 								<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -636,7 +636,7 @@ const SignUP = () => {
 			{showOwnerModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 					<div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-						<div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between border-b">
+						<div className="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 flex items-center justify-between border-b">
 							<h2 className="text-xl font-bold text-white">Owner Application</h2>
 							<button onClick={() => setShowOwnerModal(false)} className="text-white hover:bg-white/20 rounded-lg p-1 transition">
 								<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -648,28 +648,28 @@ const SignUP = () => {
 						<div className="p-6 space-y-4">
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Business Name</label>
-								<input type="text" value={ownerForm.businessName} onChange={(e) => setOwnerForm({ ...ownerForm, businessName: e.target.value })} placeholder="e.g. Pine Ridge Campsites" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+								<input type="text" value={ownerForm.businessName} onChange={(e) => setOwnerForm({ ...ownerForm, businessName: e.target.value })} placeholder="e.g. Pine Ridge Campsites" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition" />
 							</div>
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">NIC Number</label>
-								<input type="text" value={ownerForm.nic} onChange={(e) => setOwnerForm({ ...ownerForm, nic: e.target.value })} placeholder="e.g. 199012345678" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+								<input type="text" value={ownerForm.nic} onChange={(e) => setOwnerForm({ ...ownerForm, nic: e.target.value })} placeholder="e.g. 199012345678" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition" />
 							</div>
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Business Address</label>
-								<input type="text" value={ownerForm.address} onChange={(e) => setOwnerForm({ ...ownerForm, address: e.target.value })} placeholder="e.g. Ella, Sri Lanka" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+								<input type="text" value={ownerForm.address} onChange={(e) => setOwnerForm({ ...ownerForm, address: e.target.value })} placeholder="e.g. Ella, Sri Lanka" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition" />
 							</div>
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Experience (years)</label>
-								<input type="number" value={ownerForm.experience} onChange={(e) => setOwnerForm({ ...ownerForm, experience: e.target.value })} placeholder="e.g. 5" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" min="0" />
+								<input type="number" value={ownerForm.experience} onChange={(e) => setOwnerForm({ ...ownerForm, experience: e.target.value })} placeholder="e.g. 5" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition" min="0" />
 							</div>
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">About Your Business</label>
-								<textarea value={ownerForm.description} onChange={(e) => setOwnerForm({ ...ownerForm, description: e.target.value })} rows="4" placeholder="Describe your business..." className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none" />
+								<textarea value={ownerForm.description} onChange={(e) => setOwnerForm({ ...ownerForm, description: e.target.value })} rows="4" placeholder="Describe your business..." className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition resize-none" />
 							</div>
 							{error && <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg font-medium">{error}</div>}
 							<div className="flex gap-3 pt-4">
 								<button type="button" onClick={() => setShowOwnerModal(false)} className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 rounded-xl text-sm transition-colors duration-200">Back</button>
-								<button type="button" onClick={handleSubmit} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors duration-200">Complete Signup</button>
+								<button type="button" onClick={handleSubmit} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors duration-200">Complete Signup</button>
 							</div>
 						</div>
 					</div>

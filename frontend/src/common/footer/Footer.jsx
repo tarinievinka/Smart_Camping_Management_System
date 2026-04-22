@@ -7,7 +7,7 @@ import { Globe, Mail, Share2, Send } from "lucide-react";
  */
 const Footer = () => {
     return (
-        <footer className="bg-[#166534] text-white border-t border-green-800 pt-16 pb-8">
+        <footer className="bg-[#166534] text-white border-t border-[#14532d] pt-16 pb-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
@@ -29,14 +29,14 @@ const Footer = () => {
                             </div>
                             <span className="text-xl font-bold text-white uppercase tracking-wider">CAMPTRAIL 360</span>
                         </div>
-                        <p className="text-green-100/70 text-sm leading-relaxed max-w-xs">
+                        <p className="text-white/70 text-sm leading-relaxed max-w-xs">
                             A modern solution for outdoor management. Built with passion for the Great Outdoors.
                         </p>
                         <div className="flex gap-4">
                             {[Globe, Mail, Share2].map((Icon, index) => (
                                 <button
                                     key={index}
-                                    className="p-2.5 rounded-full border border-green-700/50 text-green-100/70 hover:text-white hover:border-green-400 hover:bg-green-700/50 transition-all duration-200"
+                                    className="p-2.5 rounded-full border border-white/10 text-white/70 hover:text-white hover:border-[#22c55e] hover:bg-white/10 transition-all duration-200"
                                 >
                                     <Icon size={18} />
                                 </button>
@@ -49,13 +49,13 @@ const Footer = () => {
                         <h3 className="text-white font-bold mb-6">Contact Us</h3>
                         <ul className="space-y-4 text-sm">
                             <li className="flex gap-2">
-                                <span className="text-green-100/70 hover:text-white cursor-pointer transition-colors">Facebook</span>
+                                <span className="text-white/70 hover:text-white cursor-pointer transition-colors">Facebook</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="text-green-100/70 hover:text-white cursor-pointer transition-colors">Instagram</span>
+                                <span className="text-white/70 hover:text-white cursor-pointer transition-colors">Instagram</span>
                             </li>
                             <li className="flex gap-2">
-                                <span className="text-green-100/70 hover:text-white cursor-pointer transition-colors">WhatsApp</span>
+                                <span className="text-white/70 hover:text-white cursor-pointer transition-colors">WhatsApp</span>
                             </li>
                         </ul>
                     </div>
@@ -66,7 +66,7 @@ const Footer = () => {
                         <ul className="space-y-4 text-sm">
                             {["Find a Campsite", "Equipment Catalog", "Our Guides", "User Dashboard"].map((link) => (
                                 <li key={link}>
-                                    <a href={`/${link.toLowerCase().replace(/\s+/g, '-')}`} className="text-green-100/70 hover:text-white transition-colors">
+                                    <a href={`/${link.toLowerCase().replace(/\s+/g, '-')}`} className="text-white/70 hover:text-white transition-colors">
                                         {link}
                                     </a>
                                 </li>
@@ -77,16 +77,16 @@ const Footer = () => {
                     {/* Column 4: Newsletter */}
                     <div>
                         <h3 className="text-white font-bold mb-6">Newsletter</h3>
-                        <p className="text-green-100/70 text-sm mb-6">
+                        <p className="text-white/70 text-sm mb-6">
                             Get the latest trail updates and gear reviews.
                         </p>
                         <div className="relative group">
                             <input
                                 type="email"
                                 placeholder="Email"
-                                className="w-full bg-green-900/40 border border-green-800/50 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder:text-green-200/40 focus:ring-2 focus:ring-green-400 transition-all outline-none"
+                                className="w-full bg-[#14532d]/50 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder:text-white/30 focus:ring-2 focus:ring-[#22c55e] transition-all outline-none"
                             />
-                            <button className="absolute right-1 top-1 bottom-1 bg-white text-[#166534] hover:bg-green-50 px-3 rounded-lg flex items-center justify-center transition-colors">
+                            <button className="absolute right-1 top-1 bottom-1 bg-white text-[#166534] hover:bg-gray-100 px-3 rounded-lg flex items-center justify-center transition-colors">
                                 <Send size={18} />
                             </button>
                         </div>
@@ -94,8 +94,8 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-green-800/50 text-center">
-                    <p className="text-green-100/40 text-sm">
+                <div className="pt-8 border-t border-white/10 text-center">
+                    <p className="text-white/40 text-sm">
                         © 2026 Smart Camping Management System. All rights reserved.
                     </p>
                 </div>

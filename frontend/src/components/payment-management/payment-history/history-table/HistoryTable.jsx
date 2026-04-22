@@ -123,7 +123,7 @@ const HistoryTable = ({ payments = [] }) => {
                               setSelectedTransaction(transaction);
                               setShowSlip(true);
                             }}
-                            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded transition text-xs font-bold"
+                            className="flex items-center gap-1 bg-[#166534] hover:bg-[#14532d] text-white py-1 px-3 rounded transition text-xs font-bold"
                             title="View Bank Slip"
                           >
                             <Eye className="w-3.5 h-3.5" />
@@ -150,7 +150,7 @@ const HistoryTable = ({ payments = [] }) => {
                 <h3 className="font-bold text-gray-900">Your Uploaded Bank Slip</h3>
                 <p className="text-xs text-gray-500">Transaction ID: {selectedTransaction.transactionId}</p>
               </div>
-              <button 
+              <button
                 onClick={() => setShowSlip(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
               >
@@ -158,9 +158,9 @@ const HistoryTable = ({ payments = [] }) => {
               </button>
             </div>
             <div className="p-4 bg-gray-50 flex items-center justify-center min-h-[300px]">
-              <img 
-                src={`${API_BASE_URL}${selectedTransaction.receiptUrl}`} 
-                alt="Bank Slip" 
+              <img
+                src={`${API_BASE_URL}${selectedTransaction.receiptUrl}`}
+                alt="Bank Slip"
                 className="max-w-full max-h-[70vh] shadow-lg rounded-lg object-contain"
               />
             </div>
@@ -168,7 +168,7 @@ const HistoryTable = ({ payments = [] }) => {
               <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(selectedTransaction.status)}`}>
                 Status: {selectedTransaction.status}
               </span>
-              <button 
+              <button
                 onClick={() => setShowSlip(false)}
                 className="px-6 py-2 bg-[#166534] text-white font-bold rounded-lg hover:bg-[#14532d] transition"
               >
