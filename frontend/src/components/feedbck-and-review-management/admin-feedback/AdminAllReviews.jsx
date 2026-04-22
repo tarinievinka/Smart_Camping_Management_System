@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Star, ChevronDown, MapPin, ArrowLeft } from "lucide-react";
-import ReviewSidebar from "../ReviewSidebar";
 
 
 const AdminAllReviews = () => {
@@ -69,14 +68,12 @@ const AdminAllReviews = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <ReviewSidebar />
-
-      <div className="flex-1 h-screen overflow-y-auto">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">All System Reviews</h1>
+              <h1 className="text-4xl font-extrabold text-[#0f172a] tracking-tight">All System Reviews</h1>
+              <p className="text-[#64748b] font-medium mt-1">Detailed feedback history across all categories</p>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -184,7 +181,6 @@ const AdminAllReviews = () => {
           )}
         </div>
       </div>
-    </div>
   );
 };
 
