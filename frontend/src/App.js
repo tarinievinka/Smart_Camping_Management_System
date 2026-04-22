@@ -62,6 +62,9 @@ import Blogs from './components/blogs/Blogs';
 import CampingSitesManagement from './components/camping-sites-management/CampingSitesManagement';
 import CampsiteAdminContainer from './components/camping-sites-management/CampsiteAdminContainer';
 import CampsiteOwnerDashboard from './components/camping-sites-management/CampsiteOwnerDashboard';
+import SafetyAnalysis from './components/safety-analysis/SafetyAnalysis';
+import GuideFeedback from './components/feedbck-and-review-management/Guide-review/guide-feedback';
+import EquipmentFeedback from './components/feedbck-and-review-management/Equipment-review/EquipmentFeedback';
 
 
 
@@ -98,6 +101,8 @@ function App() {
             <Route path='/my-reviews' element={<MyReviews />} />
             <Route path='/admin/feedback' element={<AdminFeedback />} />
             <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
+            <Route path='/guide-feedback' element={<GuideFeedback />} />
+            <Route path='/equipment-feedback' element={<EquipmentFeedback />} />
 
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
@@ -130,6 +135,7 @@ function App() {
             <Route path="/campsites" element={<CampingSitesManagement />} />
             <Route path="/campsites-admin" element={<CampsiteAdminContainer />} />
             <Route path="/owner-profile" element={<CampsiteOwnerDashboard />} />
+            <Route path="/safety-analysis" element={<SafetyAnalysis />} />
           </Routes>
         </div>
         <Footer />
