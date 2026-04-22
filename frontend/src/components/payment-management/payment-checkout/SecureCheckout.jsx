@@ -3,7 +3,7 @@ import { ChevronLeft, Shield, AlertCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PaymentSummary from './payment-summary/PaymentSummary';
 import SimplePaymentForm from './simple-payment/SimplePaymentForm';
-import { createPaymentWithReceipt } from '../../../services/paymentApi';
+import { createPaymentWithReceipt, createPayment } from '../../../services/paymentApi';
 import GooglePayButton from '@google-pay/button-react';
 import { saveEquipmentBooking } from '../../../utils/equipmentBookings';
 
@@ -11,6 +11,7 @@ const SecureCheckout = () => {
   const location = useLocation();
   const navigate = useNavigate();
     const { bookingId, amount, bookingType, title, image, stay, dates, guests, equipmentItems, equipmentBookingDraft, from } = location.state || {};
+
   
   const currentBookingId = bookingId || `temp-bk-${Math.random().toString(36).substr(2, 9)}`;
   const currentAmount = amount || 0.00;
@@ -78,6 +79,7 @@ const SecureCheckout = () => {
       }
 
       navigate('/payment-success', { state: { message: 'Bank deposit payment submitted successfully! Waiting for admin approval.', variant: 'success' } });
+
     } catch (err) {
       console.error('Payment failed:', err);
       alert('Payment submission failed. Please try again.');
@@ -188,12 +190,14 @@ const SecureCheckout = () => {
             {paymentMethod === 'credit-card' && (
               <SimplePaymentForm 
                 alreadyPaid={alreadyPaid}
+
                 amount={currentAmount} 
                 bookingId={currentBookingId} 
                 bookingType={currentBookingType} 
                 equipmentItems={equipmentItems}
                 equipmentBookingDraft={equipmentBookingDraft}
                 returnPath={from}
+
               />
             )}
             {paymentMethod === 'bank-deposit' && (
@@ -297,6 +301,7 @@ const SecureCheckout = () => {
                         const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
                         try {
                           const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
                           await Promise.all(
                             equipmentItems.map(item =>
                               fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
@@ -305,6 +310,7 @@ const SecureCheckout = () => {
                                   'Content-Type': 'application/json',
                                   'Authorization': `Bearer ${storedUser.token}`
                                 },
+
                                 body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
                               }).then(res => res.json())
                             )
@@ -322,6 +328,26 @@ const SecureCheckout = () => {
                           transactionId: `GPAY-${Date.now()}`,
                           totalAmount: currentAmount,
                         });
+                      }
+
+                      // RECORD IN BACKEND
+                      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                      const userId = userInfo._id || userInfo.id;
+
+                      await createPayment({
+                        userId,
+                        bookingType: currentBookingType,
+                        bookingId: currentBookingId,
+                        amount: currentAmount,
+                        paymentMethod: 'google-pay',
+                        transactionId: `GPAY-${Date.now()}`,
+                        paymentStatus: 'success',
+                        paidAt: new Date()
+                      });
+
+                      // Clear equipment cart if applicable
+                      if (currentBookingType === 'EquipmentBooking') {
+                        localStorage.removeItem(`equipment_cart_${userId || 'guest'}`);
                       }
 
                       navigate('/payment-success', { 

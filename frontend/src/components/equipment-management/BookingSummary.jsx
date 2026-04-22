@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
 
-const API_BASE = process.env.REACT_APP_API_URL;
-const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const EQUIP_API = API_BASE + '/api/equipment';
 
 // ── No CATEGORY_IMAGES — only admin-uploaded photos shown ──
 
@@ -133,13 +134,14 @@ const BookingSummary = () => {
           dates: `${pickupDate} to ${returnDate}`,
           stay: activeItems.some(i => i.mode === 'rent') ? `${nights} Night${nights !== 1 ? 's' : ''} / ${days} Day${days !== 1 ? 's' : ''}` : 'Purchase',
           guests: `${activeItems.length} Item${activeItems.length !== 1 ? 's' : ''}`,
-          image: activeItems.length > 0 && activeItems[0].imageUrl ? `${API_BASE}${activeItems[0].imageUrl}` : 'https://images.unsplash.com/photo-1504280741562-60234eb0fded?w=150&h=150&fit=crop',
+          image: activeItems.length > 0 && activeItems[0].imageUrl ? resolveMediaUrl(activeItems[0].imageUrl) : 'https://images.unsplash.com/photo-1504280741562-60234eb0fded?w=150&h=150&fit=crop',
           equipmentItems: activeItems.map(item => ({
             _id: item._id,
             quantity: (itemStates[key(item)] || { quantity: 1 }).quantity,
             mode: item.mode
           })),
           from: location.pathname,
+
           equipmentBookingDraft: {
             pickupDate,
             returnDate,
@@ -242,7 +244,7 @@ const BookingSummary = () => {
                 {initialItems.map(item => {
                   const state = itemStates[key(item)] || { quantity: 1, removed: false };
                   // ── Only show admin-uploaded photo ──
-                  const imgSrc = item.imageUrl ? `${API_BASE}${item.imageUrl}` : null;
+                  const imgSrc = resolveMediaUrl(item.imageUrl);
                   const lineTotal = item.mode === 'buy'
                     ? item.salePrice * state.quantity
                     : item.rentalPrice * state.quantity * days;

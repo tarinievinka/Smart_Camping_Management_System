@@ -5,8 +5,7 @@ import { validatePhone } from '../../../utils/validation';
 const EditProfile = () => {
     const navigate = useNavigate();
 
-    const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
-    const [showPassword, setShowPassword] = useState(false);
+    const [form, setForm] = useState({ name: '', email: '', phone: '' });
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
@@ -20,7 +19,8 @@ const EditProfile = () => {
         const userInfo = JSON.parse(stored);
         if (!userInfo.token) { navigate('/login'); return; }
         setUserRole(userInfo.role);
-        setForm({ name: userInfo.name || '', email: userInfo.email || '', phone: userInfo.phone || '', password: '', confirmPassword: '' });
+        setForm({ name: userInfo.name || '', email: userInfo.email || '', phone: userInfo.phone || '' });
+
     }, [navigate]);
 
     const handleChange = (e) =>
@@ -43,19 +43,7 @@ const EditProfile = () => {
             return;
         }
 
-        if (form.password) {
-            if (form.password !== form.confirmPassword) {
-                setError('Passwords do not match');
-                setIsLoading(false);
-                return;
-            }
-            if (form.password.length < 6) {
-                setError('Password must be at least 6 characters long');
-                setIsLoading(false);
-                return;
-            }
-            updateData.password = form.password;
-        }
+
 
         try {
             const res = await fetch('http://localhost:5000/api/profile', {
@@ -75,7 +63,9 @@ const EditProfile = () => {
                 localStorage.setItem('userInfo', JSON.stringify(updatedUser));
                 setUserRole(updatedUser.role);
                 setSuccess('Profile updated successfully! ✓');
-                setTimeout(() => navigate(updatedUser.role === 'admin' ? '/admin-dashboard' : '/camper-dashboard'), 1500);
+                const isOwner = ['owner', 'campsite_owner', 'campsite-owner'].includes(updatedUser.role);
+                const dashboardPath = updatedUser.role === 'admin' ? '/admin-dashboard' : (isOwner ? '/owner-profile' : '/camper-dashboard');
+                setTimeout(() => navigate(dashboardPath), 1500);
             } else {
                 setError(data.error || 'Update failed. Please try again.');
             }
@@ -137,7 +127,10 @@ const EditProfile = () => {
                     <span style={styles.logoText}>Smart Camping</span>
                 </div>
 
-                <button style={styles.backBtn} onClick={() => navigate(userRole === 'admin' ? '/admin-dashboard' : '/camper-dashboard')}>
+                <button style={styles.backBtn} onClick={() => {
+                    const isOwner = ['owner', 'campsite_owner', 'campsite-owner'].includes(userRole);
+                    navigate(userRole === 'admin' ? '/admin-dashboard' : (isOwner ? '/owner-profile' : '/camper-dashboard'));
+                }}>
                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -231,66 +224,17 @@ const EditProfile = () => {
                             </div>
                         </div>
 
-                        {/* Password Section Divider */}
-                        <div style={styles.divider}>
-                            <span style={styles.dividerText}>Change Password (Optional)</span>
-                        </div>
 
-                        {/* New Password */}
-                        <div style={styles.field}>
-                            <label style={styles.label}>New Password</label>
-                            <div style={styles.inputWrapper}>
-                                <span style={styles.inputIcon}>
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10a110">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                </span>
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    name="password"
-                                    value={form.password}
-                                    onChange={handleChange}
-                                    placeholder="Leave blank to keep current"
-                                    style={styles.input}
-                                />
-                                <button
-                                    type="button"
-                                    style={styles.showBtn}
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? 'Hide' : 'Show'}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Confirm Password */}
-                        <div style={styles.field}>
-                            <label style={styles.label}>Confirm New Password</label>
-                            <div style={styles.inputWrapper}>
-                                <span style={styles.inputIcon}>
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10a110">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                    </svg>
-                                </span>
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    name="confirmPassword"
-                                    value={form.confirmPassword}
-                                    onChange={handleChange}
-                                    placeholder="Confirm your new password"
-                                    style={styles.input}
-                                />
-                            </div>
-                        </div>
 
                         {/* Buttons */}
                         <div style={styles.btnRow}>
                             <button
                                 type="button"
                                 style={styles.cancelBtn}
-                                onClick={() => navigate(userRole === 'admin' ? '/admin-dashboard' : '/camper-dashboard')}
+                                onClick={() => {
+                                    const isOwner = ['owner', 'campsite_owner', 'campsite-owner'].includes(userRole);
+                                    navigate(userRole === 'admin' ? '/admin-dashboard' : (isOwner ? '/owner-profile' : '/camper-dashboard'));
+                                }}
                             >
                                 Cancel
                             </button>
@@ -576,40 +520,9 @@ const styles = {
         boxShadow: '0 4px 15px rgba(16,161,16,0.35)',
         fontFamily: 'inherit',
     },
-    btnSpinner: {
-        width: '14px',
-        height: '14px',
-        borderRadius: '50%',
-        border: '2px solid rgba(255,255,255,0.3)',
-        borderTopColor: 'white',
-        display: 'inline-block',
-        animation: 'spin 0.7s linear infinite',
-    },
-    divider: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        margin: '0.5rem 0',
-    },
-    dividerText: {
-        fontSize: '0.7rem',
-        fontWeight: 700,
-        color: '#9ca3af',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-        whiteSpace: 'nowrap',
-    },
-    showBtn: {
-        position: 'absolute',
-        right: '12px',
-        background: 'transparent',
-        border: 'none',
-        color: '#10a110',
-        fontSize: '0.75rem',
-        fontWeight: 700,
-        cursor: 'pointer',
-        padding: '4px 8px',
-    },
+
+
+
     dangerZone: {
         margin: '0 2rem 2rem',
         padding: '1.5rem',

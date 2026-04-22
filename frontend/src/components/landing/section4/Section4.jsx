@@ -7,26 +7,22 @@ import { Tent, CookingPot, Backpack, Flashlight } from "lucide-react";
 const equipmentItems = [
     {
         id: 1,
-        name: "4-Person Tent",
-        price: 15,
+        name: "Pro Tents",
         icon: Tent
     },
     {
         id: 2,
-        name: "Cooking Set",
-        price: 8,
+        name: "Cooking Gear",
         icon: CookingPot
     },
     {
         id: 3,
-        name: "Hiking Pack",
-        price: 12,
+        name: "Hiking Packs",
         icon: Backpack
     },
     {
         id: 4,
-        name: "Survival Kit",
-        price: 10,
+        name: "Lighting & Power",
         icon: Flashlight
     }
 ];
@@ -39,44 +35,37 @@ const Section4 = () => {
                 {/* Header Section */}
                 <div className="max-w-3xl mx-auto mb-16 space-y-4">
                     <h2 className="text-4xl font-black text-gray-900 tracking-tight">
-                        Gear Up for Your Journey
+                        Explore Our Gear Categories
                     </h2>
                     <p className="text-gray-500 font-medium">
-                        High-quality camping equipment available for rent. From pro tents to survival kits, we've got you covered.
+                        Discover the professional-grade equipment we offer for your next adventure. From shelter to survival, we've got everything you need.
                     </p>
                 </div>
 
                 {/* Equipment Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {equipmentItems.map((item) => (
                         <div
                             key={item.id}
-                            className="group bg-white rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-white flex flex-col items-center"
+                            className="group bg-white rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-white flex flex-col items-center"
                         >
                             {/* Icon Container */}
-                            <div className="w-full aspect-[4/3] bg-slate-50/80 rounded-2xl flex items-center justify-center mb-6 overflow-hidden relative">
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="w-full aspect-square bg-slate-50/80 rounded-[2rem] flex items-center justify-center mb-8 overflow-hidden relative">
+                                <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <item.icon
-                                    size={64}
-                                    strokeWidth={1.5}
-                                    className="text-green-600 transform transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+                                    size={80}
+                                    strokeWidth={1}
+                                    className="text-green-600 transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-6"
                                 />
                             </div>
 
                             {/* Details */}
-                            <div className="space-y-2 mb-8 text-center">
-                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors">
+                            <div className="text-center">
+                                <h3 className="text-xl font-black text-gray-900 group-hover:text-green-700 transition-colors uppercase tracking-tight">
                                     {item.name}
                                 </h3>
-                                <p className="text-green-600 font-black text-lg">
-                                    LKR {item.price}<span className="text-xs uppercase tracking-wider">/day</span>
-                                </p>
+                                <div className="h-1 w-8 bg-green-500 mx-auto mt-4 rounded-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
                             </div>
-
-                            {/* Action Button */}
-                            <button className="w-full py-4 text-sm font-bold text-green-700 border-2 border-green-50 rounded-2xl hover:bg-green-600 hover:text-white hover:border-green-600 transition-all active:scale-95">
-                                Rent Item
-                            </button>
                         </div>
                     ))}
                 </div>

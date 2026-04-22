@@ -23,15 +23,16 @@ const getAllEquipment = async () => {
       const nameMatch = f.targetName && f.targetName.trim().toLowerCase() === eq.name.trim().toLowerCase();
       return idMatch || nameMatch;
     });
-
     const reviewCount = eqFeedbacks.length;
     const averageRating = reviewCount > 0
       ? eqFeedbacks.reduce((sum, f) => sum + f.rating, 0) / reviewCount
+
       : 0;
 
     return {
       ...eq,
       description: eq.description || "",
+
       averageRating,
       reviewCount
     };
@@ -46,6 +47,7 @@ const updateEquipment = async (id, data) => {
   console.log(`\n[EQUIPMENT_DEBUG] --- Update Started ---`);
   console.log(`[EQUIPMENT_DEBUG] Item ID: ${id}`);
 
+
   const oldEquipment = await Equipment.findById(id);
   const updated = await Equipment.findByIdAndUpdate(id, data, { new: true });
 
@@ -59,7 +61,6 @@ const updateEquipment = async (id, data) => {
     // Simplified trigger: If it has stock and is available, notify anyone waiting.
     if (newStock > 0 && status === 'Available') {
       console.log(`[EQUIPMENT_DEBUG] Item is available. Searching for Notify requests...`);
-
       // Try finding by either string ID or ObjectId to be 100% sure
       const requests = await Notify.find({
         itemId: id,
@@ -72,10 +73,10 @@ const updateEquipment = async (id, data) => {
         try {
           const targetEmail = String(req.email || '').trim().toLowerCase();
           console.log(`[EQUIPMENT_DEBUG] Processing notification for: ${targetEmail}`);
-
           // 1. Create In-App Notification (Step 3: backend sets restocked: true)
           const newNotif = await CustomerNotification.create({
             customerName: "Camper",
+
             customerEmail: targetEmail,
             title: "Equipment Restocked!",
             body: `Good news! "${updated.name}" is now back in stock. Since you requested to be notified, we've updated the stock for you. You can now rent or buy it in the Equipment Store.`,

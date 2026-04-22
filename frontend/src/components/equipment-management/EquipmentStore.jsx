@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, ChevronDown, Star } from "lucide-react";
+import { Search, SlidersHorizontal, LayoutGrid, ShoppingCart, Heart, LogOut, ChevronDown, Calendar, Star } from "lucide-react";
 import EquipmentDetail from './EquipmentDetail';
 import axios from "axios";
+import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
+
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/equipment';
 
 const CATEGORIES = ['All Gear', 'Tents', 'Sleeping Bags', 'Backpacks', 'Cooking Gear', 'Lighting', 'Other'];
@@ -132,7 +134,7 @@ const EquipmentCard = ({ item, cart, onAddToCart, onRemoveFromCart, onShowNotify
   const isLowStock    = item.stockQuantity > 0 && item.stockQuantity <= 3;
   const inCart        = cart.some(c => c._id === item._id && c.mode === mode);
 
-  const imgSrc = item.imageUrl ? `${process.env.REACT_APP_API_URL}${item.imageUrl}` : null;
+  const imgSrc = resolveMediaUrl(item.imageUrl);
   const backOn = item.availabilityStatus === 'Out of Stock' ? "soon" : null;
 
   return (
@@ -312,8 +314,8 @@ const EquipmentStore = () => {
   useEffect(() => {
     localStorage.setItem(favKey, JSON.stringify(favorites));
   }, [favorites, favKey]);
-
   // Migration Logic: If guest cart has items and user just logged in, move them.
+
   useEffect(() => {
     if (user?._id) {
       const guestCartJson = localStorage.getItem('equipment_cart_guest');
@@ -386,8 +388,10 @@ const EquipmentStore = () => {
   const navItems = [
     { icon: LayoutGrid, label: "Browse Gear", active: !showFavorites, action: () => setShowFavorites(false) },
     { icon: ShoppingCart, label: `My Cart (${cart.length})`, action: handleBookNow, highlight: cart.length > 0 }, 
+    { icon: Calendar, label: "My Bookings", path: "/equipment-bookings" },
     { icon: Heart, label: "Favorites", active: showFavorites, action: () => setShowFavorites(true) },
   ];
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -402,6 +406,7 @@ const EquipmentStore = () => {
       )}
 
       <main className="py-10 px-4 sm:px-6 lg:px-8">
+
         <div className="max-w-6xl mx-auto">
           
           <div className="mb-10">
@@ -463,6 +468,7 @@ const EquipmentStore = () => {
                 </button>
              </div>
           )}
+
 
 
           <div className="flex gap-3 overflow-x-auto pb-4 mb-8 no-scrollbar">

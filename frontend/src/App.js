@@ -10,6 +10,8 @@ import EditProfile from './components/user-and-identity-management/profile/EditP
 import AdminDashboard from './components/user-and-identity-management/profile/AdminDashboard';
 import DeleteUsers from './components/user-and-identity-management/profile/DeleteUsers';
 import CamperDashboard from './components/user-and-identity-management/profile/CamperDashboard';
+import AdminOwnerManagement from './components/admin/AdminOwnerManagement';
+import ProtectedRoute from './components/user-and-identity-management/ProtectedRoute';
 
 // Payment management components
 import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
@@ -17,6 +19,7 @@ import PaymentManagement from './components/payment-management/PaymentManagement
 import SecureCheckout from './components/payment-management/payment-checkout/SecureCheckout';
 import PaymentSuccess from './components/payment-management/payment-success/PaymentSuccess';
 import PaymentAdminDashboard from './components/admin/dashboard/PaymentAdminDashboard';
+import BankSlipAdminDashboard from './components/admin/dashboard/BankSlipAdminDashboard';
 import PaymentFailure from './components/payment-management/payment-failure/PaymentFailure';
 import PaymentCard from './components/payment-management/payment-card/PaymentCard';
 
@@ -72,6 +75,7 @@ import EquipmentFeedback from './components/feedbck-and-review-management/Equipm
 
 
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -86,62 +90,67 @@ function App() {
             <Route path="/signup" element={<SignUP />} />
             <Route path="/login/forgot" element={<Forgot />} />
             <Route path="/login/forgot-request" element={<ForgotRequest />} />
-            <Route path="/camper-dashboard" element={<CamperDashboard />} />
-            <Route path="/edit-profile" element={<EditProfile />} />
-            <Route path="/admin/delete-users" element={<DeleteUsers />} />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/camper-dashboard" element={<ProtectedRoute allowedRoles={['camper']}><CamperDashboard /></ProtectedRoute>} />
+            <Route path="/edit-profile" element={<ProtectedRoute allowedRoles={['camper', 'admin', 'guide', 'owner']}><EditProfile /></ProtectedRoute>} />
+            <Route path="/admin/delete-users" element={<ProtectedRoute allowedRoles={['admin']}><DeleteUsers /></ProtectedRoute>} />
+            <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/owner-management" element={<ProtectedRoute allowedRoles={['admin']}><AdminOwnerManagement /></ProtectedRoute>} />
             
             {/* Payment management routes */}
-            <Route path="/payment-history" element={<PaymentHistory />} />
-            <Route path="/payment-management" element={<PaymentManagement />} />
-            <Route path="/payment-checkout" element={<SecureCheckout />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-failure" element={<PaymentFailure />} />
-            <Route path="/payment-card" element={<PaymentCard />} />
-            <Route path="/admin/payments" element={<PaymentAdminDashboard />} />
+            <Route path="/payment-history" element={<ProtectedRoute allowedRoles={['camper']}><PaymentHistory /></ProtectedRoute>} />
+            <Route path="/payment-management" element={<ProtectedRoute allowedRoles={['admin']}><PaymentManagement /></ProtectedRoute>} />
+            <Route path="/payment-checkout" element={<ProtectedRoute allowedRoles={['camper']}><SecureCheckout /></ProtectedRoute>} />
+            <Route path="/payment-success" element={<ProtectedRoute allowedRoles={['camper']}><PaymentSuccess /></ProtectedRoute>} />
+            <Route path="/payment-failure" element={<ProtectedRoute allowedRoles={['camper']}><PaymentFailure /></ProtectedRoute>} />
+            <Route path="/payment-card" element={<ProtectedRoute allowedRoles={['camper']}><PaymentCard /></ProtectedRoute>} />
+             <Route path="/admin/payments" element={<ProtectedRoute allowedRoles={['admin']}><PaymentAdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/bank-slips" element={<ProtectedRoute allowedRoles={['admin']}><BankSlipAdminDashboard /></ProtectedRoute>} />
             
             {/* Feedback Routes */}
             <Route path='/feedback' element={<Feedback />} />
             <Route path='/feedbackreview' element={<Feedback />} />
-            <Route path='/my-reviews' element={<MyReviews />} />
-            <Route path='/admin/feedback' element={<AdminFeedback />} />
-            <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
-            <Route path='/guide-feedback' element={<GuideFeedback />} />
-            <Route path='/equipment-feedback' element={<EquipmentFeedback />} />
+            <Route path='/my-reviews' element={<ProtectedRoute allowedRoles={['camper']}><MyReviews /></ProtectedRoute>} />
+            <Route path='/admin/feedback' element={<ProtectedRoute allowedRoles={['admin']}><AdminFeedback /></ProtectedRoute>} />
+            <Route path='/admin/all-reviews' element={<ProtectedRoute allowedRoles={['admin']}><AdminAllReviews /></ProtectedRoute>} />
+            <Route path='/guide-feedback' element={<ProtectedRoute allowedRoles={['camper']}><GuideFeedback /></ProtectedRoute>} />
+            <Route path='/equipment-feedback' element={<ProtectedRoute allowedRoles={['camper']}><EquipmentFeedback /></ProtectedRoute>} />
+
 
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
-            <Route path="/booking-summary" element={<BookingSummary />} />
-            <Route path="/equipment-bookings" element={<EquipmentBookings />} />
-            <Route path="/equipment-dashboard" element={<EquipmentDashboard />} />
-            <Route path="/equipment-list" element={<EquipmentList />} />
-            <Route path="/add-equipment" element={<AddEquipment />} />
-            <Route path="/edit-equipment/:id" element={<EditEquipment />} />
-            <Route path="/notify-requests" element={<NotifyRequests />} />
+            <Route path="/booking-summary" element={<ProtectedRoute allowedRoles={['camper']}><BookingSummary /></ProtectedRoute>} />
+            <Route path="/equipment-bookings" element={<ProtectedRoute allowedRoles={['camper']}><EquipmentBookings /></ProtectedRoute>} />
+            <Route path="/equipment-dashboard" element={<ProtectedRoute allowedRoles={['owner', 'admin']}><EquipmentDashboard /></ProtectedRoute>} />
+            <Route path="/equipment-list" element={<ProtectedRoute allowedRoles={['owner', 'admin']}><EquipmentList /></ProtectedRoute>} />
+            <Route path="/add-equipment" element={<ProtectedRoute allowedRoles={['owner', 'admin']}><AddEquipment /></ProtectedRoute>} />
+            <Route path="/edit-equipment/:id" element={<ProtectedRoute allowedRoles={['owner', 'admin']}><EditEquipment /></ProtectedRoute>} />
+            <Route path="/notify-requests" element={<ProtectedRoute allowedRoles={['owner', 'admin']}><NotifyRequests /></ProtectedRoute>} />
 
             {/* Guide Management Routes */}
             <Route path='/guides' element={<GuideBooking />} />
-            <Route path='/guides/bookings' element={<Bookings />} />
-            <Route path='/guides/favourites' element={<Favourites />} />
-            <Route path='/guides/manage-trip/:id' element={<ManageTrip />} />
-            <Route path='/guides/dashboard' element={<GuideDashboard />} />
-            <Route path='/guides/add' element={<AddGuide />} />
-            <Route path='/guides/update/:id' element={<UpdateGuide />} />
-            <Route path='/guides/manageownprofile' element={<GuideBusinessProfile />} />
-            <Route path='/guides/ownprofile' element={<GuideSelfProfile />} />
-            <Route path='/guides/owndashboard' element={<GuideSelfDashboard />} />
-            <Route path='/guides/ownbookings' element={<GuideSelfBookings />} />
-            <Route path='/guides/ownearnings' element={<GuideSelfEarnings />} />
-            <Route path='/guides/owncalendar' element={<GuideSelfCalendar />} />
-            <Route path='/guides/ownreviews' element={<GuideSelfReviews />} />
+            <Route path='/guides/bookings' element={<ProtectedRoute allowedRoles={['camper']}><Bookings /></ProtectedRoute>} />
+            <Route path='/guides/favourites' element={<ProtectedRoute allowedRoles={['camper']}><Favourites /></ProtectedRoute>} />
+            <Route path='/guides/manage-trip/:id' element={<ProtectedRoute allowedRoles={['guide']}><ManageTrip /></ProtectedRoute>} />
+            <Route path='/guides/dashboard' element={<ProtectedRoute allowedRoles={['admin']}><GuideDashboard /></ProtectedRoute>} />
+            <Route path='/guides/add' element={<ProtectedRoute allowedRoles={['admin']}><AddGuide /></ProtectedRoute>} />
+            <Route path='/guides/update/:id' element={<ProtectedRoute allowedRoles={['admin']}><UpdateGuide /></ProtectedRoute>} />
+            <Route path='/guides/manageownprofile' element={<ProtectedRoute allowedRoles={['guide']}><GuideBusinessProfile /></ProtectedRoute>} />
+            <Route path='/guides/ownprofile' element={<ProtectedRoute allowedRoles={['guide']}><GuideSelfProfile /></ProtectedRoute>} />
+            <Route path='/guides/owndashboard' element={<ProtectedRoute allowedRoles={['guide']}><GuideSelfDashboard /></ProtectedRoute>} />
+            <Route path='/guides/ownbookings' element={<ProtectedRoute allowedRoles={['guide']}><GuideSelfBookings /></ProtectedRoute>} />
+            <Route path='/guides/ownearnings' element={<ProtectedRoute allowedRoles={['guide']}><GuideSelfEarnings /></ProtectedRoute>} />
+            <Route path='/guides/owncalendar' element={<ProtectedRoute allowedRoles={['guide']}><GuideSelfCalendar /></ProtectedRoute>} />
+            <Route path='/guides/ownreviews' element={<ProtectedRoute allowedRoles={['guide']}><GuideSelfReviews /></ProtectedRoute>} />
             <Route path='/guides/:id' element={<GuideProfile />} />
-            <Route path='/guide-profile' element={<GuideLoginRedirect />} />
+            <Route path='/guide-profile' element={<ProtectedRoute allowedRoles={['guide']}><GuideLoginRedirect /></ProtectedRoute>} />
+
             
             {/* Campsite Routes */}
             <Route path="/campsites" element={<CampingSitesManagement />} />
-            <Route path="/campsites-admin" element={<CampsiteAdminContainer />} />
-            <Route path="/owner-profile" element={<CampsiteOwnerDashboard />} />
+            <Route path="/campsites-admin" element={<ProtectedRoute allowedRoles={['admin']}><CampsiteAdminContainer /></ProtectedRoute>} />
+            <Route path="/owner-profile" element={<ProtectedRoute allowedRoles={['owner']}><CampsiteOwnerDashboard /></ProtectedRoute>} />
             <Route path="/safety-analysis" element={<SafetyAnalysis />} />
+
           </Routes>
         </div>
         <Footer />

@@ -7,6 +7,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { Star, MapPin, User, Backpack, AlertCircle, Upload, X, Image as ImageIcon, ChevronDown, PenSquare, ShoppingBag } from "lucide-react";
 import { getEquipmentBookings } from "../../../utils/equipmentBookings";
 
+
 const starLabels = ["Terrible", "Bad", "Okay", "Good", "Very Good"];
 
 const getStoredUser = () => {
@@ -42,6 +43,7 @@ const FeedbackForm = () => {
     const [itemsList, setItemsList] = useState([]);
     const [fetchingItems, setFetchingItems] = useState(false);
     const isEditingSpecificItem = !!location.state?.targetName;
+
 
     useEffect(() => {
         setUserName(getDisplayName(resolvedUser));
@@ -164,6 +166,7 @@ const FeedbackForm = () => {
 
 
 
+
         if (!reviewText.trim()) {
             newErrors.reviewText = "Review text is required.";
         } else if (reviewText.trim().length < 10) {
@@ -206,6 +209,7 @@ const FeedbackForm = () => {
             setUserName(getDisplayName(resolvedUser) || "Nethmi User");
             setLocationName("");
             setSelectedTargetId("");
+
 
             setRating(4);
             setReviewText("");
@@ -262,6 +266,7 @@ const FeedbackForm = () => {
                             My Reviews
                         </button>
                     </div>
+
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -357,6 +362,7 @@ const FeedbackForm = () => {
                                     </div>
                                 )}
                             </div>
+
                         </div>
 
                         <div>
@@ -413,6 +419,7 @@ const FeedbackForm = () => {
                             </label>
                             <p className="text-xs text-slate-500 mb-3">Include up to 5 photos to help others see your experience</p>
 
+
                             {imagePreviews.length === 0 ? (
                                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -423,6 +430,7 @@ const FeedbackForm = () => {
                                     <input
                                         type="file"
                                         className="hidden"
+
                                         accept="image/*"
                                         multiple
                                         onChange={(e) => {
@@ -447,6 +455,7 @@ const FeedbackForm = () => {
                                                         newFiles.splice(idx, 1);
                                                         setImageFiles(newFiles);
 
+
                                                         const newPreviews = [...imagePreviews];
                                                         newPreviews.splice(idx, 1);
                                                         setImagePreviews(newPreviews);
@@ -457,7 +466,6 @@ const FeedbackForm = () => {
                                                 </button>
                                             </div>
                                         ))}
-
                                         {imagePreviews.length < 5 && (
                                             <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
                                                 <Upload className="w-6 h-6 mb-1 text-slate-400" />
@@ -465,6 +473,7 @@ const FeedbackForm = () => {
                                                 <input
                                                     type="file"
                                                     className="hidden"
+
                                                     accept="image/*"
                                                     multiple
                                                     onChange={(e) => {
@@ -486,6 +495,7 @@ const FeedbackForm = () => {
                         </div>
 
 
+
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -500,6 +510,7 @@ const FeedbackForm = () => {
                                 if (location.state) {
                                     window.history.replaceState({}, document.title)
                                 }
+
 
                                 setRating(4);
                                 setReviewText("");

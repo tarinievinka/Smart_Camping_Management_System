@@ -31,6 +31,14 @@ const SignUP = () => {
 	const [error, setError] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 	const [showGuideModal, setShowGuideModal] = useState(false);
+	const [showOwnerModal, setShowOwnerModal] = useState(false);
+	const [ownerForm, setOwnerForm] = useState({
+		businessName: '',
+		nic: '',
+		address: '',
+		experience: '',
+		description: '',
+	});
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -68,10 +76,22 @@ const SignUP = () => {
 		}
 
 		const isGuide = form.role === 'guide';
+		const isOwner = form.role === 'campsite owner';
 		
 		// If guide and modal not shown, show modal
 		if (isGuide && !showGuideModal) {
 			setShowGuideModal(true);
+			return;
+		}
+
+		// If owner and modal not shown, show modal
+		if (isOwner && !showOwnerModal) {
+			setShowOwnerModal(true);
+			return;
+		}
+
+		if (form.password !== form.confirm) {
+			setError('Passwords do not match');
 			return;
 		}
 
@@ -91,7 +111,21 @@ const SignUP = () => {
 		setSuccessMessage('');
 
 		try {
-			const isGuide = form.role === 'guide';
+			// Owner validation
+			if (isOwner) {
+				if (!ownerForm.businessName.trim()) {
+					setError('Please enter your business name.');
+					return;
+				}
+				if (!ownerForm.nic.trim()) {
+					setError('Please enter your NIC number.');
+					return;
+				}
+				if (!ownerForm.address.trim()) {
+					setError('Please enter your business address.');
+					return;
+				}
+			}
 			
 			// If guide, validate required fields
 			if (isGuide) {
@@ -159,6 +193,16 @@ const SignUP = () => {
 						cv: cvUrl,
 					}
 					: undefined,
+				ownerApplication: isOwner
+					? {
+						businessName: ownerForm.businessName.trim(),
+						nic: ownerForm.nic.trim(),
+						phone: form.phone,
+						address: ownerForm.address.trim(),
+						description: ownerForm.description.trim(),
+						experience: ownerForm.experience ? Number(ownerForm.experience) : 0,
+					}
+					: undefined,
 			};
 
 			const response = await fetch(`${API_URL}/api/register`, {
@@ -176,6 +220,7 @@ const SignUP = () => {
 				const role = data.user.role;
 				if (role === 'guide' || role === 'campsite_owner') {
 					setShowGuideModal(false);
+					setShowOwnerModal(false);
 					setSuccessMessage('Account created successfully! Waiting for admin approve.');
 					// Clear form
 					setForm({
@@ -190,6 +235,7 @@ const SignUP = () => {
 						guideNIC: '',
 						guideAge: '',
 						guideDescription: '',
+						guideLanguages: [],
 					});
 					return;
 				}
@@ -211,8 +257,6 @@ const SignUP = () => {
 						navigate('/admin-dashboard');
 						break;
 					case 'camper':
-					case 'guide':
-					case 'campsite_owner':
 					default:
 						navigate('/');
 						break;
@@ -237,21 +281,6 @@ const SignUP = () => {
 				}}
 			>
 				<div className="absolute inset-0 bg-black/40 transition-all duration-1000" />
-
-				{/* Branding Top Left - Retained Dynamic Floating Animation */}
-				<div
-					className="relative z-10 flex items-center gap-3 w-fit group cursor-pointer transition-transform duration-500 hover:scale-105"
-					onClick={() => console.log('Logo clicked!')}
-				>
-					<div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-green-500 to-emerald-400 flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.4)] group-hover:shadow-[0_0_40px_rgba(34,197,94,0.8)] group-hover:-translate-y-1 transition-all duration-300">
-						<svg className="w-6 h-6 text-white animate-pulse group-hover:animate-none group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-						</svg>
-					</div>
-					<span className="text-white font-extrabold text-2xl tracking-tight drop-shadow-2xl group-hover:tracking-wider transition-all duration-500">
-						Smart Camping
-					</span>
-				</div>
 
 				{/* Marketing Copy */}
 				<div className="relative z-10 mt-auto mb-10 group cursor-default">
@@ -361,13 +390,12 @@ const SignUP = () => {
 							</div>
 						</div>
 
-						{/* Role Selection Field */}
 						<div>
 							<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Role</label>
 							<div className="relative">
 								<span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
 									<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2H4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 									</svg>
 								</span>
 								<select
@@ -379,10 +407,8 @@ const SignUP = () => {
 									<option value="" disabled>Select your role</option>
 									<option value="campsite owner">Campsite Owner</option>
 									<option value="camper">Camper</option>
-									{/*option value="admin">Admin</option>*/}
 									<option value="guide">Guide</option>
 								</select>
-								{/* Custom Dropdown Icon */}
 								<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
 									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -391,7 +417,7 @@ const SignUP = () => {
 							</div>
 						</div>
 
-						{form.role !== 'guide' && (
+						{form.role !== 'guide' && form.role !== 'campsite owner' && (
 							<div className="grid grid-cols-2 gap-3">
 								<div>
 									<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Password</label>
@@ -413,7 +439,6 @@ const SignUP = () => {
 											type="button"
 											onClick={() => setShowPassword(!showPassword)}
 											className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-[10px] font-bold uppercase"
-											aria-label="Toggle password visibility"
 										>
 											{showPassword ? 'Hide' : 'Show'}
 										</button>
@@ -440,7 +465,6 @@ const SignUP = () => {
 											type="button"
 											onClick={() => setShowConfirm(!showConfirm)}
 											className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-[10px] font-bold uppercase"
-											aria-label="Toggle confirm visibility"
 										>
 											{showConfirm ? 'Hide' : 'Show'}
 										</button>
@@ -449,7 +473,7 @@ const SignUP = () => {
 							</div>
 						)}
 
-						{form.role !== 'guide' && (
+						{form.role !== 'guide' && form.role !== 'campsite owner' && (
 							<button
 								type="submit"
 								className="w-full mt-3 bg-[#10a110] hover:bg-green-700 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors duration-200 shadow-[0_0_15px_rgba(16,161,16,0.3)] hover:shadow-[0_0_20px_rgba(16,161,16,0.5)]"
@@ -492,6 +516,30 @@ const SignUP = () => {
 						</div>
 					)}
 
+					{form.role === 'campsite owner' && (
+						<div className="rounded-3xl border-2 border-blue-400 bg-blue-50 p-5 space-y-4">
+							<div className="flex items-start justify-between gap-3">
+								<div>
+									<h3 className="text-lg font-semibold text-blue-900">🏕️ Owner Application</h3>
+									<p className="text-sm text-blue-700 mt-1">
+										Complete your campsite owner profile to get approved.
+									</p>
+								</div>
+							</div>
+
+							<button
+								type="button"
+								onClick={() => setShowOwnerModal(true)}
+								className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors duration-200 shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_20px_rgba(37,99,235,0.5)]"
+							>
+								<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+								</svg>
+								Complete Owner Application
+							</button>
+						</div>
+					)}
+
 					<div className="grid grid-cols-2 gap-3">
 						<button className="flex items-center justify-center gap-2 py-2.5 border border-gray-200 shadow-sm rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
 							<svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -524,158 +572,104 @@ const SignUP = () => {
 			{showGuideModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 					<div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-						{/* Modal Header */}
 						<div className="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 flex items-center justify-between border-b">
 							<h2 className="text-xl font-bold text-white">Guide Application</h2>
-							<button
-								onClick={() => setShowGuideModal(false)}
-								className="text-white hover:bg-white/20 rounded-lg p-1 transition"
-								aria-label="Close modal"
-							>
+							<button onClick={() => setShowGuideModal(false)} className="text-white hover:bg-white/20 rounded-lg p-1 transition">
 								<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 								</svg>
 							</button>
 						</div>
 
-						{/* Modal Content */}
 						<div className="p-6 space-y-4">
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Experience (years)</label>
-								<input
-									type="number"
-									name="guideExperience"
-									value={form.guideExperience}
-									onChange={handleChange}
-									placeholder="e.g. 3"
-									className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
-									min="0"
-								/>
+								<input type="number" name="guideExperience" value={form.guideExperience} onChange={handleChange} placeholder="e.g. 3" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition" min="0" />
 							</div>
-
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Full Name</label>
-								<input
-									type="text"
-									name="guideFullName"
-									value={form.guideFullName}
-									onChange={handleChange}
-									placeholder="e.g. Nimal Perera"
-									className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
-								/>
+								<input type="text" name="guideFullName" value={form.guideFullName} onChange={handleChange} placeholder="e.g. Nimal Perera" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition" />
 							</div>
-
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">NIC Number</label>
-								<input
-									type="text"
-									name="guideNIC"
-									value={form.guideNIC}
-									onChange={handleChange}
-									placeholder="e.g. 199012345678 or 901234567V"
-									className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
-								/>
+								<input type="text" name="guideNIC" value={form.guideNIC} onChange={handleChange} placeholder="e.g. 199012345678 or 901234567V" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition" />
 							</div>
-
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Age</label>
-								<input
-									type="number"
-									name="guideAge"
-									value={form.guideAge}
-									onChange={handleChange}
-									placeholder="e.g. 25"
-									className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
-									min="18"
-								/>
+								<input type="number" name="guideAge" value={form.guideAge} onChange={handleChange} placeholder="e.g. 25" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition" min="18" />
 							</div>
-
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-2">Languages Spoken</label>
 								<div className="grid grid-cols-2 gap-2">
 									{LANGUAGES.map(lang => (
 										<label key={lang} className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 hover:bg-gray-50 cursor-pointer transition">
-											<input
-												type="checkbox"
-												checked={form.guideLanguages.includes(lang)}
-												onChange={(e) => {
-													const newLangs = e.target.checked
-														? [...form.guideLanguages, lang]
-														: form.guideLanguages.filter(l => l !== lang);
-													setForm({ ...form, guideLanguages: newLangs });
-												}}
-												className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
-											/>
+											<input type="checkbox" checked={form.guideLanguages.includes(lang)} onChange={(e) => {
+												const newLangs = e.target.checked ? [...form.guideLanguages, lang] : form.guideLanguages.filter(l => l !== lang);
+												setForm({ ...form, guideLanguages: newLangs });
+											}} className="w-4 h-4 text-green-600 rounded focus:ring-green-500" />
 											<span className="text-sm text-gray-700">{lang}</span>
 										</label>
 									))}
 								</div>
 							</div>
-
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Upload CV (PDF/DOC)</label>
-								<div className="relative">
-									<input
-										type="file"
-										accept=".pdf,.doc,.docx"
-										onChange={(e) => setGuideCV(e.target.files[0])}
-										className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-800 bg-zinc-50 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200"
-									/>
-									{guideCV && (
-										<p className="mt-1 text-xs text-green-600 font-medium">Selected: {guideCV.name}</p>
-									)}
-								</div>
+								<input type="file" accept=".pdf,.doc,.docx" onChange={(e) => setGuideCV(e.target.files[0])} className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-800 bg-zinc-50 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200" />
 							</div>
-
 							<div>
 								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">About Your Experience</label>
-								<textarea
-									name="guideDescription"
-									value={form.guideDescription}
-									onChange={handleChange}
-									rows="4"
-									placeholder="Describe your guiding expertise, specializations, and what makes you a great guide..."
-									className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition resize-none"
-								/>
+								<textarea name="guideDescription" value={form.guideDescription} onChange={handleChange} rows="4" placeholder="Describe your expertise..." className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition resize-none" />
 							</div>
-
-							{error && (
-								<div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg font-medium">
-									{error}
-								</div>
-							)}
-
+							{error && <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg font-medium">{error}</div>}
 							<div className="flex gap-3 pt-4">
-								<button
-									type="button"
-									onClick={() => setShowGuideModal(false)}
-									className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 rounded-xl text-sm transition-colors duration-200"
-								>
-									Back
+								<button type="button" onClick={() => setShowGuideModal(false)} className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 rounded-xl text-sm transition-colors duration-200">Back</button>
+								<button type="button" onClick={handleSubmit} disabled={uploading} className={`flex-1 bg-[#10a110] hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors duration-200 ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+									{uploading ? 'Uploading...' : 'Complete Signup'}
 								</button>
-								<button
-									type="button"
-									onClick={handleSubmit}
-									disabled={uploading}
-									className={`flex-1 bg-[#10a110] hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors duration-200 shadow-[0_0_15px_rgba(16,161,16,0.3)] ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}
-								>
-									{uploading ? (
-										<>
-											<svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-											</svg>
-											Uploading...
-										</>
-									) : (
-										<>
-											Complete Signup
-											<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-											</svg>
-										</>
-									)}
-								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Owner Application Modal */}
+			{showOwnerModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+					<div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+						<div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between border-b">
+							<h2 className="text-xl font-bold text-white">Owner Application</h2>
+							<button onClick={() => setShowOwnerModal(false)} className="text-white hover:bg-white/20 rounded-lg p-1 transition">
+								<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+								</svg>
+							</button>
+						</div>
+
+						<div className="p-6 space-y-4">
+							<div>
+								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Business Name</label>
+								<input type="text" value={ownerForm.businessName} onChange={(e) => setOwnerForm({ ...ownerForm, businessName: e.target.value })} placeholder="e.g. Pine Ridge Campsites" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+							</div>
+							<div>
+								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">NIC Number</label>
+								<input type="text" value={ownerForm.nic} onChange={(e) => setOwnerForm({ ...ownerForm, nic: e.target.value })} placeholder="e.g. 199012345678" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+							</div>
+							<div>
+								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Business Address</label>
+								<input type="text" value={ownerForm.address} onChange={(e) => setOwnerForm({ ...ownerForm, address: e.target.value })} placeholder="e.g. Ella, Sri Lanka" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+							</div>
+							<div>
+								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">Experience (years)</label>
+								<input type="number" value={ownerForm.experience} onChange={(e) => setOwnerForm({ ...ownerForm, experience: e.target.value })} placeholder="e.g. 5" className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" min="0" />
+							</div>
+							<div>
+								<label className="block text-[11px] uppercase tracking-wide font-bold text-gray-700 mb-1">About Your Business</label>
+								<textarea value={ownerForm.description} onChange={(e) => setOwnerForm({ ...ownerForm, description: e.target.value })} rows="4" placeholder="Describe your business..." className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none" />
+							</div>
+							{error && <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg font-medium">{error}</div>}
+							<div className="flex gap-3 pt-4">
+								<button type="button" onClick={() => setShowOwnerModal(false)} className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 rounded-xl text-sm transition-colors duration-200">Back</button>
+								<button type="button" onClick={handleSubmit} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors duration-200">Complete Signup</button>
 							</div>
 						</div>
 					</div>

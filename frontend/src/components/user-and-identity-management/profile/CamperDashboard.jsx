@@ -2,10 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
-import { Star, MapPin, Calendar, CreditCard, Package, Compass, Trash2, LogOut, ChevronRight, MessageSquare, PenSquare, Award, Clock, User } from 'lucide-react';
+import { Star, MapPin, Calendar, CreditCard, Package, Compass, Trash2, LogOut, ChevronRight, MessageSquare, PenSquare, Clock, User, Bell, CheckCircle, X } from 'lucide-react';
 import { getEquipmentBookings } from '../../../utils/equipmentBookings';
-import GuideApplyModal from './GuideApplyModal';
-import { syncGuideSession } from '../../guides-management/guide-self/guideSession';
 
 const CamperDashboard = () => {
     const navigate = useNavigate();
@@ -16,25 +14,29 @@ const CamperDashboard = () => {
     const [activeTab, setActiveTab] = useState('Dashboard');
     const [activeBookingTab, setActiveBookingTab] = useState('All Bookings');
     const [isDeleted, setIsDeleted] = useState(false);
-    const [showApplyModal, setShowApplyModal] = useState(false);
     
     // Data states
     const [equipmentBookings, setEquipmentBookings] = useState([]);
     const [guideBookings, setGuideBookings] = useState([]);
     const [guides, setGuides] = useState([]);
     const [reviews, setReviews] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
 
     useEffect(() => {
-        if (authUser) {
-            setUser(authUser);
-        } else {
-            const stored = localStorage.getItem('userInfo');
-            if (stored) {
-                const userInfo = JSON.parse(stored);
-                setUser(userInfo);
-            } else {
-                navigate('/login');
+        const userInfo = authUser || JSON.parse(localStorage.getItem('userInfo') || '{}');
+        if (userInfo) {
+            setUser(userInfo);
+            // Redirect owners to their dashboard if they land here
+            const role = userInfo.role?.toLowerCase()?.trim();
+            const isOwner = userInfo.ownerStatus === 'approved' || 
+                           ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+            if (isOwner) {
+                navigate('/owner-profile');
+                return;
             }
+        } else {
+            navigate('/login');
         }
     }, [authUser, navigate]);
 
@@ -80,6 +82,32 @@ const CamperDashboard = () => {
                 const myReviews = allReviews.filter(r => String(r.userId || "") === String(userInfo._id || userInfo.id));
                 setReviews(myReviews);
 
+                // Fetch Notifications
+                if (userInfo.email) {
+                    const notifyRes = await axios.get(`http://localhost:5000/api/customer-notifications/user/${userInfo.email}`);
+                    setNotifications(notifyRes.data || []);
+                }
+
+                // Sync Equipment Bookings Status from Backend Payments
+                const paymentRes = await axios.get('http://localhost:5000/api/payment/display');
+                const allPayments = paymentRes.data || [];
+                const myPayments = allPayments.filter(p => String(p.userId) === String(userInfo._id || userInfo.id));
+                
+                const updatedEqBookings = eqBookings.map(b => {
+                    const matchingPayment = myPayments.find(p => p.bookingId === b.bookingId && p.bookingType === 'EquipmentBooking');
+                    if (matchingPayment && matchingPayment.paymentStatus === 'success' && b.status !== 'paid') {
+                        return { ...b, status: 'paid' };
+                    }
+                    return b;
+                });
+                
+                // If any updated, save back to localStorage
+                if (JSON.stringify(eqBookings) !== JSON.stringify(updatedEqBookings)) {
+                    setEquipmentBookings(updatedEqBookings);
+                    const key = `equipment_bookings_${userInfo._id || userInfo.id || 'guest'}`;
+                    localStorage.setItem(key, JSON.stringify(updatedEqBookings));
+                }
+
             } catch (err) {
                 console.error("Error fetching dashboard data:", err);
             } finally {
@@ -89,25 +117,6 @@ const CamperDashboard = () => {
 
         fetchData();
     }, [navigate, location.state, authUser]);
-
-    const refreshUserProfile = async () => {
-        try {
-            const stored = JSON.parse(localStorage.getItem('userInfo') || '{}');
-            const res = await axios.get('http://localhost:5000/api/profile', {
-                headers: { Authorization: `Bearer ${stored.token}` }
-            });
-            const updatedUser = { ...res.data, token: stored.token };
-            localStorage.setItem('userInfo', JSON.stringify(updatedUser));
-            setUser(updatedUser);
-            setAuthUser(updatedUser);
-
-            if (updatedUser.role === 'guide') {
-                await syncGuideSession(updatedUser.token);
-            }
-        } catch (err) {
-            console.error("Failed to refresh profile:", err);
-        }
-    };
 
     const handleLogout = () => {
         authLogout();
@@ -177,7 +186,7 @@ const CamperDashboard = () => {
 
     const stats = useMemo(() => {
         const upcoming = allBookings.filter(b => b.status.toLowerCase() === 'pending' || b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'paid').length;
-        const totalSpent = allBookings.reduce((sum, b) => sum + parseFloat(b.total.replace('LKR ', '').replace('$', '')), 0);
+        const totalSpent = allBookings.reduce((sum, b) => sum + parseFloat(String(b.total || "0").replace('LKR ', '').replace('$', '')), 0);
         const activeRentals = equipmentBookings.filter(b => b.status.toLowerCase() === 'paid').length;
         return {
             upcoming: upcoming,
@@ -207,16 +216,60 @@ const CamperDashboard = () => {
                                     <h2 style={styles.welcomeMsg}>Welcome, {user?.name?.split(' ')[0] || 'Explorer'}!</h2>
                                     <p style={styles.welcomeSub}>Ready for your next camping trip?</p>
                                 </div>
-                                <button style={styles.updateDetailsBtn} onClick={() => navigate('/edit-profile')}>
-                                    <PenSquare size={16} /> Update Personal Details
-                                </button>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <div style={{ position: 'relative' }}>
+                                        <button 
+                                            style={{ ...styles.updateDetailsBtn, padding: '10px' }}
+                                            onClick={() => setShowNotifications(!showNotifications)}
+                                        >
+                                            <Bell size={20} />
+                                            {notifications.filter(n => !n.read).length > 0 && (
+                                                <span style={styles.notificationBadge}>
+                                                    {notifications.filter(n => !n.read).length}
+                                                </span>
+                                            )}
+                                        </button>
+                                        
+                                        {showNotifications && (
+                                            <div style={styles.notificationDropdown}>
+                                                <div style={styles.notificationHeader}>
+                                                    <h4 style={{ margin: 0, fontSize: '14px' }}>Notifications</h4>
+                                                    <button onClick={() => setShowNotifications(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={14} /></button>
+                                                </div>
+                                                <div style={styles.notificationList}>
+                                                    {notifications.length === 0 ? (
+                                                        <p style={{ padding: '20px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>No notifications</p>
+                                                    ) : (
+                                                        notifications.map(n => (
+                                                            <div key={n._id} style={{ ...styles.notificationItem, borderLeft: n.read ? 'none' : '4px solid #10a110' }}>
+                                                                <p style={styles.notificationTitle}>{n.title}</p>
+                                                                <p style={styles.notificationBody}>{n.body}</p>
+                                                                <span style={styles.notificationTime}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button style={styles.updateDetailsBtn} onClick={() => navigate('/edit-profile')}>
+                                        <PenSquare size={16} /> Update Personal Details
+                                    </button>
+                                </div>
                             </div>
                         </section>
 
                         {/* Summary Cards */}
                         <div style={styles.statsRow}>
                             <StatBox label="Upcoming Trips" value={stats.upcoming} icon={<Calendar size={24} />} color="#f0fdf4" iconColor="#10a110" />
-                            <StatBox label="Total Spent" value={stats.spent} icon={<CreditCard size={24} />} color="#f0fff4" iconColor="#10a110" />
+                            <StatBox 
+                                label="Total Spent" 
+                                value={stats.spent} 
+                                icon={<CreditCard size={24} />} 
+                                color="#f0fff4" 
+                                iconColor="#10a110" 
+                                onClick={() => navigate('/payment-history')}
+                            />
                             <StatBox label="Active Rentals" value={stats.rentals} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
                         </div>
 
@@ -291,9 +344,9 @@ const CamperDashboard = () => {
                                                             <span style={{ fontWeight: 700, color: '#10a110' }}>{booking.total}</span>
                                                         </div>
                                                         <div style={styles.bookingDetailItem}>
-                                                            <span style={booking.status === 'Confirmed' || booking.status === 'paid' ? styles.pillGreen : styles.pillYellow}>
-                                                                <Clock size={12} style={{ marginRight: '4px' }} />
-                                                                {booking.status}
+                                                            <span style={(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? styles.pillGreen : styles.pillYellow}>
+                                                                {(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? <CheckCircle size={12} style={{ marginRight: '4px' }} /> : <Clock size={12} style={{ marginRight: '4px' }} />}
+                                                                {(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? 'Payment Completed' : 'Pending Verification'}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -373,62 +426,7 @@ const CamperDashboard = () => {
                             </div>
                         </div>
 
-                        {/* Guide Application Section */}
-                        {(user?.role === 'camper' || (user?.role === 'guide' && user?.guideStatus === 'pending')) && (
-                            <section style={styles.guideApplyCard}>
-                                <div style={styles.guideApplyContent}>
-                                    <div style={styles.guideApplyIcon}><Award size={32} /></div>
-                                    <div>
-                                        <h3 style={styles.guideApplyTitle}>Earn as a Local Guide</h3>
-                                        <p style={styles.guideApplyText}>
-                                            Love the outdoors? Share your expertise with fellow campers and earn money.
-                                        </p>
-                                    </div>
-                                </div>
-                                {user?.guideApplication?.nic ? (
-                                    <div style={styles.pendingStatus}>
-                                        <Clock size={16} /> Application Pending Review
-                                    </div>
-                                ) : (
-                                    <button style={styles.applyBtn} onClick={() => setShowApplyModal(true)}>
-                                        Apply Now
-                                    </button>
-                                )}
-                            </section>
-                        )}
 
-                        {/* Approved Guide Success Section */}
-                        {user?.role === 'guide' && user?.guideStatus === 'approved' && (
-                            <section style={{...styles.guideApplyCard, background: '#f0fdf4', border: '2px solid #bbf7d0'}}>
-                                <div style={styles.guideApplyContent}>
-                                    <div style={{...styles.guideApplyIcon, backgroundColor: '#dcfce7', color: '#16a34a'}}>
-                                        <Award size={32} />
-                                    </div>
-                                    <div>
-                                        <h3 style={{...styles.guideApplyTitle, color: '#166534'}}>Congratulations! You are now a Local Guide</h3>
-                                        <p style={{...styles.guideApplyText, color: '#15803d'}}>
-                                            Your application has been approved. You can now start managing your tours and bookings.
-                                        </p>
-                                    </div>
-                                </div>
-                                <button 
-                                    style={{
-                                        ...styles.applyBtn, 
-                                        backgroundColor: '#16a34a', 
-                                        color: '#fff',
-                                        padding: '16px 32px',
-                                        fontSize: '16px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        boxShadow: '0 10px 15px -3px rgba(22, 163, 74, 0.4)'
-                                    }} 
-                                    onClick={() => navigate('/guides/owndashboard')}
-                                >
-                                    Go to Guide Dashboard <ChevronRight size={20} />
-                                </button>
-                            </section>
-                        )}
                     </div>
                 </div>
             </main>
@@ -449,19 +447,17 @@ const CamperDashboard = () => {
                     </div>
                 </div>
             )}
-
-            <GuideApplyModal 
-                isOpen={showApplyModal} 
-                onClose={() => setShowApplyModal(false)} 
-                user={user} 
-                onApplied={refreshUserProfile}
-            />
         </div>
     );
 };
 
-const StatBox = ({ label, value, icon, color, iconColor }) => (
-    <div style={styles.statBox}>
+const StatBox = ({ label, value, icon, color, iconColor, onClick }) => (
+    <div 
+        style={{ ...styles.statBox, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.2s' }} 
+        onClick={onClick}
+        onMouseEnter={(e) => onClick && (e.currentTarget.style.transform = 'translateY(-5px)')}
+        onMouseLeave={(e) => onClick && (e.currentTarget.style.transform = 'translateY(0)')}
+    >
         <div style={{ ...styles.statIconWrap, background: color, color: iconColor }}>{icon}</div>
         <div>
             <p style={styles.statLabel}>{label}</p>
@@ -545,8 +541,8 @@ const styles = {
     td: { padding: '16px 12px', fontSize: '14px', color: '#475569', borderBottom: '1px solid #f1f5f9' },
     tr: { transition: 'background 0.2s', ':hover': { background: '#f8fafc' } },
     
-    pillGreen: { padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700, background: '#f0fdf4', color: '#10a110' },
-    pillYellow: { padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700, background: '#fffbeb', color: '#d97706' },
+    pillGreen: { padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700, background: '#f0fdf4', color: '#10a110', display: 'flex', alignItems: 'center', gap: '4px' },
+    pillYellow: { padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700, background: '#fffbeb', color: '#d97706', display: 'flex', alignItems: 'center', gap: '4px' },
     
     viewDetailsBtn: { 
         background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b', 
@@ -610,30 +606,25 @@ const styles = {
         width: '100%', height: '100%', background: '#10a110', 
         animation: 'progress 3s linear forwards' 
     },
-    guideApplyCard: {
-        background: 'linear-gradient(135deg, #10a110 0%, #059669 100%)',
-        borderRadius: '24px', padding: '32px', display: 'flex', alignItems: 'center', 
-        justifyContent: 'space-between', gap: '24px', marginBottom: '40px', color: '#fff',
-        boxShadow: '0 20px 25px -5px rgba(16, 161, 16, 0.2)'
+    notificationBadge: {
+        position: 'absolute', top: '-5px', right: '-5px', background: '#ef4444', color: 'white',
+        borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', fontWeight: 700,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff'
     },
-    guideApplyContent: { display: 'flex', alignItems: 'center', gap: '24px' },
-    guideApplyIcon: { 
-        width: '64px', height: '64px', borderRadius: '16px', background: 'rgba(255,255,255,0.2)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center'
+    notificationDropdown: {
+        position: 'absolute', top: '100%', right: 0, marginTop: '10px', width: '320px',
+        background: '#fff', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+        zIndex: 50, overflow: 'hidden', border: '1px solid #e2e8f0'
     },
-    guideApplyTitle: { fontSize: '22px', fontWeight: 800, margin: '0 0 4px 0' },
-    guideApplyText: { fontSize: '15px', opacity: 0.9, margin: 0 },
-    applyBtn: {
-        background: '#fff', color: '#10a110', border: 'none', padding: '14px 28px',
-        borderRadius: '14px', fontSize: '15px', fontWeight: 700, cursor: 'pointer',
-        transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        whiteSpace: 'nowrap', ':hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 12px rgba(0,0,0,0.15)' }
+    notificationHeader: {
+        padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', 
+        justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc'
     },
-    pendingStatus: {
-        display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px',
-        borderRadius: '12px', background: 'rgba(255,255,255,0.15)', color: '#fff',
-        fontSize: '14px', fontWeight: 700, border: '1px solid rgba(255,255,255,0.3)'
-    }
+    notificationList: { maxHeight: '400px', overflowY: 'auto' },
+    notificationItem: { padding: '12px 16px', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' },
+    notificationTitle: { margin: '0 0 4px 0', fontSize: '13px', fontWeight: 700, color: '#1e293b' },
+    notificationBody: { margin: '0 0 6px 0', fontSize: '12px', color: '#64748b', lineHeight: '1.5' },
+    notificationTime: { fontSize: '10px', color: '#94a3b8' },
 };
 
 export default CamperDashboard;

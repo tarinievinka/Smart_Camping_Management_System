@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ShoppingCart, Star, MessageSquare, Tag, RefreshCw, ShieldCheck } from 'lucide-react';
 import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
 
+
 const CustomStyles = () => (
   <style>{`
     @keyframes fadeIn {
@@ -21,7 +22,7 @@ const CustomStyles = () => (
   `}</style>
 );
 
-const API_BASE = process.env.REACT_APP_API_URL;
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const FEEDBACK_API = `${API_BASE}/api/feedback`;
 
 const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
@@ -58,11 +59,12 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
     fetchReviews();
   }, [item._id, item.name]);
 
+
   const averageRating = reviews.length > 0 
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : 'New';
 
-  const imgSrc = item.imageUrl ? `${API_BASE}${item.imageUrl}` : null;
+  const imgSrc = resolveMediaUrl(item.imageUrl);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1100] p-4 animate-fadeIn" onClick={onClose}>
@@ -214,6 +216,7 @@ const EquipmentDetail = ({ item, onClose, onAddToCart, cart }) => {
                          })}
                        </div>
                      )}
+
                    </div>
                  ))}
                </div>

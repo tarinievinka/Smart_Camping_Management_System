@@ -2,14 +2,21 @@ const Campsite = require('../../models/campsite-model/CampsiteModel');
 
 exports.createCampsite = async (req, res) => {
   try {
+    // Standardize ownerId to ensure it is always saved as an ObjectId if possible
+    const ownerId = req.user ? (req.user._id || req.user.id) : req.body.ownerId;
+    
+
     const newCampsite = new Campsite({
       ...req.body,
       image: req.file ? `/uploads/${req.file.filename}` : '',
       amenities: req.body.amenities ? JSON.parse(req.body.amenities) : [],
-      status: 'pending' // Enforce pending status upon creation for owner verification
+      ownerId,
+      status: 'pending'
     });
     
     await newCampsite.save();
+    console.log(`[CAMPSITE] Site created successfully. Owner: ${ownerId}, Site: ${newCampsite._id}`);
+
     res.status(201).json({ success: true, data: newCampsite });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -47,6 +54,29 @@ exports.getSitesByOwner = async (req, res) => {
     res.status(200).json({ success: true, data: campsites });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.getMyCampsites = async (req, res) => {
+  try {
+    const ownerId = req.user._id ? req.user._id.toString() : req.user.id;
+    console.log(`[CAMPSITE] Fetching dashboard for ownerId: ${ownerId}`);
+    
+    // Using .lean() to ensure we get plain JS objects and avoid Mongoose serialization issues
+    const campsites = await Campsite.find({ ownerId: ownerId }).lean().sort({ createdAt: -1 });
+    
+    console.log(`[CAMPSITE] Dashboard sync: Found ${campsites.length} sites for ${ownerId}`);
+    
+    // Returning multiple formats to ensure frontend compatibility
+    res.status(200).json({ 
+      success: true, 
+      count: campsites.length,
+      data: campsites,
+      campsites: campsites // Redundant backup key
+    });
+  } catch (error) {
+    console.error(`[CAMPSITE] Error in getMyCampsites: ${error.message}`);
+    res.status(500).json({ success: false, error: "Failed to retrieve your campsites" });
   }
 };
 

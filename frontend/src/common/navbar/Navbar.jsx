@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, CreditCard, LogOut, ChevronDown, Trash2, Bell } from "lucide-react";
+import { User, LogOut, ChevronDown, Trash2, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getCustomerBookingName } from "../../utils/customerIdentity";
+
 
 const navLinks = [
     { label: "Home", href: "/" },
@@ -111,19 +112,41 @@ const Navbar = () => {
 
     const getDashboardPath = () => {
         if (!user) return "/login";
-        switch (user.role) {
+        
+        const role = user.role?.toLowerCase()?.trim();
+        const ownerStatus = user.ownerStatus?.toLowerCase()?.trim();
+        
+        // Priority check for approved owners or specific owner roles
+        const isOwner = ownerStatus === 'approved' || 
+                        ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+        
+        if (isOwner) return "/owner-profile";
+
+        switch (role) {
             case "camper":
                 return "/camper-dashboard";
             case "admin":
                 return "/admin-dashboard";
             case "guide":
-                return "/camper-dashboard";
-            case "owner":
-                return "/owner-profile";
+                return "/guides/ownprofile";
             default:
                 return "/camper-dashboard";
         }
     };
+
+    const role = user?.role?.toLowerCase()?.trim();
+    const ownerStatus = user?.ownerStatus?.toLowerCase()?.trim();
+    const isOwner = ownerStatus === 'approved' || 
+                   ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+    const isAdmin = role === 'admin';
+    const isGuide = role === 'guide';
+    const isCamper = role === 'camper';
+    const isGuest = !user;
+
+    // Hide common navbar tabs (Home, Campsites, etc.) for logged-in non-camper roles
+    const hideCommonTabs = !isCamper && !isGuest;
+
+    const isOwnerDashboard = location.pathname === "/owner-profile";
 
 
     return (
@@ -144,43 +167,64 @@ const Navbar = () => {
                         </div>
                     </Link>
 
-                    {/* Desktop Nav Links */}
-                    <div className="hidden md:flex items-center gap-10 lg:gap-14 ml-10">
-                        {navLinks.map((link) => (
+                    {/* Desktop Nav Links - Hidden for non-campers */}
+                    {!hideCommonTabs && (
+                        <div className="hidden md:flex items-center gap-10 lg:gap-14 ml-10">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.label}
+                                    to={link.href}
+                                    onClick={() => setMobileOpen(false)}
+                                    className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive(link.href)
+                                            ? "text-[#166534] border-b-2 border-[#166534]"
+                                            : "text-gray-600 hover:text-[#166534]"
+                                        }`}
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Owner Profile Link - Show if hideCommonTabs is true but user is owner */}
+                    {hideCommonTabs && isOwner && (
+                        <div className="hidden md:flex items-center gap-10 ml-10">
                             <Link
-                                key={link.label}
-                                to={link.href}
-                                onClick={() => setMobileOpen(false)}
-                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive(link.href)
+                                to="/owner-profile"
+                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/owner-profile")
                                         ? "text-[#166534] border-b-2 border-[#166534]"
                                         : "text-gray-600 hover:text-[#166534]"
                                     }`}
                             >
-                                {link.label}
+                                Profile
                             </Link>
-                        ))}
-                    </div>
+                        </div>
+                    )}
 
                     {/* Right Side — Search + CTA + Profile */}
                     <div className="hidden md:flex items-center gap-4 ml-auto pl-8">
 
-                        {/* Search Icon */}
-                        <button
-                            className="p-2 rounded-full text-gray-500 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors duration-200"
-                            aria-label="Search"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
-                            </svg>
-                        </button>
+                        {!hideCommonTabs && (
+                            <>
+                                {/* Search Icon */}
+                                <button
+                                    className="p-2 rounded-full text-gray-500 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors duration-200"
+                                    aria-label="Search"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+                                    </svg>
+                                </button>
 
-                        {/* CTA */}
-                        <Link
-                            to="/guides"
-                            className="hidden lg:inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#155e2e] active:bg-[#14532d] shadow-md hover:shadow-lg transition-all duration-200 mr-2"
-                        >
-                            Plan Your Adventure
-                        </Link>
+                                {/* CTA */}
+                                <Link
+                                    to="/"
+                                    className="hidden lg:inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#155e2e] active:bg-[#14532d] shadow-md hover:shadow-lg transition-all duration-200 mr-2"
+                                >
+                                    Plan Your Adventure
+                                </Link>
+                            </>
+                        )}
 
                         {/* Auth Buttons */}
                         {!user ? (
@@ -307,7 +351,18 @@ const Navbar = () => {
                                     </div>
 
                                     <button
-                                        onClick={() => { setProfileOpen(false); navigate(getDashboardPath()); }}
+                                        onClick={() => { 
+                                            setProfileOpen(false); 
+                                            const path = getDashboardPath();
+                                            // If owner dashboard, append trigger param for all owner variations
+                                            const role = user?.role?.toLowerCase()?.trim();
+                                            const ownerStatus = user?.ownerStatus?.toLowerCase()?.trim();
+                                            const isOwner = ownerStatus === 'approved' || 
+                                                            ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+                                            const target = isOwner ? `${path}?profile=open` : path;
+                                            navigate(target); 
+                                        }}
+
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
                                     >
                                         <User className="w-4 h-4" />
@@ -373,7 +428,7 @@ const Navbar = () => {
             {mobileOpen && (
                 <div className="md:hidden border-t border-gray-100 bg-white">
                     <div className="px-4 py-3 space-y-1">
-                        {navLinks.map((link) => (
+                        {!hideCommonTabs && navLinks.map((link) => (
                             <Link
                                 key={link.label}
                                 to={link.href}
@@ -386,16 +441,32 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
-                        {/* Mobile CTA */}
-                        <div className="pt-2 border-t border-gray-100">
+
+                        {hideCommonTabs && isOwner && (
                             <Link
-                                to="/guides"
+                                to="/owner-profile"
                                 onClick={() => setMobileOpen(false)}
-                                className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#14532d] transition-all duration-200"
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive("/owner-profile")
+                                        ? "text-[#166534] bg-[#166534]/10"
+                                        : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
+                                    }`}
                             >
-                                Plan Your Adventure
+                                Profile
                             </Link>
-                        </div>
+                        )}
+
+                        {/* Mobile CTA */}
+                        {!hideCommonTabs && (
+                            <div className="pt-2 border-t border-gray-100">
+                                <Link
+                                    to="/"
+                                    onClick={() => setMobileOpen(false)}
+                                    className="block w-full text-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#14532d] transition-all duration-200"
+                                >
+                                    Plan Your Adventure
+                                </Link>
+                            </div>
+                        )}
                         
                         {/* Mobile auth links */}
                         <div className="pt-2 border-t border-gray-100 space-y-1">
