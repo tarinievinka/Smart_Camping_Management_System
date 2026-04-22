@@ -6,11 +6,13 @@ const { generateUserId } = require('../../utils/userUtils');
 const { sendEmail } = require('../../utils/emailUtils');
 
 const registerUser = async (data) => {
-  console.log(`[USER_SERVICE] Registering user: ${data.email} with role: ${data.role}`);
-  const existing = await User.findOne({ email: data.email });
+  const email = data.email.toLowerCase().trim();
+  console.log(`[USER_SERVICE] Registering user: ${email} with role: ${data.role}`);
+  const existing = await User.findOne({ email });
   if (existing) throw new Error('Email already registered');
 
-  const hashed = await bcrypt.hash(data.password, 10);
+  const passwordToHash = data.password || crypto.randomBytes(8).toString('hex');
+  const hashed = await bcrypt.hash(passwordToHash, 10);
   const userId = generateUserId(data.role || 'camper');
 
   const isActive = !(data.role === 'guide' || data.role === 'campsite_owner');
@@ -20,7 +22,8 @@ const registerUser = async (data) => {
   return savedUser;
 };
 
-const loginUser = async (email, password) => {
+const loginUser = async (emailRaw, password) => {
+  const email = emailRaw.toLowerCase().trim();
   const user = await User.findOne({ email });
   if (!user) throw new Error('User not found');
   if (!user.isActive) throw new Error('Account is deactivated');
