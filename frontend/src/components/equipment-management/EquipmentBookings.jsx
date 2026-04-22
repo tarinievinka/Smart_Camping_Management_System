@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Heart, LayoutGrid, ShoppingCart, Star } from "lucide-react";
+
 import { getEquipmentBookings } from "../../utils/equipmentBookings";
 
 const EquipmentBookings = () => {
@@ -16,6 +17,7 @@ const EquipmentBookings = () => {
   const navItems = [
     { icon: LayoutGrid, label: "Browse Gear", path: "/equipment-store" },
     { icon: ShoppingCart, label: "My Cart", path: "/equipment-store" },
+
     { icon: Heart, label: "Favorites", path: "/equipment-store" },
   ];
 
@@ -68,6 +70,7 @@ const EquipmentBookings = () => {
             <div className="space-y-5">
               {bookings.map((booking, index) => (
                 <div key={`${booking.bookingId}-${index}`} className="bg-white border border-gray-200 rounded-2xl p-5">
+
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                     <div>
                       <p className="font-bold text-gray-900 text-sm">Booking #{booking.bookingId}</p>
@@ -96,6 +99,7 @@ const EquipmentBookings = () => {
                           type="button"
                           onClick={() =>
                             navigate("/equipment-feedback", {
+
                               state: {
                                 targetType: "equipment",
                                 targetName: item.name,

@@ -33,12 +33,16 @@ const Login = () => {
 
             switch (data.role) {
                 case 'admin':
-                    navigate('/admin-dashboard');
+                    navigate('/admin');
                     break;
                 case 'camper':
                 case 'guide':
+                    navigate('/');
+                    break;
                 case 'campsite-owner':
                 case 'campsite_owner':
+                    navigate('/owner');
+                    break;
                 default:
                     navigate('/');
                     break;

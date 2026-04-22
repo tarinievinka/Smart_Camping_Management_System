@@ -32,7 +32,7 @@ const GuideLoginRedirect = () => {
                 if (match) {
                     // Initialize the session using the matched guide ID
                     setGuideSessionAfterLogin({ guideId: match._id, role: 'guide' });
-                    navigate('/guides/ownprofile');
+                    navigate(GUIDE_SELF_DASHBOARD_PATH);
                 } else {
                     setError('Guide profile not found. Please ensure your application has been processed by an admin.');
                 }

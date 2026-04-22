@@ -46,11 +46,16 @@ const Login = () => {
                     case 'admin':
                         navigate('/admin-dashboard');
                         break;
+
                     case 'guide':
                         navigate('/guide-profile');
                         break;
-                    case 'camper':
                     case 'campsite_owner':
+                    case 'campsite-owner':
+                    case 'owner':
+                        navigate('/owner-profile');
+                        break;
+                    case 'camper':
                     default:
                         navigate('/');
                         break;

@@ -10,6 +10,7 @@ import EditProfile from './components/user-and-identity-management/profile/EditP
 import AdminDashboard from './components/user-and-identity-management/profile/AdminDashboard';
 import DeleteUsers from './components/user-and-identity-management/profile/DeleteUsers';
 import CamperDashboard from './components/user-and-identity-management/profile/CamperDashboard';
+import AdminOwnerManagement from './components/admin/AdminOwnerManagement';
 
 // Payment management components
 import PaymentHistory from './components/payment-management/payment-history/PaymentHistory';
@@ -73,6 +74,7 @@ import EquipmentFeedback from './components/feedbck-and-review-management/Equipm
 
 
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -91,6 +93,7 @@ function App() {
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/admin/delete-users" element={<DeleteUsers />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/owner-management" element={<AdminOwnerManagement />} />
             
             {/* Payment management routes */}
             <Route path="/payment-history" element={<PaymentHistory />} />
@@ -110,6 +113,7 @@ function App() {
             <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
             <Route path='/guide-feedback' element={<GuideFeedback />} />
             <Route path='/equipment-feedback' element={<EquipmentFeedback />} />
+
 
             {/* Equipment management routes */}
             <Route path="/equipment-store" element={<EquipmentStore />} />
@@ -138,12 +142,14 @@ function App() {
             <Route path='/guides/ownreviews' element={<GuideSelfReviews />} />
             <Route path='/guides/:id' element={<GuideProfile />} />
             <Route path='/guide-profile' element={<GuideLoginRedirect />} />
+
             
             {/* Campsite Routes */}
             <Route path="/campsites" element={<CampingSitesManagement />} />
             <Route path="/campsites-admin" element={<CampsiteAdminContainer />} />
             <Route path="/owner-profile" element={<CampsiteOwnerDashboard />} />
             <Route path="/safety-analysis" element={<SafetyAnalysis />} />
+
           </Routes>
         </div>
         <Footer />

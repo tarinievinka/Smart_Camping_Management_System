@@ -5,6 +5,8 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import ReviewSidebar from '../ReviewSidebar';
+
 
 const TAB_CONFIG = {
   "Guides Ratings": {
@@ -165,6 +167,8 @@ const AdminFeedback = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans">
+      <ReviewSidebar />
+
       <div className="flex-1 h-screen overflow-y-auto p-4 md:p-8">
         <div className="max-w-[1280px] mx-auto bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
         

@@ -4,6 +4,7 @@ import { User, CreditCard, LogOut, ChevronDown, Trash2, Bell } from "lucide-reac
 import { useAuth } from "../../context/AuthContext";
 import { getCustomerBookingName } from "../../utils/customerIdentity";
 
+
 const navLinks = [
     { label: "Home", href: "/" },
     { label: "Campsites", href: "/campsites" },
@@ -117,13 +118,17 @@ const Navbar = () => {
             case "admin":
                 return "/admin-dashboard";
             case "guide":
-                return "/camper-dashboard";
+                return "/guides/owndashboard";
             case "owner":
+            case "campsite_owner":
+            case "campsite-owner":
                 return "/owner-profile";
             default:
                 return "/camper-dashboard";
         }
     };
+
+    const isOwnerDashboard = location.pathname === "/owner-profile";
 
 
     return (
@@ -144,36 +149,63 @@ const Navbar = () => {
                         </div>
                     </Link>
 
-                    {/* Desktop Nav Links */}
-                    <div className="hidden md:flex items-center gap-10 lg:gap-14 ml-10">
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.label}
-                                to={link.href}
-                                onClick={() => setMobileOpen(false)}
-                                className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive(link.href)
-                                        ? "text-[#166534] border-b-2 border-[#166534]"
-                                        : "text-gray-600 hover:text-[#166534]"
-                                    }`}
-                            >
-                                {link.label}
-                            </Link>
-                        ))}
-                    </div>
+                    {/* Desktop Nav Links - Hidden on Owner Dashboard */}
+                    {!isOwnerDashboard && (
+                        <div className="hidden md:flex items-center gap-10 lg:gap-14 ml-10">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.label}
+                                    to={link.href}
+                                    onClick={() => setMobileOpen(false)}
+                                    className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive(link.href)
+                                            ? "text-[#166534] border-b-2 border-[#166534]"
+                                            : "text-gray-600 hover:text-[#166534]"
+                                        }`}
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                            {(user?.role === "owner" || user?.role === "campsite_owner" || user?.role === "campsite-owner") && (
+                                <Link
+                                    to="/owner-profile"
+                                    className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/owner-profile")
+                                            ? "text-[#166534] border-b-2 border-[#166534]"
+                                            : "text-gray-600 hover:text-[#166534]"
+                                        }`}
+                                >
+                                    Profile
+                                </Link>
+                            )}
+                            {user?.role === "camper" && (
+                                <Link
+                                    to="/payment-history"
+                                    className={`text-[15px] font-bold tracking-wide transition-colors duration-200 pb-0.5 ${isActive("/payment-history")
+                                            ? "text-[#166534] border-b-2 border-[#166534]"
+                                            : "text-gray-600 hover:text-[#166534]"
+                                        }`}
+                                >
+                                    Payment
+                                </Link>
+                            )}
+                        </div>
+                    )}
 
                     {/* Right Side — Search + CTA + Profile */}
                     <div className="hidden md:flex items-center gap-4 ml-auto pl-8">
 
-                        {/* Search Icon */}
-                        <button
-                            className="p-2 rounded-full text-gray-500 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors duration-200"
-                            aria-label="Search"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
-                            </svg>
-                        </button>
+                        {!isOwnerDashboard && (
+                            <>
+                                {/* Search Icon */}
+                                <button
+                                    className="p-2 rounded-full text-gray-500 hover:text-[#166534] hover:bg-[#166534]/10 transition-colors duration-200"
+                                    aria-label="Search"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+                                    </svg>
+                                </button>
 
+<<<<<<< HEAD
                         {/* CTA */}
                         <Link
                             to=""
@@ -181,6 +213,17 @@ const Navbar = () => {
                         >
                             Plan Your Adventure
                         </Link>
+=======
+                                {/* CTA */}
+                                <Link
+                                    to="/guides"
+                                    className="hidden lg:inline-flex items-center px-5 py-2.5 text-sm font-semibold text-white bg-[#166534] rounded-full hover:bg-[#155e2e] active:bg-[#14532d] shadow-md hover:shadow-lg transition-all duration-200 mr-2"
+                                >
+                                    Plan Your Adventure
+                                </Link>
+                            </>
+                        )}
+>>>>>>> 6602de466b5cc317c8fb08e6c0c13eb115d04699
 
                         {/* Auth Buttons */}
                         {!user ? (
@@ -307,7 +350,14 @@ const Navbar = () => {
                                     </div>
 
                                     <button
-                                        onClick={() => { setProfileOpen(false); navigate(getDashboardPath()); }}
+                                        onClick={() => { 
+                                            setProfileOpen(false); 
+                                            const path = getDashboardPath();
+                                            // If owner dashboard, append trigger param
+                                            const target = user?.role === 'owner' ? `${path}?profile=open` : path;
+                                            navigate(target); 
+                                        }}
+
                                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-[#166534]/10 hover:text-[#166534] transition-colors duration-150"
                                     >
                                         <User className="w-4 h-4" />
@@ -386,6 +436,18 @@ const Navbar = () => {
                                 {link.label}
                             </Link>
                         ))}
+                        {user?.role === "camper" && (
+                            <Link
+                                to="/payment-history"
+                                onClick={() => setMobileOpen(false)}
+                                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${isActive("/payment-history")
+                                        ? "text-[#166534] bg-[#166534]/10"
+                                        : "text-gray-600 hover:text-[#166534] hover:bg-[#166534]/10"
+                                    }`}
+                            >
+                                Payment
+                            </Link>
+                        )}
                         {/* Mobile CTA */}
                         <div className="pt-2 border-t border-gray-100">
                             <Link

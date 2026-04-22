@@ -6,6 +6,7 @@ import CardDetails from '../card-details/CardDetails';
 import { saveEquipmentBooking } from '../../../../utils/equipmentBookings';
 
 const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "507f1f77bcf86cd799439012", bookingType = "CampsiteBooking", equipmentItems = [], equipmentBookingDraft = null, returnPath = null }) => {
+
   const navigate = useNavigate();
   const [cardType, setCardType] = useState('visa');
   const [cardData, setCardData] = useState({
@@ -75,6 +76,7 @@ const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "
       if (bookingType === 'EquipmentBooking' && equipmentItems.length > 0) {
         const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';
         const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
         await Promise.all(
           equipmentItems.map(item =>
             fetch(`${EQUIP_API}/reduce-stock/${item._id}`, {
@@ -83,6 +85,7 @@ const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${storedUser.token}`
               },
+
               body: JSON.stringify({ quantity: item.quantity, mode: item.mode }),
             }).then(res => res.json())
           )
@@ -106,6 +109,7 @@ const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "
         navigate('/payment-success', {
           state: { message: 'Payment successful. Your booking is now available.', variant: 'success' },
         });
+
       }, 2000);
     } catch (err) {
       console.error('Payment failed:', err);

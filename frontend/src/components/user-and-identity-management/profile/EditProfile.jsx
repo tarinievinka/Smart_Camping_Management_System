@@ -20,6 +20,7 @@ const EditProfile = () => {
         if (!userInfo.token) { navigate('/login'); return; }
         setUserRole(userInfo.role);
         setForm({ name: userInfo.name || '', email: userInfo.email || '', phone: userInfo.phone || '' });
+
     }, [navigate]);
 
     const handleChange = (e) =>
