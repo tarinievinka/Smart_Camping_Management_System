@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Users, Info } from 'lucide-react';
+import { MapPin, Users, Info, Star } from 'lucide-react';
+import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
 
 const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api/campsites';
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -40,34 +41,58 @@ const CampingSitesManagement = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map(site => (
-            <div key={site._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-300">
-              <div className="h-48 bg-gray-200 relative">
-                {site.image ? (
-                  <img src={`${API_BASE}${site.image}`} alt={site.name} className="w-full h-full object-cover" />
-                ) : (
-                  <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=800&q=80" alt="Default Campsite" className="w-full h-full object-cover" />
-                )}
-                <div className="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded-full text-sm font-bold text-[#166534]">
-                  Rs {site.pricePerNight} / ngt
+            <div key={site._id} className="group bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+              {/* Image Container */}
+              <div className="relative h-56 overflow-hidden">
+                <img 
+                  src={resolveMediaUrl(site.image) || "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=800&q=80"} 
+                  alt={site.name} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Price Tag */}
+                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-lg">
+                  <span className="text-[#166534] font-black text-sm">Rs {site.pricePerNight}</span>
+                  <span className="text-[#166534]/70 text-[10px] font-bold uppercase tracking-wider ml-1">/ ngt</span>
                 </div>
               </div>
-              <div className="p-5">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{site.name}</h3>
-                <div className="flex items-center text-sm text-gray-600 mb-4 gap-4">
-                  <div className="flex items-center"><MapPin className="w-4 h-4 mr-1 text-gray-400" /> {site.location.split(', ')[0] || site.location}, {site.location.split(', ')[1] || ''}</div>
 
-                  <div className="flex items-center"><Users className="w-4 h-4 mr-1 text-gray-400" /> Up to {site.capacity}</div>
+              {/* Content */}
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-black text-gray-900 leading-tight line-clamp-1">{site.name}</h3>
                 </div>
+
+                <div className="flex flex-col gap-2 mb-5">
+                  <div className="flex items-center text-gray-500">
+                    <MapPin className="w-3.5 h-3.5 mr-1.5 text-[#166534]" />
+                    <span className="text-[13px] font-medium truncate">
+                      {site.location.split(', ')[0] || site.location}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-gray-500">
+                    <Users className="w-3.5 h-3.5 mr-1.5 text-[#166534]" />
+                    <span className="text-[13px] font-medium">Up to {site.capacity} Guests</span>
+                  </div>
+                </div>
+
+                {/* Amenities */}
                 {site.amenities && site.amenities.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-6">
                     {site.amenities.slice(0, 3).map((amenity, i) => (
-                      <span key={i} className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-md border border-green-100">{amenity}</span>
+                      <span key={i} className="text-[10px] font-bold uppercase tracking-wider bg-gray-50 text-gray-600 px-2.5 py-1 rounded-lg border border-gray-100 group-hover:bg-[#166534]/5 group-hover:text-[#166534] group-hover:border-[#166534]/10 transition-colors">
+                        {amenity}
+                      </span>
                     ))}
-                    {site.amenities.length > 3 && <span className="text-xs text-gray-500 py-1">+{site.amenities.length - 3} more</span>}
+                    {site.amenities.length > 3 && (
+                      <span className="text-[10px] font-bold text-gray-400 py-1">+{site.amenities.length - 3}</span>
+                    )}
                   </div>
                 )}
+
                 <button
                   onClick={() => navigate('/payment-checkout', {
                     state: {
@@ -76,10 +101,10 @@ const CampingSitesManagement = () => {
                       title: site.name,
                       stay: '1 Night / 2 Days',
                       guests: `${site.capacity} Guests Max`,
-                      image: site.image ? `${API_BASE}${site.image}` : null
+                      image: site.image ? resolveMediaUrl(site.image) : null
                     }
                   })}
-                  className="w-full mt-2 bg-[#166534] hover:bg-[#14532d] text-white font-bold py-3 px-4 rounded-lg transition"
+                  className="w-full bg-[#166534] hover:bg-[#14532d] text-white font-black py-3.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg active:scale-[0.98] text-sm uppercase tracking-widest"
                 >
                   Book Now
                 </button>

@@ -21,7 +21,6 @@ const WildGuideLogo = () => (
 
 export const guideSelfNavItems = [
   { label: "Dashboard", path: "/guides/owndashboard", icon: LayoutDashboard },
-  { label: "My Profile", path: "/guides/ownprofile", icon: UserCircle },
   { label: "Bookings", path: "/guides/ownbookings", icon: CalendarCheck },
   { label: "Calendar", path: "/guides/owncalendar", icon: CalendarDays },
   { label: "Earnings", path: "/guides/ownearnings", icon: Banknote },
