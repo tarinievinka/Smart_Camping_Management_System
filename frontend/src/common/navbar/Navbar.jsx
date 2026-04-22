@@ -10,7 +10,6 @@ const navLinks = [
     { label: "Guides", href: "/guides" },
     { label: "Safety", href: "/safety-analysis" },
     { label: "Blogs", href: "/blogs" },
-    { label: "Payment", href: "/payment-history" },
 ];
 
 const Navbar = () => {
