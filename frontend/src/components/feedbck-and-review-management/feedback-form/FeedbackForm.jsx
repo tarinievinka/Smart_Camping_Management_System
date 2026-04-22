@@ -246,7 +246,7 @@ const FeedbackForm = () => {
             <div className="w-full max-w-3xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 w-full">
                     <div className="pl-1">
-                        <h2 className="text-[40px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
+                        <h2 className="text-[32px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
                         <p className="text-slate-500 font-medium text-sm">Share your experience to help fellow campers</p>
                     </div>
 

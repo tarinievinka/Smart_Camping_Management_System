@@ -110,20 +110,12 @@ function App() {
             {/* Feedback Routes */}
             <Route path='/feedback' element={<Feedback />} />
             <Route path='/feedbackreview' element={<Feedback />} />
-<<<<<<< HEAD
-            <Route path='/my-reviews' element={<MyReviews />} />
-            <Route path='/admin/feedback' element={<AdminFeedback />} />
-            <Route path='/admin/all-reviews' element={<AdminAllReviews />} />
-            <Route path='/guide-feedback' element={<GuideFeedback />} />
-            <Route path='/equipment-feedback' element={<EquipmentFeedback />} />
-            <Route path='/campsite-feedback' element={<CampsiteFeedback />} />
-=======
             <Route path='/my-reviews' element={<ProtectedRoute allowedRoles={['camper']}><MyReviews /></ProtectedRoute>} />
             <Route path='/admin/feedback' element={<ProtectedRoute allowedRoles={['admin']}><AdminFeedback /></ProtectedRoute>} />
             <Route path='/admin/all-reviews' element={<ProtectedRoute allowedRoles={['admin']}><AdminAllReviews /></ProtectedRoute>} />
             <Route path='/guide-feedback' element={<ProtectedRoute allowedRoles={['camper']}><GuideFeedback /></ProtectedRoute>} />
             <Route path='/equipment-feedback' element={<ProtectedRoute allowedRoles={['camper']}><EquipmentFeedback /></ProtectedRoute>} />
->>>>>>> e7d274c7705d604c5f134a70bd6ca6f46fffd1db
+            <Route path='/campsite-feedback' element={<ProtectedRoute allowedRoles={['camper']}><CampsiteFeedback /></ProtectedRoute>} />
 
 
             {/* Equipment management routes */}

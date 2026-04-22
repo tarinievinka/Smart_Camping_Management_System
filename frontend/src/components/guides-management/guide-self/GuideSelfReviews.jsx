@@ -123,8 +123,8 @@ const GuideSelfReviews = () => {
           
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32 }}>
             <div>
-              <h1 style={{ fontSize: 32, fontWeight: 800, color: "#111827", margin: 0, letterSpacing: "-0.02em" }}>Client Reviews</h1>
-              <p style={{ color: "#64748b", marginTop: 8, fontSize: 16 }}>See what campers are saying about their expeditions with you.</p>
+              <h1 style={{ fontSize: 24, fontWeight: 800, color: "#111827", margin: 0, letterSpacing: "-0.02em" }}>Client Reviews</h1>
+              <p style={{ color: "#64748b", marginTop: 4, fontSize: 14 }}>See what campers are saying about their expeditions with you.</p>
             </div>
             <button type="button" onClick={() => navigate("/guides/owndashboard")} style={backBtnStyle} onMouseOver={e => e.currentTarget.style.borderColor = "#166534"} onMouseOut={e => e.currentTarget.style.borderColor = "#e5e7eb"}>
               Back to Dashboard <ArrowRight size={18} />
@@ -136,7 +136,7 @@ const GuideSelfReviews = () => {
             <div style={statCardStyle}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Average Rating</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <span style={{ fontSize: 36, fontWeight: 800, color: "#111827" }}>{stats.avg}</span>
+                    <span style={{ fontSize: 28, fontWeight: 800, color: "#111827" }}>{stats.avg}</span>
                     <div style={{ display: "flex", gap: 2 }}>
                         {[...Array(5)].map((_, i) => (
                             <Star key={i} size={18} fill={i < Math.round(stats.avg) ? "#fbbf24" : "none"} color={i < Math.round(stats.avg) ? "#fbbf24" : "#e2e8f0"} />
@@ -147,7 +147,7 @@ const GuideSelfReviews = () => {
             <div style={statCardStyle}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Total Reviews</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <span style={{ fontSize: 36, fontWeight: 800, color: "#111827" }}>{stats.total}</span>
+                    <span style={{ fontSize: 28, fontWeight: 800, color: "#111827" }}>{stats.total}</span>
                     <MessageSquare size={24} color="#166534" />
                 </div>
             </div>
@@ -177,7 +177,7 @@ const GuideSelfReviews = () => {
                             {rev.userName?.charAt(0) || "U"}
                         </div>
                         <div>
-                            <h4 style={{ fontSize: 17, fontWeight: 700, color: "#1e293b", margin: 0 }}>{rev.userName || "Verified Camper"}</h4>
+                            <h4 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: 0 }}>{rev.userName || "Verified Camper"}</h4>
                             <div style={{ display: "flex", gap: 2, marginTop: 4 }}>
                                 {[...Array(5)].map((_, i) => (
                                     <Star key={i} size={14} fill={i < rev.rating ? "#fbbf24" : "none"} color={i < rev.rating ? "#fbbf24" : "#e2e8f0"} />
@@ -191,8 +191,8 @@ const GuideSelfReviews = () => {
                     </div>
                   </div>
                   
-                  <h5 style={{ fontSize: 16, fontWeight: 700, color: "#1e293b", marginBottom: 8 }}>{rev.title || "Expedition Review"}</h5>
-                  <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
+                  <h5 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", marginBottom: 8 }}>{rev.title || "Expedition Review"}</h5>
+                  <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
                     "{rev.comment}"
                   </p>
 
