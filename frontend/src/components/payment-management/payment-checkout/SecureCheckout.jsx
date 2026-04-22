@@ -44,6 +44,14 @@ const SecureCheckout = () => {
       formData.append('receipt', receiptFile);
       
       await createPaymentWithReceipt(formData);
+
+      // Clear equipment cart if applicable
+      if (currentBookingType === 'EquipmentBooking') {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userId = user?._id || 'guest';
+        localStorage.removeItem(`equipment_cart_${userId}`);
+      }
+
       navigate('/payment-history', { state: { message: 'Bank deposit payment submitted successfully! Waiting for admin approval.', variant: 'success' } });
     } catch (err) {
       console.error('Payment failed:', err);
