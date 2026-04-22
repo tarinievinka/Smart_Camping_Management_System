@@ -345,6 +345,22 @@ const SecureCheckout = () => {
                         paidAt: new Date()
                       });
 
+                      // If it's a campsite booking, update the reservation status to confirmed
+                      if (currentBookingType === 'CampsiteBooking') {
+                        try {
+                          await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/reservations/${currentBookingId}`, {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${userInfo.token}`
+                            },
+                            body: JSON.stringify({ status: 'confirmed' })
+                          });
+                        } catch (err) {
+                          console.error("Failed to update reservation status:", err);
+                        }
+                      }
+
                       // Clear equipment cart if applicable
                       if (currentBookingType === 'EquipmentBooking') {
                         localStorage.removeItem(`equipment_cart_${userId || 'guest'}`);
