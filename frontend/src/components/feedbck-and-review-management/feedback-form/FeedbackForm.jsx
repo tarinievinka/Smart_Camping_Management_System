@@ -62,15 +62,16 @@ const FeedbackForm = () => {
                     // Fetch guide bookings and filter for current user
                     const res = await axios.get(`${apiUrl}/api/guide-bookings/display`);
                     const bookings = Array.isArray(res.data) ? res.data : [];
-                    
+
                     const userId = resolvedUser?._id || resolvedUser?.id;
                     const userName = getDisplayName(resolvedUser);
 
-                    const myBookings = bookings.filter(b => 
-                        (userId && String(b.userId) === String(userId)) ||
-                        (userName && String(b.customerName).toLowerCase() === userName.toLowerCase())
+                    const myBookings = bookings.filter(b =>
+                        ((userId && String(b.userId) === String(userId)) ||
+                            (userName && String(b.customerName).toLowerCase() === userName.toLowerCase())) &&
+                        b.status?.toLowerCase() !== 'pending'
                     );
-                    
+
                     const guideMap = new Map();
                     myBookings.forEach(b => {
                         const gid = b.guideId?._id || b.guideId;
@@ -109,7 +110,7 @@ const FeedbackForm = () => {
                         const reservations = Array.isArray(res.data) ? res.data : [];
                         const campsiteMap = new Map();
                         reservations.forEach(r => {
-                            if (r.campsite && !campsiteMap.has(String(r.campsite._id))) {
+                            if (r.campsite && !campsiteMap.has(String(r.campsite._id)) && r.status?.toLowerCase() !== 'pending') {
                                 campsiteMap.set(String(r.campsite._id), {
                                     _id: r.campsite._id,
                                     name: r.campsite.name || r.campsite.title || "Unknown Campsite"
@@ -219,7 +220,7 @@ const FeedbackForm = () => {
             if (selectedReview === "equipment" || location.pathname === "/feedbackreview") {
                 navigate("/equipment-bookings");
             } else {
-                navigate("/my-reviews");
+                navigate("/camper-dashboard");
             }
         } catch (error) {
             console.error("Error submitting feedback:", error);
@@ -245,27 +246,10 @@ const FeedbackForm = () => {
             <div className="w-full max-w-3xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 w-full">
                     <div className="pl-1">
-                        <h2 className="text-[40px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
+                        <h2 className="text-[32px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
                         <p className="text-slate-500 font-medium text-sm">Share your experience to help fellow campers</p>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-sm self-start sm:self-auto">
-                        <button
-                            type="button"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 shadow-sm border border-slate-200 transition-all pointer-events-none"
-                        >
-                            <PenSquare size={16} />
-                            Submit Review
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => navigate("/my-reviews")}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-white transition-all"
-                        >
-                            <User size={16} />
-                            My Reviews
-                        </button>
-                    </div>
 
                 </div>
 

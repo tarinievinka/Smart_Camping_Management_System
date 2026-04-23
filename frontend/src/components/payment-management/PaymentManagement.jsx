@@ -452,7 +452,7 @@ const PaymentManagement = () => {
                             setSelectedPayment(payment);
                             setShowDetails(true);
                           }}
-                          className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded transition"
+                          className="flex items-center gap-1 bg-[#166534] hover:bg-[#14532d] text-white py-1 px-2 rounded transition"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />

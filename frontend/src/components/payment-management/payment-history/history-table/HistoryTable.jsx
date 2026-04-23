@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, Eye, FileText } from 'lucide-react';
 import PaymentInvoice from '../../payment-invoice/PaymentInvoice';
 
 const HistoryTable = ({ payments = [] }) => {
   const [showInvoice, setShowInvoice] = useState(false);
+  const [showSlip, setShowSlip] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const handleDownloadInvoice = (transaction) => {
     setSelectedTransaction({
@@ -105,14 +108,29 @@ const HistoryTable = ({ payments = [] }) => {
                       {transaction.transactionId || 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <button
-                        onClick={() => handleDownloadInvoice(transaction)}
-                        className="flex items-center gap-1 bg-[#166534] hover:bg-[#14532d] text-white py-1 px-3 rounded transition"
-                        title="Download Invoice PDF"
-                      >
-                        <Download className="w-4 h-4" />
-                        Invoice
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleDownloadInvoice(transaction)}
+                          className="flex items-center gap-1 bg-[#166534] hover:bg-[#14532d] text-white py-1 px-3 rounded transition text-xs font-bold"
+                          title="Download Invoice PDF"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          Invoice
+                        </button>
+                        {transaction.paymentMethod === 'bank-deposit' && transaction.receiptUrl && (
+                          <button
+                            onClick={() => {
+                              setSelectedTransaction(transaction);
+                              setShowSlip(true);
+                            }}
+                            className="flex items-center gap-1 bg-[#166534] hover:bg-[#14532d] text-white py-1 px-3 rounded transition text-xs font-bold"
+                            title="View Bank Slip"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            Slip
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -121,6 +139,45 @@ const HistoryTable = ({ payments = [] }) => {
           )}
         </div>
       </div>
+
+      {/* Slip Modal */}
+      {showSlip && selectedTransaction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSlip(false)}></div>
+          <div className="relative bg-white rounded-2xl overflow-hidden max-w-2xl w-full shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <div>
+                <h3 className="font-bold text-gray-900">Your Uploaded Bank Slip</h3>
+                <p className="text-xs text-gray-500">Transaction ID: {selectedTransaction.transactionId}</p>
+              </div>
+              <button
+                onClick={() => setShowSlip(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 bg-gray-50 flex items-center justify-center min-h-[300px]">
+              <img
+                src={`${API_BASE_URL}${selectedTransaction.receiptUrl}`}
+                alt="Bank Slip"
+                className="max-w-full max-h-[70vh] shadow-lg rounded-lg object-contain"
+              />
+            </div>
+            <div className="p-4 bg-white border-t border-gray-100 flex justify-between items-center">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(selectedTransaction.status)}`}>
+                Status: {selectedTransaction.status}
+              </span>
+              <button
+                onClick={() => setShowSlip(false)}
+                className="px-6 py-2 bg-[#166534] text-white font-bold rounded-lg hover:bg-[#14532d] transition"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Invoice Modal */}
       {showInvoice && selectedTransaction && (

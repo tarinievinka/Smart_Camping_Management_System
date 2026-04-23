@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
-import { Star, MapPin, Calendar, CreditCard, Package, Compass, Trash2, LogOut, ChevronRight, MessageSquare, PenSquare, Clock, User } from 'lucide-react';
+import { Star, MapPin, Calendar, CreditCard, Package, Compass, Trash2, LogOut, ChevronRight, MessageSquare, PenSquare, Clock, User, Bell, CheckCircle, X } from 'lucide-react';
 import { getEquipmentBookings } from '../../../utils/equipmentBookings';
 
 const CamperDashboard = () => {
@@ -18,20 +18,26 @@ const CamperDashboard = () => {
     // Data states
     const [equipmentBookings, setEquipmentBookings] = useState([]);
     const [guideBookings, setGuideBookings] = useState([]);
+    const [campsiteBookings, setCampsiteBookings] = useState([]);
     const [guides, setGuides] = useState([]);
     const [reviews, setReviews] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
 
     useEffect(() => {
-        if (authUser) {
-            setUser(authUser);
-        } else {
-            const stored = localStorage.getItem('userInfo');
-            if (stored) {
-                const userInfo = JSON.parse(stored);
-                setUser(userInfo);
-            } else {
-                navigate('/login');
+        const userInfo = authUser || JSON.parse(localStorage.getItem('userInfo') || '{}');
+        if (userInfo) {
+            setUser(userInfo);
+            // Redirect owners to their dashboard if they land here
+            const role = userInfo.role?.toLowerCase()?.trim();
+            const isOwner = userInfo.ownerStatus === 'approved' || 
+                           ['owner', 'campsite_owner', 'campsite-owner', 'campsite owner'].includes(role);
+            if (isOwner) {
+                navigate('/owner-profile');
+                return;
             }
+        } else {
+            navigate('/login');
         }
     }, [authUser, navigate]);
 
@@ -76,6 +82,41 @@ const CamperDashboard = () => {
                 const allReviews = reviewRes.data || [];
                 const myReviews = allReviews.filter(r => String(r.userId || "") === String(userInfo._id || userInfo.id));
                 setReviews(myReviews);
+
+                // Fetch Campsite Reservations
+                const token = userInfo.token;
+                if (token) {
+                    const res = await axios.get('http://localhost:5000/api/reservations/myreservations', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    setCampsiteBookings(Array.isArray(res.data) ? res.data : []);
+                }
+
+                // Fetch Notifications
+                if (userInfo.email) {
+                    const notifyRes = await axios.get(`http://localhost:5000/api/customer-notifications/user/${userInfo.email}`);
+                    setNotifications(notifyRes.data || []);
+                }
+
+                // Sync Equipment Bookings Status from Backend Payments
+                const paymentRes = await axios.get('http://localhost:5000/api/payment/display');
+                const allPayments = paymentRes.data || [];
+                const myPayments = allPayments.filter(p => String(p.userId) === String(userInfo._id || userInfo.id));
+                
+                const updatedEqBookings = eqBookings.map(b => {
+                    const matchingPayment = myPayments.find(p => p.bookingId === b.bookingId && p.bookingType === 'EquipmentBooking');
+                    if (matchingPayment && matchingPayment.paymentStatus === 'success' && b.status !== 'paid') {
+                        return { ...b, status: 'paid' };
+                    }
+                    return b;
+                });
+                
+                // If any updated, save back to localStorage
+                if (JSON.stringify(eqBookings) !== JSON.stringify(updatedEqBookings)) {
+                    setEquipmentBookings(updatedEqBookings);
+                    const key = `equipment_bookings_${userInfo._id || userInfo.id || 'guest'}`;
+                    localStorage.setItem(key, JSON.stringify(updatedEqBookings));
+                }
 
             } catch (err) {
                 console.error("Error fetching dashboard data:", err);
@@ -150,19 +191,30 @@ const CamperDashboard = () => {
                     : (guide?.profilePicture ? `http://localhost:5000${guide.profilePicture}` : "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=80&w=1000")
             };
         });
-        return [...eq, ...gd].sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
-    }, [equipmentBookings, guideBookings, guides]);
+        const cs = campsiteBookings.map(b => ({
+            id: b._id,
+            type: 'Campsite',
+            name: b.campsite?.name || b.campsite?.title || 'Unknown Campsite',
+            date: new Date(b.checkInDate || b.checkIn).toLocaleDateString(),
+            status: b.status || 'Confirmed',
+            total: `LKR ${b.totalPrice || 0}`,
+            rawDate: b.checkInDate || b.checkIn,
+            image: b.campsite?.image ? `http://localhost:5000${b.campsite.image}` : "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&q=80&w=1000",
+            targetId: b.campsite?._id
+        }));
+        return [...eq, ...gd, ...cs].sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
+    }, [equipmentBookings, guideBookings, guides, campsiteBookings]);
 
     const stats = useMemo(() => {
         const upcoming = allBookings.filter(b => b.status.toLowerCase() === 'pending' || b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'paid').length;
         const totalSpent = allBookings.reduce((sum, b) => sum + parseFloat(String(b.total || "0").replace('LKR ', '').replace('$', '')), 0);
-        const activeRentals = equipmentBookings.filter(b => b.status.toLowerCase() === 'paid').length;
+        const activeBookings = allBookings.filter(b => b.status.toLowerCase() === 'confirmed' || b.status.toLowerCase() === 'paid').length;
         return {
             upcoming: upcoming,
             spent: `LKR ${totalSpent.toLocaleString()}`,
-            rentals: `${activeRentals} bookings`
+            active: `${activeBookings} active`
         };
-    }, [allBookings, equipmentBookings]);
+    }, [allBookings]);
 
     if (loading) {
         return (
@@ -185,17 +237,61 @@ const CamperDashboard = () => {
                                     <h2 style={styles.welcomeMsg}>Welcome, {user?.name?.split(' ')[0] || 'Explorer'}!</h2>
                                     <p style={styles.welcomeSub}>Ready for your next camping trip?</p>
                                 </div>
-                                <button style={styles.updateDetailsBtn} onClick={() => navigate('/edit-profile')}>
-                                    <PenSquare size={16} /> Update Personal Details
-                                </button>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <div style={{ position: 'relative' }}>
+                                        <button 
+                                            style={{ ...styles.updateDetailsBtn, padding: '10px' }}
+                                            onClick={() => setShowNotifications(!showNotifications)}
+                                        >
+                                            <Bell size={20} />
+                                            {notifications.filter(n => !n.read).length > 0 && (
+                                                <span style={styles.notificationBadge}>
+                                                    {notifications.filter(n => !n.read).length}
+                                                </span>
+                                            )}
+                                        </button>
+                                        
+                                        {showNotifications && (
+                                            <div style={styles.notificationDropdown}>
+                                                <div style={styles.notificationHeader}>
+                                                    <h4 style={{ margin: 0, fontSize: '14px' }}>Notifications</h4>
+                                                    <button onClick={() => setShowNotifications(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={14} /></button>
+                                                </div>
+                                                <div style={styles.notificationList}>
+                                                    {notifications.length === 0 ? (
+                                                        <p style={{ padding: '20px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>No notifications</p>
+                                                    ) : (
+                                                        notifications.map(n => (
+                                                            <div key={n._id} style={{ ...styles.notificationItem, borderLeft: n.read ? 'none' : '4px solid #10a110' }}>
+                                                                 <p style={styles.notificationTitle}>{n.title}</p>
+                                                                <p style={styles.notificationBody}>{n.body}</p>
+                                                                <span style={styles.notificationTime}>{new Date(n.createdAt).toLocaleDateString()}</span>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button style={styles.updateDetailsBtn} onClick={() => navigate('/edit-profile')}>
+                                        <PenSquare size={16} /> Update Personal Details
+                                    </button>
+                                </div>
                             </div>
                         </section>
 
                         {/* Summary Cards */}
                         <div style={styles.statsRow}>
                             <StatBox label="Upcoming Trips" value={stats.upcoming} icon={<Calendar size={24} />} color="#f0fdf4" iconColor="#10a110" />
-                            <StatBox label="Total Spent" value={stats.spent} icon={<CreditCard size={24} />} color="#f0fff4" iconColor="#10a110" />
-                            <StatBox label="Active Rentals" value={stats.rentals} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
+                            <StatBox 
+                                label="Total Spent" 
+                                value={stats.spent} 
+                                icon={<CreditCard size={24} />} 
+                                color="#f0fff4" 
+                                iconColor="#10a110" 
+                                onClick={() => navigate('/payment-history')}
+                            />
+                            <StatBox label="Active Bookings" value={stats.active} icon={<Package size={24} />} color="#fff7ed" iconColor="#f97316" />
                         </div>
 
                         {/* Main Grid: Bookings + Reviews */}
@@ -205,7 +301,7 @@ const CamperDashboard = () => {
                                 <div style={styles.cardHeader}>
                                     <h3 style={styles.cardTitle}>My Bookings</h3>
                                     <div style={styles.tabGroup}>
-                                        {['All Bookings', 'Equipment Rentals', 'Guide Bookings'].map(tab => (
+                                        {['All Bookings', 'Equipment Rentals', 'Guide Bookings', 'Campsite Reservations'].map(tab => (
                                             <button 
                                                 key={tab}
                                                 style={{
@@ -224,6 +320,7 @@ const CamperDashboard = () => {
                                         .filter(b => {
                                             if (activeBookingTab === 'Equipment Rentals') return b.type === 'Equipment';
                                             if (activeBookingTab === 'Guide Bookings') return b.type === 'Guide';
+                                            if (activeBookingTab === 'Campsite Reservations') return b.type === 'Campsite';
                                             return true;
                                         })
                                         .map((booking, index) => (
@@ -236,21 +333,30 @@ const CamperDashboard = () => {
                                                         <div style={styles.bookingMeta}>
                                                             <span style={{ 
                                                                 ...styles.bookingTypeBadge,
-                                                                background: booking.type === 'Equipment' ? '#f0fdf4' : '#eff6ff',
-                                                                color: booking.type === 'Equipment' ? '#10a110' : '#3b82f6',
-                                                                border: `1px solid ${booking.type === 'Equipment' ? '#dcfce7' : '#dbeafe'}`
+                                                                background: booking.type === 'Equipment' ? '#fdf2f8' : booking.type === 'Guide' ? '#f0f9ff' : '#f0fdf4',
+                                                                color: booking.type === 'Equipment' ? '#db2777' : booking.type === 'Guide' ? '#0284c7' : '#10a110',
+                                                                border: `1px solid ${booking.type === 'Equipment' ? '#fbcfe8' : booking.type === 'Guide' ? '#bae6fd' : '#dcfce7'}`
                                                             }}>
-                                                                {booking.type === 'Equipment' ? <Package size={12} /> : <Compass size={12} />}
-                                                                {booking.type}
+                                                                {booking.type === 'Equipment' ? <Package size={12} /> : (booking.type === 'Guide' ? <Compass size={12} /> : <MapPin size={12} />)}
+                                                                {booking.type.toUpperCase()}
                                                             </span>
                                                             <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>#{booking.id?.slice(-6) || 'N/A'}</span>
                                                         </div>
-                                                        <button 
-                                                            style={styles.viewDetailsBtn}
-                                                            onClick={() => navigate(booking.type === 'Equipment' ? '/equipment-bookings' : '/guides/bookings')}
-                                                        >
-                                                            <PenSquare size={14} /> View Details
-                                                        </button>
+                                                        {booking.type !== 'Campsite' && (
+                                                            <button 
+                                                                style={{
+                                                                    ...styles.viewDetailsBtn,
+                                                                    ...(booking.status?.toLowerCase() === 'pending' ? { opacity: 0.7, cursor: 'pointer' } : {})
+                                                                }}
+                                                                onClick={() => {
+                                                                    if (booking.type === 'Equipment') navigate('/equipment-bookings');
+                                                                    else if (booking.type === 'Guide') navigate('/guides/bookings');
+                                                                }}
+                                                            >
+                                                                {booking.status?.toLowerCase() === 'pending' ? <Clock size={14} /> : <PenSquare size={14} />} 
+                                                                {booking.status?.toLowerCase() === 'pending' ? 'Booking Pending' : 'View Details'}
+                                                            </button>
+                                                        )}
                                                     </div>
 
                                                     <h4 style={styles.bookingName}>{booking.name}</h4>
@@ -270,8 +376,8 @@ const CamperDashboard = () => {
                                                         </div>
                                                         <div style={styles.bookingDetailItem}>
                                                             <span style={(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? styles.pillGreen : styles.pillYellow}>
-                                                                <Clock size={12} style={{ marginRight: '4px' }} />
-                                                                {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1).toLowerCase()}
+                                                                {(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? <CheckCircle size={12} style={{ marginRight: '4px' }} /> : <Clock size={12} style={{ marginRight: '4px' }} />}
+                                                                {(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? 'Payment Completed' : 'Pending Verification'}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -376,8 +482,13 @@ const CamperDashboard = () => {
     );
 };
 
-const StatBox = ({ label, value, icon, color, iconColor }) => (
-    <div style={styles.statBox}>
+const StatBox = ({ label, value, icon, color, iconColor, onClick }) => (
+    <div 
+        style={{ ...styles.statBox, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.2s' }} 
+        onClick={onClick}
+        onMouseEnter={(e) => onClick && (e.currentTarget.style.transform = 'translateY(-5px)')}
+        onMouseLeave={(e) => onClick && (e.currentTarget.style.transform = 'translateY(0)')}
+    >
         <div style={{ ...styles.statIconWrap, background: color, color: iconColor }}>{icon}</div>
         <div>
             <p style={styles.statLabel}>{label}</p>
@@ -461,8 +572,8 @@ const styles = {
     td: { padding: '16px 12px', fontSize: '14px', color: '#475569', borderBottom: '1px solid #f1f5f9' },
     tr: { transition: 'background 0.2s', ':hover': { background: '#f8fafc' } },
     
-    pillGreen: { padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700, background: '#f0fdf4', color: '#10a110' },
-    pillYellow: { padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700, background: '#fffbeb', color: '#d97706' },
+    pillGreen: { padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700, background: '#f0fdf4', color: '#10a110', display: 'flex', alignItems: 'center', gap: '4px' },
+    pillYellow: { padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700, background: '#fffbeb', color: '#d97706', display: 'flex', alignItems: 'center', gap: '4px' },
     
     viewDetailsBtn: { 
         background: '#fff', border: '1px solid #e2e8f0', color: '#1e293b', 
@@ -526,6 +637,25 @@ const styles = {
         width: '100%', height: '100%', background: '#10a110', 
         animation: 'progress 3s linear forwards' 
     },
+    notificationBadge: {
+        position: 'absolute', top: '-5px', right: '-5px', background: '#ef4444', color: 'white',
+        borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', fontWeight: 700,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff'
+    },
+    notificationDropdown: {
+        position: 'absolute', top: '100%', right: 0, marginTop: '10px', width: '320px',
+        background: '#fff', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+        zIndex: 50, overflow: 'hidden', border: '1px solid #e2e8f0'
+    },
+    notificationHeader: {
+        padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', 
+        justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc'
+    },
+    notificationList: { maxHeight: '400px', overflowY: 'auto' },
+    notificationItem: { padding: '12px 16px', borderBottom: '1px solid #f8fafc', transition: 'background 0.2s' },
+    notificationTitle: { margin: '0 0 4px 0', fontSize: '13px', fontWeight: 700, color: '#1e293b' },
+    notificationBody: { margin: '0 0 6px 0', fontSize: '12px', color: '#64748b', lineHeight: '1.5' },
+    notificationTime: { fontSize: '10px', color: '#94a3b8' },
 };
 
 export default CamperDashboard;

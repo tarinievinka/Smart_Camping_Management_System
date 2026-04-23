@@ -54,14 +54,14 @@ const PaymentInvoice = ({ payment, onClose }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded-lg transition text-sm"
+              className="flex items-center gap-1.5 bg-[#166534] hover:bg-[#14532d] text-white py-1.5 px-3 rounded-lg transition text-sm"
             >
               <Printer className="w-4 h-4" />
               Print
             </button>
             <button
               onClick={generatePDF}
-              className="flex items-center gap-1.5 bg-[#166534] hover:bg-[#14532d] text-white py-1.5 px-3 rounded-lg transition text-sm"
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded-lg transition text-sm"
             >
               <Download className="w-4 h-4" />
               PDF
@@ -117,7 +117,7 @@ const PaymentInvoice = ({ payment, onClose }) => {
           </div>
 
           {/* Payment Method */}
-          <div className="bg-blue-50 border-l-4 border-blue-500 px-4 py-3 mb-6 rounded-r-md flex items-center gap-6">
+          <div className="bg-[#166534]/10 border-l-4 border-[#166534] px-4 py-3 mb-6 rounded-r-md flex items-center gap-6">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-0.5">Payment Method</p>
               <p className="capitalize font-semibold text-gray-900 text-sm">{payment.paymentMethod?.replace('-', ' ')}</p>

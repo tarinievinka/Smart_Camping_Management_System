@@ -59,15 +59,15 @@ const FeedbackForm = () => {
                 if (selectedReview === "guide") {
                     const res = await axios.get(`${apiUrl}/api/guide-bookings/display`);
                     const bookings = Array.isArray(res.data) ? res.data : [];
-                    
+
                     const userId = resolvedUser?._id || resolvedUser?.id;
                     const userName = getDisplayName(resolvedUser);
 
-                    const myBookings = bookings.filter(b => 
+                    const myBookings = bookings.filter(b =>
                         (userId && String(b.userId) === String(userId)) ||
                         (userName && String(b.customerName).toLowerCase() === userName.toLowerCase())
                     );
-                    
+
                     const guideMap = new Map();
                     myBookings.forEach(b => {
                         const gid = b.guideId?._id || b.guideId;
@@ -212,7 +212,7 @@ const FeedbackForm = () => {
             if (selectedReview === "equipment" || location.pathname === "/feedbackreview") {
                 navigate("/equipment-bookings");
             } else {
-                navigate("/my-reviews");
+                navigate("/camper-dashboard");
             }
         } catch (error) {
             console.error("Error submitting feedback:", error);
@@ -238,7 +238,7 @@ const FeedbackForm = () => {
             <div className="w-full max-w-3xl">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 w-full">
                     <div className="pl-1">
-                        <h2 className="text-[40px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
+                        <h2 className="text-[32px] font-extrabold text-slate-900 leading-tight mb-2">Submit a Review</h2>
                         <p className="text-slate-500 font-medium text-sm">Share your experience to help fellow campers</p>
                     </div>
 

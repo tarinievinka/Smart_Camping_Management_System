@@ -7,7 +7,7 @@ import Forgot from './pages/Forgot';
 import CampsiteList from './pages/CampsiteList';
 import CampsiteDetails from './pages/CampsiteDetails';
 import AdminDashboard from './pages/AdminDashboard';
-import CampsiteOwnerDashboard from './pages/CampsiteOwnerDashboard';
+import CampsiteOwnerDashboard from './components/camping-sites-management/CampsiteOwnerDashboard';
 import MyBookings from './pages/MyBookings';
 
 

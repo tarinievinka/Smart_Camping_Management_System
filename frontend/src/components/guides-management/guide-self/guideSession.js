@@ -21,7 +21,7 @@
  */
 import axios from "axios";
 
-export const GUIDE_SELF_DASHBOARD_PATH = "/guides/owndashboard";
+export const GUIDE_SELF_DASHBOARD_PATH = "/guides/ownprofile";
 
 /** Cleared on guide sign-out — keep in sync with user-management logout if auth is shared */
 export const GUIDE_SESSION_STORAGE_KEYS = [

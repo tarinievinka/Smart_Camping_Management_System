@@ -2,6 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import date
 import traceback
+import sys
+import os
+
+# Add current directory to path for imports
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from weather_fetcher import get_weather
 from predictor import predict_safety
 

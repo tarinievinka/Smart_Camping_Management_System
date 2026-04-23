@@ -72,6 +72,24 @@ const SimplePaymentForm = ({ alreadyPaid = false, amount = 303.80, bookingId = "
 
       await createPayment(paymentData);
 
+      // If it's a campsite booking, update the reservation status to confirmed
+      if (bookingType === 'CampsiteBooking') {
+        try {
+          const storedUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
+          const token = storedUser.token;
+          await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/reservations/${bookingId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ status: 'confirmed' })
+          });
+        } catch (err) {
+          console.error("Failed to update reservation status:", err);
+        }
+      }
+
       // Reduce stock if this is an equipment booking
       if (bookingType === 'EquipmentBooking' && equipmentItems.length > 0) {
         const EQUIP_API = process.env.REACT_APP_API_URL + '/api/equipment';

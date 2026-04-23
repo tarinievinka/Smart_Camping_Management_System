@@ -2,7 +2,6 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { PenSquare, User } from "lucide-react";
 import FeedbackForm from "./feedback-form/FeedbackForm";
-import ReviewSidebar from "./ReviewSidebar";
 
 const Feedback = () => {
   const navigate = useNavigate();
@@ -12,7 +11,6 @@ const Feedback = () => {
 
   return (
     <div className="min-h-screen bg-white flex">
-      {!isEquipmentFeedbackPage && <ReviewSidebar />}
       <div className="flex-1 h-screen overflow-y-auto">
         {!isEquipmentFeedbackPage && (
           <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-10">

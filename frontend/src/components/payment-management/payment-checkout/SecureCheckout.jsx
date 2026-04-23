@@ -3,7 +3,7 @@ import { ChevronLeft, Shield, AlertCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PaymentSummary from './payment-summary/PaymentSummary';
 import SimplePaymentForm from './simple-payment/SimplePaymentForm';
-import { createPaymentWithReceipt } from '../../../services/paymentApi';
+import { createPaymentWithReceipt, createPayment } from '../../../services/paymentApi';
 import GooglePayButton from '@google-pay/button-react';
 import { saveEquipmentBooking } from '../../../utils/equipmentBookings';
 
@@ -330,8 +330,43 @@ const SecureCheckout = () => {
                         });
                       }
 
-                      navigate('/payment-success', { 
+                      // RECORD IN BACKEND
+                      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                      const userId = userInfo._id || userInfo.id;
 
+                      await createPayment({
+                        userId,
+                        bookingType: currentBookingType,
+                        bookingId: currentBookingId,
+                        amount: currentAmount,
+                        paymentMethod: 'google-pay',
+                        transactionId: `GPAY-${Date.now()}`,
+                        paymentStatus: 'success',
+                        paidAt: new Date()
+                      });
+
+                      // If it's a campsite booking, update the reservation status to confirmed
+                      if (currentBookingType === 'CampsiteBooking') {
+                        try {
+                          await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/reservations/${currentBookingId}`, {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${userInfo.token}`
+                            },
+                            body: JSON.stringify({ status: 'confirmed' })
+                          });
+                        } catch (err) {
+                          console.error("Failed to update reservation status:", err);
+                        }
+                      }
+
+                      // Clear equipment cart if applicable
+                      if (currentBookingType === 'EquipmentBooking') {
+                        localStorage.removeItem(`equipment_cart_${userId || 'guest'}`);
+                      }
+
+                      navigate('/payment-success', { 
                         state: { 
                           message: 'Google Pay payment completed successfully!', 
                           variant: 'success' 
