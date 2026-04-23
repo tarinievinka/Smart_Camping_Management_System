@@ -49,7 +49,7 @@ const CampsiteOwnerDashboard = () => {
     const [showProfileModal, setShowProfileModal] = useState(false);
 
     // Context & Navigation
-    const { user } = useAuth();
+    const { user, setUser: setAuthUser } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -153,6 +153,7 @@ const CampsiteOwnerDashboard = () => {
             const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
             userInfo.name = response.data.name;
             localStorage.setItem('userInfo', JSON.stringify(userInfo));
+            setAuthUser(userInfo); // Update AuthContext state
             
             alert('Profile updated successfully!');
             fetchDashboardData();

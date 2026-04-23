@@ -19,13 +19,13 @@ const guideSchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      required: [true, "Phone number is Required"],
+      required: false,
       trim: true,
     },
 
     experience: {
       type: Number,
-      required: [true, "Experience is required"],
+      required: false,
       min: [0, "Experience cannot be negative"],
     },
 
