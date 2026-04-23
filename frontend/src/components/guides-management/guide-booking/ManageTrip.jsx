@@ -5,6 +5,7 @@ import { Calendar, MapPin, User, CreditCard, AlertTriangle, ArrowLeft, Phone, Fi
 import { resolveMediaUrl } from '../../../utils/resolveMediaUrl';
 import { getGuideDailyRate } from '../../../utils/guidePricing';
 import { useToast } from '../../../context/ToastContext';
+import { useAuth } from '../../../context/AuthContext';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -12,6 +13,7 @@ const ManageTrip = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { user } = useAuth();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -85,7 +87,11 @@ const ManageTrip = () => {
 
         try {
             await axios.delete(`${API_URL}/api/guide-bookings/cancel/${trip.id}`);
-            navigate('/guides/bookings');
+            if (user?.role?.toLowerCase() === 'guide') {
+                navigate('/guides/ownbookings');
+            } else {
+                navigate('/camper-dashboard', { state: { activeTab: 'Manage Trips' } });
+            }
         } catch (err) {
             console.error("Failed to cancel trip:", err);
             showToast("Failed to cancel trip. Please try again.", { variant: "error" });
@@ -99,7 +105,13 @@ const ManageTrip = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <button
-                        onClick={() => navigate('/guides/bookings')}
+                        onClick={() => {
+                            if (user?.role?.toLowerCase() === 'guide') {
+                                navigate('/guides/ownbookings');
+                            } else {
+                                navigate('/camper-dashboard', { state: { activeTab: 'Manage Trips' } });
+                            }
+                        }}
                         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition font-medium"
                     >
                         <ArrowLeft className="w-5 h-5" />
@@ -112,7 +124,7 @@ const ManageTrip = () => {
                             style={trip.status.toLowerCase() !== 'pending' ? { backgroundColor: '#166534', color: 'white' } : {}}>
                             {trip.status}
                         </span>
-                        <h1 className="text-3xl font-bold text-gray-900">Manage Trip</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">Guide Bookings</h1>
                     </div>
                 </div>
 

@@ -75,12 +75,6 @@ import GuideFeedback from './components/feedbck-and-review-management/Guide-revi
 import EquipmentFeedback from './components/feedbck-and-review-management/Equipment-review/EquipmentFeedback';
 import CampsiteFeedback from './components/feedbck-and-review-management/CampsiteOwner-review/Campsite-feedback';
 import CampsiteBookingForm from './components/camping-sites-management/CampsiteBookingForm';
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 0d6ff4192d4a435b9625c6fa4e595cfd1ba782a9
-
 
 function AppContent() {
   const location = useLocation();
@@ -163,7 +157,7 @@ function AppContent() {
           <Route path='/guides' element={<GuideBooking />} />
           <Route path='/guides/bookings' element={<ProtectedRoute allowedRoles={['camper']}><Bookings /></ProtectedRoute>} />
           <Route path='/guides/favourites' element={<ProtectedRoute allowedRoles={['camper']}><Favourites /></ProtectedRoute>} />
-          <Route path='/guides/manage-trip/:id' element={<ProtectedRoute allowedRoles={['guide']}><ManageTrip /></ProtectedRoute>} />
+          <Route path='/guides/manage-trip/:id' element={<ProtectedRoute allowedRoles={['guide', 'camper']}><ManageTrip /></ProtectedRoute>} />
           <Route path='/guides/dashboard' element={<ProtectedRoute allowedRoles={['admin']}><GuideDashboard /></ProtectedRoute>} />
           <Route path='/guides/add' element={<ProtectedRoute allowedRoles={['admin']}><AddGuide /></ProtectedRoute>} />
           <Route path='/guides/update/:id' element={<ProtectedRoute allowedRoles={['admin']}><UpdateGuide /></ProtectedRoute>} />
