@@ -110,6 +110,7 @@ router.post('/', protect, async (req, res) => {
       checkInDate,
       checkOutDate,
       totalPrice,
+      status: req.body.status || 'confirmed',
     });
     res.status(201).json(reservation);
   } catch (error) {
@@ -127,26 +128,32 @@ router.put('/:id', protect, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to edit this reservation' });
     }
 
-    const { checkInDate, checkOutDate } = req.body;
-    if (!checkInDate || !checkOutDate) return res.status(400).json({ message: 'Dates required' });
+    const { checkInDate, checkOutDate, status } = req.body;
 
-    const campsite = await Campsite.findById(reservation.campsite);
-    const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / 86400000);
-    if (nights < 1) return res.status(400).json({ message: 'Check-out must be after check-in' });
+    if (status) {
+      reservation.status = status;
+    }
 
-    // Conflict check excluding this reservation
-    const others = await Reservation.find({
-      campsite: reservation.campsite,
-      status: { $ne: 'cancelled' },
-      _id: { $ne: reservation._id },
-    });
-    const hasConflict = others.some(r => hasOverlap(checkInDate, checkOutDate, r.checkInDate, r.checkOutDate));
-    if (hasConflict) return res.status(400).json({ message: 'These dates are already taken.' });
+    if (checkInDate && checkOutDate) {
+      const campsite = await Campsite.findById(reservation.campsite);
+      const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / 86400000);
+      if (nights < 1) return res.status(400).json({ message: 'Check-out must be after check-in' });
 
-    const pricePerNight = campsite.pricePerNight;
-    reservation.checkInDate = checkInDate;
-    reservation.checkOutDate = checkOutDate;
-    reservation.totalPrice = nights * pricePerNight + 35 + 25;
+      // Conflict check excluding this reservation
+      const others = await Reservation.find({
+        campsite: reservation.campsite,
+        status: { $ne: 'cancelled' },
+        _id: { $ne: reservation._id },
+      });
+      const hasConflict = others.some(r => hasOverlap(checkInDate, checkOutDate, r.checkInDate, r.checkOutDate));
+      if (hasConflict) return res.status(400).json({ message: 'These dates are already taken.' });
+
+      const pricePerNight = campsite.pricePerNight;
+      reservation.checkInDate = checkInDate;
+      reservation.checkOutDate = checkOutDate;
+      reservation.totalPrice = nights * pricePerNight + 35 + 25;
+    }
+
     const updated = await reservation.save();
     res.json(updated);
   } catch (error) {
