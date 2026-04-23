@@ -75,11 +75,6 @@ import GuideFeedback from './components/feedbck-and-review-management/Guide-revi
 import EquipmentFeedback from './components/feedbck-and-review-management/Equipment-review/EquipmentFeedback';
 import CampsiteFeedback from './components/feedbck-and-review-management/CampsiteOwner-review/Campsite-feedback';
 import CampsiteBookingForm from './components/camping-sites-management/CampsiteBookingForm';
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 0d6ff4192d4a435b9625c6fa4e595cfd1ba782a9
 
 
 function AppContent() {
