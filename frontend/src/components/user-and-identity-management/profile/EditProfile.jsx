@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { validatePhone } from '../../../utils/validation';
+import { useAuth } from '../../../context/AuthContext';
 
 const EditProfile = () => {
     const navigate = useNavigate();
+    const { setUser: setAuthUser } = useAuth();
 
     const [form, setForm] = useState({ name: '', email: '', phone: '' });
     const [isLoading, setIsLoading] = useState(false);
@@ -61,10 +63,14 @@ const EditProfile = () => {
                 const currentUser = JSON.parse(localStorage.getItem('userInfo') || '{}');
                 const updatedUser = { ...currentUser, ...data };
                 localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+                setAuthUser(updatedUser); // Update AuthContext state
                 setUserRole(updatedUser.role);
                 setSuccess('Profile updated successfully! ✓');
                 const isOwner = ['owner', 'campsite_owner', 'campsite-owner'].includes(updatedUser.role);
-                const dashboardPath = updatedUser.role === 'admin' ? '/admin-dashboard' : (isOwner ? '/owner-profile' : '/camper-dashboard');
+                const isGuide = updatedUser.role === 'guide';
+                const dashboardPath = updatedUser.role === 'admin' ? '/admin-dashboard' : 
+                                     (isOwner ? '/owner-profile' : 
+                                     (isGuide ? '/guides/owndashboard' : '/camper-dashboard'));
                 setTimeout(() => navigate(dashboardPath), 1500);
             } else {
                 setError(data.error || 'Update failed. Please try again.');
@@ -129,7 +135,11 @@ const EditProfile = () => {
 
                 <button style={styles.backBtn} onClick={() => {
                     const isOwner = ['owner', 'campsite_owner', 'campsite-owner'].includes(userRole);
-                    navigate(userRole === 'admin' ? '/admin-dashboard' : (isOwner ? '/owner-profile' : '/camper-dashboard'));
+                    const isGuide = userRole === 'guide';
+                    const dashboardPath = userRole === 'admin' ? '/admin-dashboard' : 
+                                         (isOwner ? '/owner-profile' : 
+                                         (isGuide ? '/guides/owndashboard' : '/camper-dashboard'));
+                    navigate(dashboardPath);
                 }}>
                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

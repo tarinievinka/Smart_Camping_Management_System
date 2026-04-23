@@ -39,7 +39,8 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/login', {
+            const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+            const response = await fetch(`${apiUrl}/api/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -54,6 +55,15 @@ const Login = () => {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 const userInfo = { ...data.user, token: data.token };
                 localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                
+                const role = data.user.role?.toLowerCase()?.trim();
+
+                // If user is a guide, sync their guideId into localStorage for the dashboard
+                if (role === 'guide') {
+                    const { syncGuideSession } = await import('../../components/guides-management/guide-self/guideSession');
+                    await syncGuideSession(data.token);
+                }
+
                 setUser(userInfo);
                 
                 const from = location.state?.from;
@@ -62,7 +72,6 @@ const Login = () => {
                     return;
                 }
 
-                const role = data.user.role?.toLowerCase()?.trim();
                 const ownerStatus = data.user.ownerStatus?.toLowerCase()?.trim();
                 const isOwner = ownerStatus === 'approved' || 
                                 ['campsite_owner', 'campsite-owner', 'owner', 'campsite owner'].includes(role);
@@ -72,7 +81,7 @@ const Login = () => {
                 } else if (isOwner) {
                     navigate('/owner-profile');
                 } else if (role === 'guide') {
-                    navigate('/guide-profile');
+                    navigate('/guides/owndashboard');
                 } else {
                     navigate('/');
                 }
@@ -80,6 +89,7 @@ const Login = () => {
                 setError(data.error || 'Login failed');
             }
         } catch (err) {
+            console.error('Login error:', err);
             setError('Network error. Please try again.');
         } finally {
             setIsLoading(false);
