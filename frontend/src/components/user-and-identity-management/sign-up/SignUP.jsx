@@ -43,7 +43,12 @@ const SignUP = () => {
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setForm(prev => {
-			const next = { ...prev, [name]: value };
+			let next = { ...prev, [name]: value };
+			// If switching to guide/owner, clear password fields to avoid validation/storage issues
+			if (name === 'role' && (value === 'guide' || value === 'campsite owner')) {
+				next.password = '';
+				next.confirm = '';
+			}
 			// Auto-fill guide profile name from main name field
 			if (name === 'fullName' && (!prev.guideFullName || prev.guideFullName === prev.fullName)) {
 				next.guideFullName = value;
@@ -90,17 +95,12 @@ const SignUP = () => {
 			return;
 		}
 
-		if (form.password !== form.confirm) {
-			setError('Passwords do not match');
-			return;
-		}
-
-		if (form.role !== 'guide') {
+		// Password validation for roles that require it in the UI (Campers)
+		if (form.role !== 'guide' && form.role !== 'campsite owner') {
 			if (form.password !== form.confirm) {
 				setError('Passwords do not match');
 				return;
 			}
-
 			if (form.password.length < 6) {
 				setError('Password must be at least 6 characters long');
 				return;

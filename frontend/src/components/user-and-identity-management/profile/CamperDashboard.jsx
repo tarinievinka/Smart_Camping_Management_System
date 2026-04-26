@@ -12,7 +12,7 @@ const CamperDashboard = () => {
     const [user, setUser] = useState(authUser);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('Dashboard');
-    const [activeBookingTab, setActiveBookingTab] = useState('All Bookings');
+    const [activeBookingTab, setActiveBookingTab] = useState(location.state?.activeTab || 'All Bookings');
     const [isDeleted, setIsDeleted] = useState(false);
     
     // Data states
@@ -318,9 +318,9 @@ const CamperDashboard = () => {
                                 <div style={styles.bookingsList}>
                                     {allBookings
                                         .filter(b => {
-                                            if (activeBookingTab === 'Equipment Rentals') return b.type === 'Equipment';
-                                            if (activeBookingTab === 'Guide Bookings') return b.type === 'Guide';
-                                            if (activeBookingTab === 'Campsite Reservations') return b.type === 'Campsite';
+                                             if (activeBookingTab === 'Equipment Rentals') return b.type === 'Equipment';
+                                             if (activeBookingTab === 'Guide Bookings' || activeBookingTab === 'Manage Trips') return b.type === 'Guide';
+                                             if (activeBookingTab === 'Campsite Reservations') return b.type === 'Campsite';
                                             return true;
                                         })
                                         .map((booking, index) => (
@@ -342,21 +342,33 @@ const CamperDashboard = () => {
                                                             </span>
                                                             <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 600 }}>#{booking.id?.slice(-6) || 'N/A'}</span>
                                                         </div>
-                                                        {booking.type !== 'Campsite' && (
-                                                            <button 
+                                                        {booking.type === 'Campsite' ? (
+                                                            <button
                                                                 style={{
                                                                     ...styles.viewDetailsBtn,
-                                                                    ...(booking.status?.toLowerCase() === 'pending' ? { opacity: 0.7, cursor: 'pointer' } : {})
+                                                                    background: '#f1f5f9',
+                                                                    color: '#64748b',
+                                                                    border: '1px solid #e2e8f0',
+                                                                    cursor: 'default'
+                                                                }}
+                                                            >
+                                                                <CheckCircle size={14} /> Confirmed
+                                                            </button>
+                                                         ) : (
+                                                            <button
+                                                                style={{
+                                                                    ...styles.viewDetailsBtn,
+                                                                    ...(booking.type === 'Guide' ? { background: '#10a110', color: 'white' } : {})
                                                                 }}
                                                                 onClick={() => {
                                                                     if (booking.type === 'Equipment') navigate('/equipment-bookings');
-                                                                    else if (booking.type === 'Guide') navigate('/guides/bookings');
+                                                                    else if (booking.type === 'Guide') navigate(`/guides/manage-trip/${booking.id}`);
                                                                 }}
                                                             >
-                                                                {booking.status?.toLowerCase() === 'pending' ? <Clock size={14} /> : <PenSquare size={14} />} 
-                                                                {booking.status?.toLowerCase() === 'pending' ? 'Booking Pending' : 'View Details'}
+                                                                {booking.status?.toLowerCase() === 'pending' ? <Clock size={14} /> : (booking.type === 'Guide' ? <PenSquare size={14} /> : <PenSquare size={14} />)} 
+                                                                {booking.status?.toLowerCase() === 'pending' ? 'Booking Pending' : (booking.type === 'Guide' ? 'Guide Booking' : 'View Details')}
                                                             </button>
-                                                        )}
+                                                         )}
                                                     </div>
 
                                                     <h4 style={styles.bookingName}>{booking.name}</h4>
@@ -377,7 +389,7 @@ const CamperDashboard = () => {
                                                         <div style={styles.bookingDetailItem}>
                                                             <span style={(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? styles.pillGreen : styles.pillYellow}>
                                                                 {(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? <CheckCircle size={12} style={{ marginRight: '4px' }} /> : <Clock size={12} style={{ marginRight: '4px' }} />}
-                                                                {(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? 'Payment Completed' : 'Pending Verification'}
+                                                                {(booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'paid') ? (booking.type === 'Guide' ? 'Guide Confirmed' : 'Payment Completed') : 'Pending Verification'}
                                                             </span>
                                                         </div>
                                                     </div>

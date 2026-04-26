@@ -61,7 +61,7 @@ function notifyGuideSessionChanged() {
  * Call from user-management after guide login. Optionally merge fields into auth_session.
  * @param {{ guideId: string, role?: string, authSessionPatch?: Record<string, unknown> }} params
  */
-const API_URL = "http://localhost:5000";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 export async function syncGuideSession(token) {
   try {

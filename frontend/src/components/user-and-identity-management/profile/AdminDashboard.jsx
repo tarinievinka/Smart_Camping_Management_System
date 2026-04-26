@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    const { setUser: setAuthUser } = useAuth();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ users: '--', campsites: '--', guides: '--', bookings: '--' });
@@ -31,6 +33,7 @@ const AdminDashboard = () => {
                     const latestUserInfo = { ...userInfo, ...fresh };
                     setUser(latestUserInfo);
                     localStorage.setItem('userInfo', JSON.stringify(latestUserInfo));
+                    setAuthUser(latestUserInfo); // Sync with AuthContext
                 }
             })
             .catch(() => { });
@@ -82,6 +85,7 @@ const AdminDashboard = () => {
                 const updatedUser = { ...user, isActive: false };
                 setUser(updatedUser);
                 localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+                setAuthUser(updatedUser); // Sync with AuthContext
                 setTimeout(() => setDeactivateMsg(''), 3000);
             } else {
                 const data = await res.json();

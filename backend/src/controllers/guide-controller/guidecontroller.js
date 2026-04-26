@@ -98,16 +98,13 @@ exports.approveGuide = async (req, res) => {
     console.log(`[GUIDE_APPROVAL] Generated temp password: ${tempPassword}`);
 
     // 2. Update user status and password
-    user.guideStatus = 'approved';
-    user.isActive = true;
-    user.password = hashedPassword;
+    await User.findByIdAndUpdate(userId, {
+      guideStatus: 'approved',
+      isActive: true,
+      password: hashedPassword
+    });
     
-    // Explicitly mark password as modified just in case
-    user.markModified('password');
-    user.markModified('isActive');
-    
-    await user.save();
-    console.log(`[GUIDE_APPROVAL] User document saved successfully.`);
+    console.log(`[GUIDE_APPROVAL] User document updated successfully via findByIdAndUpdate.`);
 
     // 3. Send approval email
     const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`;
