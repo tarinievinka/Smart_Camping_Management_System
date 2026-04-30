@@ -1,13 +1,5 @@
 import pandas as pd
-
-# Load the file to verify columns
-df = pd.read_csv('../data/weather_cleaned_phase2.csv')
-print("Columns:")
-print(df.columns.tolist())
-print("\nFirst 5 rows:")
-print(df.head())
-
-import pandas as pd
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
@@ -18,10 +10,17 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
-# 1. Load the dataset
-# Using the path relative to your 'scripts' folder
-file_path = '../data/weather_cleaned_phase2.csv'
-df = pd.read_csv(file_path)
+# Get absolute path to the data file
+script_dir = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(script_dir, '../data/weather_cleaned_phase2.csv')
+
+# Load and verify the dataset
+print(f"Loading data from: {data_path}")
+df = pd.read_csv(data_path)
+print("Columns:", df.columns.tolist())
+print("\nFirst 5 rows:")
+print(df.head())
+
 
 # 2. Define Features and Target
 # These are the columns identified in your Phase 2 preprocessing

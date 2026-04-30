@@ -6,7 +6,7 @@ import './AvailabilityCalendar.css';
  * Shows a 2-month calendar view highlighting booked dates in red.
  * bookedRanges: array of { checkInDate, checkOutDate }
  */
-const AvailabilityCalendar = ({ bookedRanges = [] }) => {
+const AvailabilityCalendar = ({ bookedRanges = [], selectionStart = '', selectionEnd = '' }) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -20,6 +20,15 @@ const AvailabilityCalendar = ({ bookedRanges = [] }) => {
       end.setHours(0, 0, 0, 0);
       return date >= start && date < end;
     });
+  };
+
+  const isSelected = (date) => {
+    if (!selectionStart || !selectionEnd) return false;
+    const start = new Date(selectionStart);
+    const end = new Date(selectionEnd);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    return date >= start && date < end;
   };
 
   const isPast = (date) => date < today;
@@ -52,11 +61,18 @@ const AvailabilityCalendar = ({ bookedRanges = [] }) => {
           {cells.map((date, i) => {
             if (!date) return <div key={`empty-${i}`} className="avail-day empty" />;
             const booked = isBooked(date);
+            const selected = isSelected(date);
             const past = isPast(date);
+            
+            let statusClass = 'available';
+            if (booked) statusClass = 'booked';
+            else if (selected) statusClass = 'selected';
+            else if (past) statusClass = 'past';
+
             return (
               <div key={date.toISOString()}
-                className={`avail-day ${booked ? 'booked' : ''} ${past ? 'past' : 'available'}`}
-                title={booked ? 'Booked' : past ? 'Past' : 'Available'}>
+                className={`avail-day ${statusClass}`}
+                title={booked ? 'Booked' : selected ? 'Your Selection' : past ? 'Past' : 'Available'}>
                 {date.getDate()}
               </div>
             );
@@ -78,6 +94,7 @@ const AvailabilityCalendar = ({ bookedRanges = [] }) => {
         </button>
         <div className="avail-legend">
           <span className="avail-legend-item"><span className="avail-dot booked" />Booked</span>
+          <span className="avail-legend-item"><span className="avail-dot selected" />Selected</span>
           <span className="avail-legend-item"><span className="avail-dot available" />Available</span>
           <span className="avail-legend-item"><span className="avail-dot past" />Past</span>
         </div>

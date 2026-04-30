@@ -195,7 +195,11 @@ const CampsiteBookingForm = () => {
                 </p>
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Availability</h3>
-                <AvailabilityCalendar bookedRanges={bookedDates} />
+                <AvailabilityCalendar 
+                  bookedRanges={bookedDates} 
+                  selectionStart={formData.checkIn}
+                  selectionEnd={formData.checkOut}
+                />
               </div>
             </div>
           </div>

@@ -52,6 +52,7 @@
 }
 
 .avail-dot.booked { background-color: #ef4444; }
+.avail-dot.selected { background-color: #2563eb; }
 .avail-dot.available { background-color: #10b981; }
 .avail-dot.past { background-color: #d1d5db; }
 
@@ -122,6 +123,13 @@
   background-color: #ecfdf5;
   color: #059669;
   border: 1px solid #d1fae5;
+}
+
+.avail-day.selected {
+  background-color: #dbeafe;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  font-weight: 700;
 }
 
 .avail-day.past {
