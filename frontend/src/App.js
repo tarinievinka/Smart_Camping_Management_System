@@ -75,10 +75,7 @@ import GuideFeedback from './components/feedbck-and-review-management/Guide-revi
 import EquipmentFeedback from './components/feedbck-and-review-management/Equipment-review/EquipmentFeedback';
 import CampsiteFeedback from './components/feedbck-and-review-management/CampsiteOwner-review/Campsite-feedback';
 import CampsiteBookingForm from './components/camping-sites-management/CampsiteBookingForm';
-<<<<<<< HEAD
-=======
 
->>>>>>> 84d6d524aea6293654bbd00ad5354b2876809052
 function AppContent() {
   const location = useLocation();
   const path = location.pathname.toLowerCase();

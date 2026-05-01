@@ -16,7 +16,7 @@ import { resolveMediaUrl } from "../../../utils/resolveMediaUrl";
 import { getGuideDailyRate } from "../../../utils/guidePricing";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-
+//guide manage1 profile page - shows guide their own profile details, with option to edit (link to manageownprofile) and view stats/reviews/photos (tabs, but mostly placeholders until we connect analytics and reviews APIs)
 const GuideSelfProfile = () => {
   const navigate = useNavigate();
   const [guide, setGuide] = useState(null);
