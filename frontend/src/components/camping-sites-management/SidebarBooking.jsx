@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+
 export default function SidebarBooking({ campsite, checkInDate, checkOutDate, setCheckInDate, setCheckOutDate }) {
   const pricePerNight = campsite?.price || 120;
   const nights = checkInDate && checkOutDate
@@ -16,6 +17,7 @@ export default function SidebarBooking({ campsite, checkInDate, checkOutDate, se
   const { user } = useAuth();
   const navigate = useNavigate();
   const [bookingStatus, setBookingStatus] = useState('');
+ 
 
   const handleBook = async () => {
     if (!user) {
@@ -73,6 +75,7 @@ export default function SidebarBooking({ campsite, checkInDate, checkOutDate, se
       <button className="btn-book" onClick={handleBook}>Reserve Now</button>
       <div className="book-note">{bookingStatus || "You won't be charged yet"}</div>
 
+
       <div className="cost-breakdown">
         <div className="cost-item">
           <span>${pricePerNight} × {nights} nights</span>
@@ -91,7 +94,6 @@ export default function SidebarBooking({ campsite, checkInDate, checkOutDate, se
           <span>${total}</span>
         </div>
       </div>
-
       <div className="safety-badge">
         <div className="safety-icon">✓</div>
         <span>Protecting Sanctuary Care</span>
