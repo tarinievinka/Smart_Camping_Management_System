@@ -1,96 +1,75 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import authRoutes from './src/routes/auth-routes/auth.js';
-import userRoutes from './src/routes/user-routes/users.js';
-import campsiteRoutes from './src/routes/campingsite-routes/campsites.js';
-import reservationRoutes from './src/routes/reservation-routes/reservations.js';
-import Campsite from './src/models/camping-site-models/Campsite.js';
-import User from './src/models/user-models/User.js';
-
-dotenv.config();
-
+require('dotenv').config(); // Load variables from .env
+const path = require('path');
+const express = require('express');
+const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 5000;
+const connectDB = require('./src/config/db');
 
-app.use(cors());
+// Route Imports
+const paymentRoute = require('./src/routes/payment-route/paymentRoute');
+const feedbackRoute = require('./src/routes/feedback-route/feedbackRoute');
+const equipmentRouter = require('./src/routes/Equipment-route/EquipmentRoute');
+const notifyRoute = require('./src/routes/Notify-route/NotifyRoute');
+const userRoute = require('./src/routes/user-routes/userRoutes');
+const guideRoute = require("./src/routes/guide-routes/guideRoute");
+const guideBookingRoute = require("./src/routes/guide-booking-routes/guideBookingRoute");
+const campsiteRoute = require('./src/routes/campsite-route/campsiteRoutes');
+const reservationRoute = require('./src/routes/reservation-routes/reservations');
+const customerNotificationRoute = require('./src/routes/customer-notification-route/CustomerNotificationRoute');
+
+const port = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors({
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://127.0.0.1:3000'],
+  credentials: true
+}));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB connection + seeding
-const connectDB = async () => {
+// Simple error handler for JSON parsing
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: 'Invalid JSON: ' + err.message });
+  }
+  next();
+});
+
+// Routes
+app.get('/', (req, res) => {
+  res.send('Server running with .env port!');
+});
+
+app.use('/api/payment', paymentRoute);
+app.use('/api/feedback', feedbackRoute);
+app.use('/api/equipment', equipmentRouter);
+app.use('/api/notify', notifyRoute);
+app.use('/api', userRoute);
+app.use('/api/guides', guideRoute);
+app.use('/api/guide-bookings', guideBookingRoute);
+app.use('/api/campsites', campsiteRoute);
+app.use('/api/reservations', reservationRoute);
+app.use('/api/customer-notifications', customerNotificationRoute);
+
+const start = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    await connectDB();
+    const server = app.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+    });
 
-    // Seed admin if missing
-    const adminCount = await User.countDocuments({ username: 'admin' });
-    if (adminCount === 0) {
-      await User.create({
-        username: 'admin',
-        email: 'admin@campingsite.com',
-        password: 'Admin@12345',
-        role: 'admin'
-      });
-      console.log('Seeded default admin user');
-    }
-
-    // Seed sample campsites if none exist
-    const siteCount = await Campsite.countDocuments();
-    if (siteCount === 0) {
-      await Campsite.insertMany([
-        {
-          title: 'Pine Ridge Sanctuary',
-          description: 'A serene eco-reserve nestled in the heart of the evergreen forest. Perfect for families and nature lovers alike.',
-          location: 'Evergreen National Park',
-          price: 120,
-          amenities: ['Free WiFi', 'Outdoor Kitchen', 'Free Parking', 'Fire Pit', 'Hiking Trails'],
-          availability: true,
-        },
-        {
-          title: 'Lakeside Retreat',
-          description: 'Wake up to the sound of lapping waves at this beautiful lakeside camping spot with panoramic water views.',
-          location: 'Crystal Lake Reserve',
-          price: 95,
-          amenities: ['Kayak Rental', 'Fishing Dock', 'BBQ Area', 'Campfire Ring'],
-          availability: true,
-        },
-        {
-          title: 'Mountain Peak Camp',
-          description: 'Experience breathtaking sunrise views from high altitude. A paradise for hikers and adventure seekers.',
-          location: 'Rocky Summit Trail, Colorado',
-          price: 150,
-          amenities: ['Stargazing Deck', 'Guided Hikes', 'Equipment Rental', 'Hot Showers'],
-          availability: true,
-        },
-        {
-          title: 'Meadow Bliss',
-          description: 'A peaceful open meadow campsite with vibrant wildflowers and wide open skies, great for families.',
-          location: 'Sunflower Meadow Park',
-          price: 75,
-          amenities: ['Picnic Area', 'Playground', 'Pet Friendly', 'Water Hookup'],
-          availability: true,
-        },
-      ]);
-      console.log('Seeded 4 sample campsites');
-    }
-  } catch (error) {
-    console.error(`Error connecting to MongoDB: ${error.message}`);
+    server.on('error', (err) => {
+      if (err && err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. Free the port or set a different PORT in .env`);
+        process.exit(1);
+      }
+      console.error('Server error:', err);
+      process.exit(1);
+    });
+  } catch (err) {
+    console.error('Database connection failed:', err);
     process.exit(1);
   }
 };
 
-connectDB();
-
-app.get('/api/status', (req, res) => {
-  res.json({ message: 'API is running' });
-});
-
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/campsites', campsiteRoutes);
-app.use('/api/reservations', reservationRoutes);
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+start();

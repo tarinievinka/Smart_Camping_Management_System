@@ -1,12 +1,16 @@
-import { useMemo } from 'react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import './AvailabilityCalendar.css';
 
 /**
  * Shows a 2-month calendar view highlighting booked dates in red.
  * bookedRanges: array of { checkInDate, checkOutDate }
  */
-const AvailabilityCalendar = ({ bookedRanges = [] }) => {
+const AvailabilityCalendar = ({ bookedRanges = [], selectionStart = '', selectionEnd = '' }) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
 
   const isBooked = (date) => {
     return bookedRanges.some(range => {
@@ -18,7 +22,24 @@ const AvailabilityCalendar = ({ bookedRanges = [] }) => {
     });
   };
 
+  const isSelected = (date) => {
+    if (!selectionStart || !selectionEnd) return false;
+    const start = new Date(selectionStart);
+    const end = new Date(selectionEnd);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    return date >= start && date < end;
+  };
+
   const isPast = (date) => date < today;
+
+  const handlePrev = () => {
+    setViewDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const handleNext = () => {
+    setViewDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
 
   const renderMonth = (year, month) => {
     const monthName = new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -40,11 +61,18 @@ const AvailabilityCalendar = ({ bookedRanges = [] }) => {
           {cells.map((date, i) => {
             if (!date) return <div key={`empty-${i}`} className="avail-day empty" />;
             const booked = isBooked(date);
+            const selected = isSelected(date);
             const past = isPast(date);
+            
+            let statusClass = 'available';
+            if (booked) statusClass = 'booked';
+            else if (selected) statusClass = 'selected';
+            else if (past) statusClass = 'past';
+
             return (
               <div key={date.toISOString()}
-                className={`avail-day ${booked ? 'booked' : ''} ${past ? 'past' : 'available'}`}
-                title={booked ? 'Booked' : past ? 'Past' : 'Available'}>
+                className={`avail-day ${statusClass}`}
+                title={booked ? 'Booked' : selected ? 'Your Selection' : past ? 'Past' : 'Available'}>
                 {date.getDate()}
               </div>
             );
@@ -54,17 +82,25 @@ const AvailabilityCalendar = ({ bookedRanges = [] }) => {
     );
   };
 
-  const month1 = { year: today.getFullYear(), month: today.getMonth() };
-  const month2 = today.getMonth() === 11
-    ? { year: today.getFullYear() + 1, month: 0 }
-    : { year: today.getFullYear(), month: today.getMonth() + 1 };
+  const month1 = { year: viewDate.getFullYear(), month: viewDate.getMonth() };
+  const month2Date = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+  const month2 = { year: month2Date.getFullYear(), month: month2Date.getMonth() };
 
   return (
     <div className="avail-calendar-container">
-      <div className="avail-legend">
-        <span className="avail-legend-item"><span className="avail-dot booked" />Booked</span>
-        <span className="avail-legend-item"><span className="avail-dot available" />Available</span>
-        <span className="avail-legend-item"><span className="avail-dot past" />Past</span>
+      <div className="avail-controls">
+        <button onClick={handlePrev} className="avail-nav-btn">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <div className="avail-legend">
+          <span className="avail-legend-item"><span className="avail-dot booked" />Booked</span>
+          <span className="avail-legend-item"><span className="avail-dot selected" />Selected</span>
+          <span className="avail-legend-item"><span className="avail-dot available" />Available</span>
+          <span className="avail-legend-item"><span className="avail-dot past" />Past</span>
+        </div>
+        <button onClick={handleNext} className="avail-nav-btn">
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
       <div className="avail-months-row">
         {renderMonth(month1.year, month1.month)}
