@@ -14,6 +14,7 @@ const navLinks = [
     { label: "Blogs", href: "/blogs" },
 ];
 
+
 const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -128,7 +129,10 @@ const Navbar = () => {
             case "admin":
                 return "/admin-dashboard";
             case "guide":
-                return "/guides/ownprofile";
+                return "/guides/owndashboard";
+
+            case "owner":
+                return "/owner-profile";
             default:
                 return "/camper-dashboard";
         }
