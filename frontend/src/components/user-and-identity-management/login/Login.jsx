@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { persistAuthSession } from '../../../utils/authToken';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -51,16 +52,17 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-                const userInfo = { ...data.user, token: data.token };
-                localStorage.setItem('userInfo', JSON.stringify(userInfo));
-                
+                const userInfo = persistAuthSession(data.user, data.token);
+                if (!userInfo?.token) {
+                    setError('Login succeeded but no session token was returned. Please try again.');
+                    return;
+                }
+
                 const role = data.user.role?.toLowerCase()?.trim();
 
                 // If user is a guide, sync their guideId into localStorage for the dashboard
                 if (role === 'guide') {
-                    const { syncGuideSession } = await import('../../components/guides-management/guide-self/guideSession');
+                    const { syncGuideSession } = await import('../../guides-management/guide-self/guideSession');
                     await syncGuideSession(data.token);
                 }
 

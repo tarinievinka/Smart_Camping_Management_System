@@ -220,6 +220,7 @@ const GuideSelfDashboard = () => {
                   <thead>
                     <tr className="text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
                       <th className="pb-4 pt-2">Client</th>
+                      <th className="pb-4 pt-2">Destination</th>
                       <th className="pb-4 pt-2">Trip date</th>
                       <th className="pb-4 pt-2 text-right">Status</th>
                       <th className="pb-4 pt-2 text-right w-[120px]">Action</th>
@@ -243,6 +244,13 @@ const GuideSelfDashboard = () => {
                               </div>
                               <span className="font-semibold text-gray-900">{b.customerName || "Guest"}</span>
                             </div>
+                          </td>
+                          <td className="py-4 text-green-800 font-semibold max-w-[200px]">
+                            {b.destination ? (
+                              <span className="line-clamp-2">{b.destination}</span>
+                            ) : (
+                              <span className="text-gray-400 font-medium">—</span>
+                            )}
                           </td>
                           <td className="py-4 text-gray-500 font-medium">
                             {formatDateRange(b.startDate, b.endDate, b.bookedAt)}
@@ -290,6 +298,9 @@ const GuideSelfDashboard = () => {
                     <h4 className="text-gray-900 font-bold text-lg leading-tight">
                       {formatDateRange(firstUpcoming.startDate, firstUpcoming.endDate, firstUpcoming.bookedAt)}
                     </h4>
+                    {firstUpcoming.destination ? (
+                      <p className="text-sm font-semibold text-green-700 mt-2">{firstUpcoming.destination}</p>
+                    ) : null}
                     <div className="flex items-center gap-2 text-sm text-gray-600 mt-3">
                       <Clock size={16} className="text-gray-400 shrink-0" />
                       {firstUpcoming.customerName || "Guest"}

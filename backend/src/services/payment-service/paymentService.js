@@ -8,7 +8,7 @@ const createPayment = async (data) => {
   // Prevent duplicate payments for the same booking
   const existing = await Payment.findOne({ 
     bookingId: data.bookingId,
-    paymentStatus: { $in: ['pending', 'success'] }
+    paymentStatus: { $in: ['pending', 'success', 'confirmed'] }
   });
 
   if (existing) {
@@ -16,7 +16,17 @@ const createPayment = async (data) => {
   }
 
   const payment = new Payment(data);
-  return await payment.save();
+  if (data.paymentStatus === 'success' || data.paymentStatus === 'confirmed') {
+    payment.paidAt = new Date();
+  }
+  const savedPayment = await payment.save();
+
+  // If created with success/confirmed status (e.g. card payment), trigger post-payment logic
+  if (data.paymentStatus === 'success' || data.paymentStatus === 'confirmed') {
+    await handlePostPaymentSuccess(savedPayment);
+  }
+
+  return savedPayment;
 };
 
 const getAllPayments = async () => {
@@ -40,39 +50,44 @@ const updatePaymentStatus = async (id, status) => {
   if (!payment) return null;
   
   payment.paymentStatus = status;
-  if (status === 'success') payment.paidAt = new Date();
+  if (status === 'success' || status === 'confirmed') payment.paidAt = new Date();
   await payment.save();
 
-  // If payment is approved (success), update the corresponding booking and notify user
-  if (status === 'success') {
-    try {
-      // 1. Update Booking Status
-      if (payment.bookingType === 'GuideBooking') {
-        await GuideBooking.findByIdAndUpdate(payment.bookingId, { status: 'paid' });
-      } else if (payment.bookingType === 'CampsiteBooking') {
-        await Reservation.findByIdAndUpdate(payment.bookingId, { status: 'confirmed' });
-      }
-
-      // 2. Notify User
-      const user = await User.findById(payment.userId);
-      if (user) {
-        const notification = new CustomerNotification({
-          customerName: user.name || user.fullName || 'Valued Camper',
-          customerEmail: user.email,
-          title: 'Payment Approved! 🎉',
-          body: `Your payment of LKR ${payment.amount} for booking #${payment.bookingId?.slice(-6)} has been approved. Your status is now "Payment Completed".`,
-          bookingId: payment.bookingType === 'GuideBooking' ? payment.bookingId : null,
-          read: false
-        });
-        await notification.save();
-      }
-    } catch (err) {
-      console.error('Error updating booking status or sending notification:', err);
-      // We don't throw here to avoid breaking the payment update itself
-    }
+  // If payment is approved (success/confirmed), update the corresponding booking and notify user
+  if (status === 'success' || status === 'confirmed') {
+    await handlePostPaymentSuccess(payment);
   }
 
   return payment;
+};
+
+// Helper function to handle logic after a payment is successfully confirmed
+const handlePostPaymentSuccess = async (payment) => {
+  try {
+    // 1. Update Booking Status
+    if (payment.bookingType === 'GuideBooking') {
+      await GuideBooking.findByIdAndUpdate(payment.bookingId, { status: 'paid' });
+    } else if (payment.bookingType === 'CampsiteBooking') {
+      await Reservation.findByIdAndUpdate(payment.bookingId, { status: 'confirmed' });
+    }
+
+    // 2. Notify User
+    const user = await User.findById(payment.userId);
+    if (user) {
+      const notification = new CustomerNotification({
+        customerName: user.name || user.fullName || 'Valued Camper',
+        customerEmail: user.email,
+        title: 'Payment Approved! 🎉',
+        body: `Your payment of LKR ${payment.amount} for booking #${payment.bookingId?.slice(-6)} has been approved. Your status is now "Payment Completed".`,
+        bookingId: payment.bookingType === 'GuideBooking' ? payment.bookingId : null,
+        read: false
+      });
+      await notification.save();
+    }
+  } catch (err) {
+    console.error('Error updating booking status or sending notification:', err);
+    // We don't throw here to avoid breaking the payment update itself
+  }
 };
 
 module.exports = {

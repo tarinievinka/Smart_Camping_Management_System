@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Clock, CheckCircle2, Trash2, ArrowRight } from "lucide-react";
+import { Clock, CheckCircle2, Trash2, ArrowRight, MapPin } from "lucide-react";
 import axios from "axios";
 import { getCurrentGuideId, isLoggedInAsGuide } from "./guideSession";
 import { useGuideBookingsForGuide, isPendingGuideBooking } from "./useGuideBookingsForGuide";
@@ -208,6 +208,27 @@ const GuideSelfBookings = () => {
                           >
                             {isPendingGuideBooking(b) ? "Awaiting your confirmation" : "Confirmed"}
                           </div>
+                          {b.destination ? (
+                            <div
+                              style={{
+                                color: "#166534",
+                                marginTop: 8,
+                                fontSize: 14,
+                                fontWeight: 600,
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 6,
+                              }}
+                            >
+                              <MapPin size={15} style={{ flexShrink: 0 }} />
+                              <span>
+                                <span style={{ color: "#6b7280", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                                  Destination:{" "}
+                                </span>
+                                {b.destination}
+                              </span>
+                            </div>
+                          ) : null}
                           <div
                             style={{
                               color: "#6b7280",
@@ -314,6 +335,22 @@ const GuideSelfBookings = () => {
                         <div style={{ fontSize: 16, fontWeight: 600, color: "#111827" }}>
                           {b.customerName || "Guest"}
                         </div>
+                        {b.destination ? (
+                          <div
+                            style={{
+                              color: "#166534",
+                              marginTop: 6,
+                              fontSize: 14,
+                              fontWeight: 600,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            <MapPin size={15} style={{ flexShrink: 0 }} />
+                            <span>Destination: {b.destination}</span>
+                          </div>
+                        ) : null}
                         <div style={{ color: "#6b7280", marginTop: 4, fontSize: 14 }}>
                           Completed on {completedOnLabel(b)}
                         </div>

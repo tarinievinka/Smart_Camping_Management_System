@@ -34,7 +34,11 @@ const guideBookingSchema = new mongoose.Schema(
         },
         endDate: {
             type: Date,
-        }
+        },
+        destination: {
+            type: String,
+            trim: true,
+        },
     },
     { timestamps: true }
 );

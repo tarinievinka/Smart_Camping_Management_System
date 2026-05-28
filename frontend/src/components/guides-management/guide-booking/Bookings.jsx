@@ -7,12 +7,14 @@ import { getGuideDailyRate } from "../../../utils/guidePricing";
 import { useToast } from "../../../context/ToastContext";
 import { localTodayYmd } from "../../../utils/dateInputMin";
 import { getCustomerBookingName } from "../../../utils/customerIdentity";
+import { useAuth } from "../../../context/AuthContext";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const Bookings = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,7 +71,15 @@ const Bookings = () => {
         setError(null);
 
         const bookingsRes = await axios.get(`${API_URL}/api/guide-bookings/display`);
-        const parsedBookings = bookingsRes.data || [];
+        const allBookings = bookingsRes.data || [];
+        const currentId = String(user?._id || user?.id || "").trim();
+        const currentName = String(user?.name || getCustomerBookingName() || "").trim().toLowerCase();
+        const parsedBookings = (Array.isArray(allBookings) ? allBookings : []).filter((b) => {
+          const bUserId = String(b.userId || "").trim();
+          if (bUserId && currentId) return bUserId === currentId;
+          const bName = String(b.customerName || "").trim().toLowerCase();
+          return bName === currentName && currentName !== "";
+        });
 
         if (!Array.isArray(parsedBookings) || parsedBookings.length === 0) {
           setBookedGuides([]);
@@ -97,7 +107,7 @@ const Bookings = () => {
       }
     };
     fetchBookedGuides();
-  }, []);
+  }, [user?._id, user?.id, user?.name]);
 
 
   const getFirstLanguage = (language) => {
@@ -233,7 +243,7 @@ const Bookings = () => {
                         </h3>
                         <div className="flex items-center gap-1.5 text-sm font-semibold mb-6" style={{ color: "#166534" }}>
                           <MapPin size={16} className="shrink-0" />
-                          <span>{getFirstLanguage(b.language)} Region</span>
+                          <span>{b.booking.destination || `${getFirstLanguage(b.language)} Region`}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                           <div className="min-w-0">

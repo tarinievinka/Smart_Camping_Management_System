@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { ChevronLeft, ChevronRight, ArrowRight, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight, Clock, MapPin } from "lucide-react";
 import { getCurrentGuideId, isLoggedInAsGuide } from "./guideSession";
 import { useGuideBookingsForGuide, isPendingGuideBooking } from "./useGuideBookingsForGuide";
 import Sidebar from "./Sidebar";
@@ -350,6 +350,22 @@ const GuideSelfCalendar = () => {
                                 Confirmed — mark complete when finished
                               </div>
                             )}
+                            {b.destination ? (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 6,
+                                  color: "#166534",
+                                  fontSize: 14,
+                                  fontWeight: 600,
+                                  marginTop: 8,
+                                }}
+                              >
+                                <MapPin size={15} style={{ flexShrink: 0 }} />
+                                <span>{b.destination}</span>
+                              </div>
+                            ) : null}
                             <div
                               style={{
                                 display: "flex",

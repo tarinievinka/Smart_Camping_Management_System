@@ -182,6 +182,7 @@ const CamperDashboard = () => {
                 id: b._id,
                 type: 'Guide',
                 name: guide?.name || b.guideId?.name || b.guideName || 'Local Guide',
+                destination: b.destination || '',
                 date: b.startDate ? new Date(b.startDate).toLocaleDateString() : new Date(b.bookedAt).toLocaleDateString(),
                 status: b.status,
                 total: `LKR ${b.amount || 0}`,
@@ -372,6 +373,11 @@ const CamperDashboard = () => {
                                                     </div>
 
                                                     <h4 style={styles.bookingName}>{booking.name}</h4>
+                                                    {booking.type === 'Guide' && booking.destination ? (
+                                                        <p style={{ margin: '4px 0 0', fontSize: '13px', fontWeight: 600, color: '#0284c7' }}>
+                                                            {booking.destination}
+                                                        </p>
+                                                    ) : null}
                                                     
                                                     <div style={styles.bookingDetailsRow}>
                                                         <div style={styles.bookingDetailItem}>
