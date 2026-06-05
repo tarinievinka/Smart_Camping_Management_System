@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { generateUserId } = require('../../utils/userUtils');
 const { sendEmail } = require('../../utils/emailUtils');
+const { getJwtSecret } = require('../../utils/jwtConfig');
 
 const registerUser = async (data) => {
   const email = data.email.toLowerCase().trim();
@@ -43,10 +44,11 @@ const loginUser = async (emailRaw, password) => {
 
   const token = jwt.sign(
     { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '7d' }
   );
-  return { token, user };
+  const safeUser = await User.findById(user._id).select('-password').lean();
+  return { token, user: safeUser };
 };
 
 const getUserById = async (id) => {

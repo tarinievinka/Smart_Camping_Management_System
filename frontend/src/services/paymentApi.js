@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getAuthToken } from '../utils/authToken';
 
 // Set your backend URL here
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -15,7 +16,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    const token = userInfo.token || localStorage.getItem('token');
+    const token = getAuthToken(userInfo);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

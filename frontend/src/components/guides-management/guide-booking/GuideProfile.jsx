@@ -8,6 +8,7 @@ import { useToast } from "../../../context/ToastContext";
 import { localTodayYmd } from "../../../utils/dateInputMin";
 import { isGuideDoubleLocked, formatAvailableAgainLabel } from "../../../utils/guideAvailability";
 import { useAuth } from "../../../context/AuthContext";
+import { getAuthToken, clearAuthSession } from "../../../utils/authToken";
 
 const NOTIFY_STORAGE_KEY = "guide_notify_interest";
 
@@ -44,6 +45,7 @@ const GuideProfile = () => {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [destination, setDestination] = useState("");
 
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -73,6 +75,7 @@ const GuideProfile = () => {
           if (pending.guideId === id) {
             if (pending.startDate) setStartDate(pending.startDate);
             if (pending.endDate) setEndDate(pending.endDate);
+            if (pending.destination) setDestination(pending.destination);
             localStorage.removeItem("pending_guide_booking");
           }
         }
@@ -134,10 +137,20 @@ const GuideProfile = () => {
   const totalAmount = totalDays > 0 ? basePrice * totalDays + 12.5 : 0;
 
   const handleBookGuide = async () => {
-    if (!user || !user.token) {
-      showToast("Please sign in or create an account to book a guide.", { variant: "info" });
-      localStorage.setItem("pending_guide_booking", JSON.stringify({ guideId: guide?._id || id, startDate, endDate }));
-      navigate("/signup", { state: { from: window.location.pathname } });
+    const token = getAuthToken(user);
+    if (!user || !token) {
+      showToast("Please sign in as a camper to book a guide.", { variant: "info" });
+      localStorage.setItem(
+        "pending_guide_booking",
+        JSON.stringify({ guideId: guide?._id || id, startDate, endDate, destination })
+      );
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+
+    const role = user.role?.toLowerCase()?.trim();
+    if (role && role !== "camper") {
+      showToast("Guide bookings are for camper accounts. Log out and sign in as a camper.", { variant: "info" });
       return;
     }
 
@@ -145,6 +158,10 @@ const GuideProfile = () => {
     if (!guideId) return;
     if (locked) {
       showToast("This guide is not accepting bookings right now.", { variant: "info" });
+      return;
+    }
+    if (!destination.trim()) {
+      showToast("Please enter your trip destination.", { variant: "info" });
       return;
     }
     if (!startDate) {
@@ -172,14 +189,29 @@ const GuideProfile = () => {
         amount: totalAmount,
         startDate: s,
         endDate: e,
+        destination: destination.trim(),
       };
 
       await axios.post(`${API_URL}/api/guide-bookings/add`, payload, {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
+      showToast("Guide booked! Your request is pending until the guide confirms.", { variant: "success" });
       navigate("/guides/bookings");
     } catch (err) {
       console.error("Failed to book guide:", err);
+      if (err.response?.status === 401) {
+        clearAuthSession();
+        showToast(
+          err.response?.data?.error || "Session expired. Please sign in again.",
+          { variant: "error", duration: 8000 }
+        );
+        localStorage.setItem(
+          "pending_guide_booking",
+          JSON.stringify({ guideId: guide?._id || id, startDate, endDate, destination })
+        );
+        navigate("/login", { state: { from: location.pathname } });
+        return;
+      }
       const msg =
         err.response?.data?.error ||
         (err.response?.status === 403
@@ -497,9 +529,37 @@ const GuideProfile = () => {
               </div>
 
               <div className="mb-8 border border-gray-200 rounded-3xl px-6 py-5">
-                <h4 className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-4 ml-1">Trip Dates</h4>
+                <h4 className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-4 ml-1">Trip Details</h4>
 
                 <div className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                      Destination
+                    </label>
+                    <div className="relative">
+                      <MapPin
+                        size={16}
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      />
+                      <input
+                        type="text"
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                        disabled={locked}
+                        placeholder="e.g. Horton Plains, Yala National Park"
+                        maxLength={120}
+                        className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm outline-none transition-all font-semibold text-gray-700 placeholder:font-normal placeholder:text-gray-400 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        onFocus={(e) => {
+                          e.target.style.borderColor = "#166534";
+                          e.target.style.boxShadow = "0 0 0 2px rgba(22,101,52,0.1)";
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = "#e5e7eb";
+                          e.target.style.boxShadow = "none";
+                        }}
+                      />
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
                       Check-In
@@ -594,19 +654,19 @@ const GuideProfile = () => {
                   <button
                     type="button"
                     onClick={handleBookGuide}
-                    disabled={!startDate}
+                    disabled={!startDate || !destination.trim()}
                     className={`w-full text-white py-4 rounded-2xl font-bold text-[15px] transition-all shadow-[0_4px_14px_0_rgba(0,0,0,0.2)] 
                   ${
-                    startDate
+                    startDate && destination.trim()
                       ? "hover:shadow-[0_6px_20px_rgba(0,0,0,0.23)] hover:-translate-y-0.5"
                       : "cursor-not-allowed opacity-60"
                   }`}
-                    style={{ backgroundColor: startDate ? "#166534" : "#9ca3af" }}
+                    style={{ backgroundColor: startDate && destination.trim() ? "#166534" : "#9ca3af" }}
                     onMouseEnter={(e) => {
-                      if (startDate) e.currentTarget.style.backgroundColor = "#14532d";
+                      if (startDate && destination.trim()) e.currentTarget.style.backgroundColor = "#14532d";
                     }}
                     onMouseLeave={(e) => {
-                      if (startDate) e.currentTarget.style.backgroundColor = "#166534";
+                      if (startDate && destination.trim()) e.currentTarget.style.backgroundColor = "#166534";
                     }}
                   >
                     Book Now

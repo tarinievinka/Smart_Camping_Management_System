@@ -1,14 +1,24 @@
 const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../utils/jwtConfig');
 
 const protect = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token provided' });
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ')
+    ? authHeader.slice(7).trim()
+    : authHeader.trim();
+  if (!token || token === 'undefined' || token === 'null') {
+    return res.status(401).json({ error: 'No token provided' });
+  }
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = jwt.verify(token, getJwtSecret());
     next();
-  } catch {
-    res.status(401).json({ error: 'Invalid token' });
+  } catch (err) {
+    const message =
+      err.name === 'TokenExpiredError'
+        ? 'Session expired. Please sign in again.'
+        : 'Invalid token. Please sign out and sign in again.';
+    res.status(401).json({ error: message });
   }
 };
 

@@ -21,6 +21,7 @@ const HistoryTable = ({ payments = [] }) => {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'completed':
+      case 'confirmed':
         return 'bg-[#166534]/20 text-[#14532d]';
       case 'refunded':
         return 'bg-red-100 text-red-700';

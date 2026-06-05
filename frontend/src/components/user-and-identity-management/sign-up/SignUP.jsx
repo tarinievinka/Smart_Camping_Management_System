@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { validatePhone } from '../../../utils/validation';
+import { persistAuthSession } from '../../../utils/authToken';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const LANGUAGES = ["English", "Sinhala", "Tamil", "French", "German", "Chinese", "Japanese"];
@@ -240,9 +241,7 @@ const SignUP = () => {
 					return;
 				}
 
-				// Store standardized userInfo in localStorage and update AuthContext state
-				const userInfo = { ...data.user, token: data.token };
-				localStorage.setItem('userInfo', JSON.stringify(userInfo));
+				const userInfo = persistAuthSession(data.user, data.token);
 				setUser(userInfo);
 
 				// Handle redirection logic - prioritize 'from' state if available

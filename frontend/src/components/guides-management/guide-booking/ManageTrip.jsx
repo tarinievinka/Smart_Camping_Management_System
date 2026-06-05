@@ -54,7 +54,9 @@ const ManageTrip = () => {
                     id: myBooking._id,
                     title: `Guided Trek with ${guide?.name?.split(' ')[0] || 'Local Expert'}`,
                     guideName: guide?.name || "Unknown Guide",
-                    region: guide?.language ? guide.language.split(',')[0] + ' Region' : "Local Basecamp",
+                    region: myBooking.destination?.trim()
+                        || (guide?.language ? guide.language.split(',')[0] + ' Region' : "Local Basecamp"),
+                    destination: myBooking.destination || "",
                     date: s,
                     endDate: e,
                     startTime: "06:00 AM",

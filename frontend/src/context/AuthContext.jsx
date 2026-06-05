@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { getAuthToken, persistAuthSession, clearAuthSession } from '../utils/authToken';
 
 const AuthContext = createContext();
 
@@ -12,35 +13,52 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check local storage for user object on load
     const storedUser = localStorage.getItem('userInfo');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsed = JSON.parse(storedUser);
+        const token = getAuthToken(parsed);
+        if (token) {
+          const synced = persistAuthSession(parsed, token);
+          setUser(synced);
+        } else {
+          clearAuthSession();
+        }
+      } catch {
+        clearAuthSession();
+      }
     }
     setLoading(false);
   }, []);
 
   const login = async (username, password) => {
-    const { data } = await axios.post('/api/login', { username, password });
-    const userInfo = { ...data.user, token: data.token }; // Flatten
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const { data } = await axios.post(`${apiUrl}/api/login`, {
+      email: username,
+      password,
+    });
+    const userInfo = persistAuthSession(data.user, data.token);
     setUser(userInfo);
-    localStorage.setItem('userInfo', JSON.stringify(userInfo));
     return userInfo;
   };
 
   const register = async (username, email, password, role = 'user', phone = '') => {
-    const { data } = await axios.post('/api/register', { username, email, password, role, phone });
-    const userInfo = { ...data.user, token: data.token }; // Flatten
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const { data } = await axios.post(`${apiUrl}/api/register`, {
+      name: username,
+      email,
+      password,
+      role,
+      phone,
+    });
+    const userInfo = persistAuthSession(data.user, data.token);
     setUser(userInfo);
-    localStorage.setItem('userInfo', JSON.stringify(userInfo));
     return userInfo;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('userInfo');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearAuthSession();
     localStorage.removeItem('equipment_cart_guest');
   };
 

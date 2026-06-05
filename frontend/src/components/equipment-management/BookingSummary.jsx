@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { resolveMediaUrl } from '../../utils/resolveMediaUrl';
+import { EQUIPMENT_BRANCH_LOCATIONS } from '../../constants/equipmentBranchLocations';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const EQUIP_API = API_BASE + '/api/equipment';
@@ -341,6 +342,52 @@ const BookingSummary = () => {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Branch locations — pickup / return */}
+            <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '24px' }}>
+              <h2 style={{ margin: '0 0 8px', fontSize: '15px', fontWeight: '700', color: '#111827' }}>
+                📍 Pickup &amp; Return Branches
+              </h2>
+              <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#6b7280', lineHeight: 1.5 }}>
+                Collect and return your equipment at any branch below. Contact the branch before pickup to confirm availability.
+              </p>
+              <div
+                style={{
+                  maxHeight: '420px',
+                  overflowY: 'auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  paddingRight: '4px',
+                }}
+              >
+                {EQUIPMENT_BRANCH_LOCATIONS.map((branch) => (
+                  <div
+                    key={branch.name}
+                    style={{
+                      padding: '14px 16px',
+                      background: '#f9fafb',
+                      borderRadius: '10px',
+                      border: '1px solid #e5e7eb',
+                    }}
+                  >
+                    <div style={{ fontWeight: '700', fontSize: '14px', color: '#111827', marginBottom: '6px' }}>
+                      {branch.name}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#4b5563', lineHeight: 1.45, marginBottom: '4px' }}>
+                      <span style={{ fontWeight: '600', color: '#6b7280' }}>Address: </span>
+                      {branch.address}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#166534', fontWeight: '600' }}>
+                      <span style={{ fontWeight: '600', color: '#6b7280' }}>Contact Number: </span>
+                      <a href={`tel:${branch.phone.replace(/\s/g, '')}`} style={{ color: '#166534', textDecoration: 'none' }}>
+                        {branch.phone}
+                      </a>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

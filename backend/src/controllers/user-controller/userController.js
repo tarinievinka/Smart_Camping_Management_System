@@ -1,7 +1,8 @@
 const userService = require('../../services/user-service/userService');
 const User = require('../../models/user-model/userModel');
 
-const jwt = require('jsonwebtoken'); // Added for token generation on register
+const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../../utils/jwtConfig');
 
 const register = async (req, res) => {
   try {
@@ -10,7 +11,7 @@ const register = async (req, res) => {
     // Generate token for auto-login
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: '7d' }
     );
 

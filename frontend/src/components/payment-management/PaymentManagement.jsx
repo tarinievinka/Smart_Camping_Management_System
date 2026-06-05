@@ -163,6 +163,7 @@ const PaymentManagement = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'success':
+      case 'confirmed':
         return 'bg-[#166534]/20 text-[#14532d]';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
@@ -198,7 +199,7 @@ const PaymentManagement = () => {
 
           {/* Filter Tabs */}
           <div className="bg-white rounded-lg shadow mb-6 p-4 flex gap-4">
-            {['all', 'success', 'pending', 'failed', 'refunded'].map(status => (
+            {['all', 'success', 'confirmed', 'pending', 'failed', 'refunded'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
@@ -296,6 +297,7 @@ const PaymentManagement = () => {
                     >
                       <option value="pending">Pending</option>
                       <option value="success">Completed</option>
+                      <option value="confirmed">Confirmed</option>
                       <option value="failed">Failed</option>
                       <option value="refunded">Refunded</option>
                     </select>
@@ -441,6 +443,7 @@ const PaymentManagement = () => {
                         >
                           <option value="pending">Pending</option>
                           <option value="success">Completed</option>
+                          <option value="confirmed">Confirmed</option>
                           <option value="failed">Failed</option>
                           <option value="refunded">Refunded</option>
                         </select>

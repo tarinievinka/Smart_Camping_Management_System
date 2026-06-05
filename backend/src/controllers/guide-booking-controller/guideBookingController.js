@@ -76,11 +76,14 @@ exports.updateBooking = async (req, res) => {
         const newStatus = String(updated.status || "").toLowerCase();
         if (prevStatus === "pending" && newStatus === "confirmed") {
             try {
+                const dest = updated.destination?.trim();
                 await CustomerNotification.create({
                     customerName: updated.customerName || "Anonymous",
                     bookingId: updated._id,
                     title: "Booking confirmed",
-                    body: "Your guide confirmed your trip request. See details under My Bookings.",
+                    body: dest
+                        ? `Your guide confirmed your trip to ${dest}. See details under My Bookings.`
+                        : "Your guide confirmed your trip request. See details under My Bookings.",
                     read: false,
                 });
             } catch (e) {
